@@ -1,0 +1,1 @@
+C:\Users\maiqu\source\repos\TicketBookingProject\ticketbookingproject.client\obj\Debug\ticketbookingproject.client.esproj.CoreCompileInputs.cache

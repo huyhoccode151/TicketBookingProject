@@ -1,0 +1,382 @@
+// ─── Design Tokens ────────────────────────────────────────────────────────────
+:host {
+  --color-primary: #4caf50;
+  --color-primary-hover: #43a047;
+  --color-primary-active: #388e3c;
+  --color-text: #1a1a1a;
+  --color-text-muted: #6b7280;
+  --color-border: #e5e7eb;
+  --color-border-focus: #4caf50;
+  --color-bg: #ffffff;
+  --color-input-bg: #f9fafb;
+  --color-error: #ef4444;
+  --color-error-bg: #fef2f2;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --font-sans: 'DM Sans', 'Segoe UI', sans-serif;
+}
+
+// ─── Page Layout ─────────────────────────────────────────────────────────────
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg);
+  font-family: var(--font-sans);
+  color: var(--color-text);
+}
+
+// ─── Header ──────────────────────────────────────────────────────────────────
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 40px;
+  border-bottom: 1px solid var(--color-border);
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    cursor: pointer;
+
+    &-icon {
+      width: 38px;
+      height: 38px;
+      background: var(--color-primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    &-text {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--color-text);
+    }
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+  }
+
+  .signup-text {
+    color: var(--color-text-muted);
+  }
+
+  .signup-link {
+    color: var(--color-primary);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s;
+
+    &:hover {
+      color: var(--color-primary-hover);
+      text-decoration: underline;
+    }
+  }
+}
+
+// ─── Main Content ────────────────────────────────────────────────────────────
+.main-content {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 60px 24px;
+}
+
+.form-container {
+  width: 100%;
+  max-width: 580px;
+  animation: fadeInUp 0.4s ease both;
+}
+
+.form-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 36px;
+  letter-spacing: -0.5px;
+}
+
+// ─── Form Elements ───────────────────────────────────────────────────────────
+.form-group {
+  margin-bottom: 22px;
+}
+
+.form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text);
+  margin-bottom: 8px;
+}
+
+.label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.forgot-link {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color 0.2s;
+
+  &:hover {
+    color: var(--color-primary-hover);
+    text-decoration: underline;
+  }
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.form-input {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 15px;
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background: var(--color-input-bg);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  outline: none;
+  box-sizing: border-box;
+  transition: transform 0.2s ease,border-color 0.2s, box-shadow 0.2s, background 0.2s;
+
+  &::placeholder {
+    color: #b0b8c1;
+  }
+
+  &:hover {
+    border-color: #d1d5db;
+    transform: scale(1.05);
+  }
+
+  &:focus {
+    border-color: var(--color-border-focus);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+  }
+
+  &.is-error {
+    border-color: var(--color-error);
+    background: var(--color-error-bg);
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+    }
+  }
+  // Password field has extra right padding for toggle button
+  .input-wrapper & {
+    padding-right: 48px;
+  }
+}
+
+.toggle-password {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  border-radius: var(--radius-sm);
+  transition: color 0.2s;
+
+  &:hover {
+    color: var(--color-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+.error-msg {
+  display: block;
+  font-size: 13px;
+  color: var(--color-error);
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+// ─── Alert ───────────────────────────────────────────────────────────────────
+.alert {
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  margin-bottom: 18px;
+
+  &-error {
+    background: var(--color-error-bg);
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+  }
+}
+
+// ─── Sign In Button ──────────────────────────────────────────────────────────
+.btn-signin {
+  width: 100%;
+  padding: 15px 24px;
+  background: var(--color-primary);
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: transform 0.2s ease, background 0.2s, transform 0.1s, box-shadow 0.2s;
+  letter-spacing: 0.2px;
+  margin-bottom: 28px;
+
+  &:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.35);
+  }
+
+  &:active:not(:disabled) {
+    background: var(--color-primary-active);
+    transform: scale(1.05);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+// ─── Loading Spinner ─────────────────────────────────────────────────────────
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+// ─── Divider ─────────────────────────────────────────────────────────────────
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  color: var(--color-text-muted);
+  font-size: 14px;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--color-border);
+  }
+}
+
+// ─── Social Buttons ──────────────────────────────────────────────────────────
+.social-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.btn-social {
+  width: 100%;
+  padding: 13px 20px;
+  background: white;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  transition: transform 0.2s ease, border-color 0.2s, background 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    background: #fafafa;
+    border-color: #d1d5db;
+    box-shadow: var(--shadow-sm);
+    transform: scale(1.1);
+  }
+
+  &:active {
+    transform: scale(0.99);
+  }
+}
+
+// ─── Footer ──────────────────────────────────────────────────────────────────
+.footer {
+  text-align: center;
+  padding: 24px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  border-top: 1px solid var(--color-border);
+}
+
+// ─── Animations ──────────────────────────────────────────────────────────────
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// ─── Responsive ──────────────────────────────────────────────────────────────
+@media (max-width: 600px) {
+  .header {
+    padding: 16px 20px;
+  }
+
+  .main-content {
+    padding: 40px 16px;
+  }
+
+  .form-title {
+    font-size: 24px;
+  }
+}

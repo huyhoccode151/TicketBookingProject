@@ -1,0 +1,194 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\maiqu\\source\\repos\\TicketBookingProject\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{EF12BF6D-CD42-3520-A997-2AFFE866EA6D}|TicketBookingProject.Server\\TicketBookingProject.Server.csproj|c:\\users\\maiqu\\source\\repos\\ticketbookingproject\\ticketbookingproject.server\\services\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EF12BF6D-CD42-3520-A997-2AFFE866EA6D}|TicketBookingProject.Server\\TicketBookingProject.Server.csproj|solutionrelative:ticketbookingproject.server\\services\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EF12BF6D-CD42-3520-A997-2AFFE866EA6D}|TicketBookingProject.Server\\TicketBookingProject.Server.csproj|c:\\users\\maiqu\\source\\repos\\ticketbookingproject\\ticketbookingproject.server\\repositories\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EF12BF6D-CD42-3520-A997-2AFFE866EA6D}|TicketBookingProject.Server\\TicketBookingProject.Server.csproj|solutionrelative:ticketbookingproject.server\\repositories\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EF12BF6D-CD42-3520-A997-2AFFE866EA6D}|TicketBookingProject.Server\\TicketBookingProject.Server.csproj|c:\\users\\maiqu\\source\\repos\\ticketbookingproject\\ticketbookingproject.server\\dtos\\mapping\\usermappingprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EF12BF6D-CD42-3520-A997-2AFFE866EA6D}|TicketBookingProject.Server\\TicketBookingProject.Server.csproj|solutionrelative:ticketbookingproject.server\\dtos\\mapping\\usermappingprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EF12BF6D-CD42-3520-A997-2AFFE866EA6D}|TicketBookingProject.Server\\TicketBookingProject.Server.csproj|c:\\users\\maiqu\\source\\repos\\ticketbookingproject\\ticketbookingproject.server\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EF12BF6D-CD42-3520-A997-2AFFE866EA6D}|TicketBookingProject.Server\\TicketBookingProject.Server.csproj|solutionrelative:ticketbookingproject.server\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EF12BF6D-CD42-3520-A997-2AFFE866EA6D}|TicketBookingProject.Server\\TicketBookingProject.Server.csproj|c:\\users\\maiqu\\source\\repos\\ticketbookingproject\\ticketbookingproject.server\\repositories\\interfaces\\iuserrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EF12BF6D-CD42-3520-A997-2AFFE866EA6D}|TicketBookingProject.Server\\TicketBookingProject.Server.csproj|solutionrelative:ticketbookingproject.server\\repositories\\interfaces\\iuserrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EF12BF6D-CD42-3520-A997-2AFFE866EA6D}|TicketBookingProject.Server\\TicketBookingProject.Server.csproj|c:\\users\\maiqu\\source\\repos\\ticketbookingproject\\ticketbookingproject.server\\repositories\\baserepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EF12BF6D-CD42-3520-A997-2AFFE866EA6D}|TicketBookingProject.Server\\TicketBookingProject.Server.csproj|solutionrelative:ticketbookingproject.server\\repositories\\baserepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EF12BF6D-CD42-3520-A997-2AFFE866EA6D}|TicketBookingProject.Server\\TicketBookingProject.Server.csproj|c:\\users\\maiqu\\source\\repos\\ticketbookingproject\\ticketbookingproject.server\\dtos\\userdtos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EF12BF6D-CD42-3520-A997-2AFFE866EA6D}|TicketBookingProject.Server\\TicketBookingProject.Server.csproj|solutionrelative:ticketbookingproject.server\\dtos\\userdtos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EF12BF6D-CD42-3520-A997-2AFFE866EA6D}|TicketBookingProject.Server\\TicketBookingProject.Server.csproj|c:\\users\\maiqu\\source\\repos\\ticketbookingproject\\ticketbookingproject.server\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EF12BF6D-CD42-3520-A997-2AFFE866EA6D}|TicketBookingProject.Server\\TicketBookingProject.Server.csproj|solutionrelative:ticketbookingproject.server\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EF12BF6D-CD42-3520-A997-2AFFE866EA6D}|TicketBookingProject.Server\\TicketBookingProject.Server.csproj|c:\\users\\maiqu\\source\\repos\\ticketbookingproject\\ticketbookingproject.server\\services\\interfaces\\iuserservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EF12BF6D-CD42-3520-A997-2AFFE866EA6D}|TicketBookingProject.Server\\TicketBookingProject.Server.csproj|solutionrelative:ticketbookingproject.server\\services\\interfaces\\iuserservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EF12BF6D-CD42-3520-A997-2AFFE866EA6D}|TicketBookingProject.Server\\TicketBookingProject.Server.csproj|c:\\users\\maiqu\\source\\repos\\ticketbookingproject\\ticketbookingproject.server\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EF12BF6D-CD42-3520-A997-2AFFE866EA6D}|TicketBookingProject.Server\\TicketBookingProject.Server.csproj|solutionrelative:ticketbookingproject.server\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 9,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "IUserRepository.cs",
+              "DocumentMoniker": "C:\\Users\\maiqu\\source\\repos\\TicketBookingProject\\TicketBookingProject.Server\\Repositories\\Interfaces\\IUserRepository.cs",
+              "RelativeDocumentMoniker": "TicketBookingProject.Server\\Repositories\\Interfaces\\IUserRepository.cs",
+              "ToolTip": "C:\\Users\\maiqu\\source\\repos\\TicketBookingProject\\TicketBookingProject.Server\\Repositories\\Interfaces\\IUserRepository.cs",
+              "RelativeToolTip": "TicketBookingProject.Server\\Repositories\\Interfaces\\IUserRepository.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAAwAwAAAAOAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-12T10:08:18.348Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "AuthService.cs",
+              "DocumentMoniker": "C:\\Users\\maiqu\\source\\repos\\TicketBookingProject\\TicketBookingProject.Server\\Services\\AuthService.cs",
+              "RelativeDocumentMoniker": "TicketBookingProject.Server\\Services\\AuthService.cs",
+              "ToolTip": "C:\\Users\\maiqu\\source\\repos\\TicketBookingProject\\TicketBookingProject.Server\\Services\\AuthService.cs",
+              "RelativeToolTip": "TicketBookingProject.Server\\Services\\AuthService.cs",
+              "ViewState": "AgIAABUAAAAAAAAAAAA1wCIAAAA1AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-12T10:01:58.506Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "UserMappingProfile.cs",
+              "DocumentMoniker": "C:\\Users\\maiqu\\source\\repos\\TicketBookingProject\\TicketBookingProject.Server\\DTOs\\Mapping\\UserMappingProfile.cs",
+              "RelativeDocumentMoniker": "TicketBookingProject.Server\\DTOs\\Mapping\\UserMappingProfile.cs",
+              "ToolTip": "C:\\Users\\maiqu\\source\\repos\\TicketBookingProject\\TicketBookingProject.Server\\DTOs\\Mapping\\UserMappingProfile.cs",
+              "RelativeToolTip": "TicketBookingProject.Server\\DTOs\\Mapping\\UserMappingProfile.cs",
+              "ViewState": "AgIAACgAAAAAAAAAAAAQwDYAAAAvAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-12T09:32:04.223Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "UserDtos.cs",
+              "DocumentMoniker": "C:\\Users\\maiqu\\source\\repos\\TicketBookingProject\\TicketBookingProject.Server\\DTOs\\UserDtos.cs",
+              "RelativeDocumentMoniker": "TicketBookingProject.Server\\DTOs\\UserDtos.cs",
+              "ToolTip": "C:\\Users\\maiqu\\source\\repos\\TicketBookingProject\\TicketBookingProject.Server\\DTOs\\UserDtos.cs",
+              "RelativeToolTip": "TicketBookingProject.Server\\DTOs\\UserDtos.cs",
+              "ViewState": "AgIAAIsAAAAAAAAAAADgv00AAAAUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-12T08:59:07.724Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "BaseRepository.cs",
+              "DocumentMoniker": "C:\\Users\\maiqu\\source\\repos\\TicketBookingProject\\TicketBookingProject.Server\\Repositories\\BaseRepository.cs",
+              "RelativeDocumentMoniker": "TicketBookingProject.Server\\Repositories\\BaseRepository.cs",
+              "ToolTip": "C:\\Users\\maiqu\\source\\repos\\TicketBookingProject\\TicketBookingProject.Server\\Repositories\\BaseRepository.cs",
+              "RelativeToolTip": "TicketBookingProject.Server\\Repositories\\BaseRepository.cs",
+              "ViewState": "AgIAABEAAAAAAAAAAAAgwBgAAABQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-12T09:11:39.714Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "User.cs",
+              "DocumentMoniker": "C:\\Users\\maiqu\\source\\repos\\TicketBookingProject\\TicketBookingProject.Server\\Models\\User.cs",
+              "RelativeDocumentMoniker": "TicketBookingProject.Server\\Models\\User.cs",
+              "ToolTip": "C:\\Users\\maiqu\\source\\repos\\TicketBookingProject\\TicketBookingProject.Server\\Models\\User.cs",
+              "RelativeToolTip": "TicketBookingProject.Server\\Models\\User.cs",
+              "ViewState": "AgIAACIAAAAAAAAAAAAqwBsAAAAgAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-12T08:59:20.284Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "UserRepository.cs",
+              "DocumentMoniker": "C:\\Users\\maiqu\\source\\repos\\TicketBookingProject\\TicketBookingProject.Server\\Repositories\\UserRepository.cs",
+              "RelativeDocumentMoniker": "TicketBookingProject.Server\\Repositories\\UserRepository.cs",
+              "ToolTip": "C:\\Users\\maiqu\\source\\repos\\TicketBookingProject\\TicketBookingProject.Server\\Repositories\\UserRepository.cs",
+              "RelativeToolTip": "TicketBookingProject.Server\\Repositories\\UserRepository.cs",
+              "ViewState": "AgIAABcAAAAAAAAAAAA3wCMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-12T08:58:11.332Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "UserService.cs",
+              "DocumentMoniker": "C:\\Users\\maiqu\\source\\repos\\TicketBookingProject\\TicketBookingProject.Server\\Services\\UserService.cs",
+              "RelativeDocumentMoniker": "TicketBookingProject.Server\\Services\\UserService.cs",
+              "ToolTip": "C:\\Users\\maiqu\\source\\repos\\TicketBookingProject\\TicketBookingProject.Server\\Services\\UserService.cs",
+              "RelativeToolTip": "TicketBookingProject.Server\\Services\\UserService.cs",
+              "ViewState": "AgIAADkAAAAAAAAAAAAqwEkAAAAeAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-12T08:56:23.78Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "IUserService.cs",
+              "DocumentMoniker": "C:\\Users\\maiqu\\source\\repos\\TicketBookingProject\\TicketBookingProject.Server\\Services\\Interfaces\\IUserService.cs",
+              "RelativeDocumentMoniker": "TicketBookingProject.Server\\Services\\Interfaces\\IUserService.cs",
+              "ToolTip": "C:\\Users\\maiqu\\source\\repos\\TicketBookingProject\\TicketBookingProject.Server\\Services\\Interfaces\\IUserService.cs",
+              "RelativeToolTip": "TicketBookingProject.Server\\Services\\Interfaces\\IUserService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAzAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-12T08:56:19.83Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "UserController.cs",
+              "DocumentMoniker": "C:\\Users\\maiqu\\source\\repos\\TicketBookingProject\\TicketBookingProject.Server\\Controllers\\UserController.cs",
+              "RelativeDocumentMoniker": "TicketBookingProject.Server\\Controllers\\UserController.cs",
+              "ToolTip": "C:\\Users\\maiqu\\source\\repos\\TicketBookingProject\\TicketBookingProject.Server\\Controllers\\UserController.cs",
+              "RelativeToolTip": "TicketBookingProject.Server\\Controllers\\UserController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-12T08:54:44.64Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

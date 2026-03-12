@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="ticketbookingproject.client/ticketbookingproject.client.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+  <Project Path="TicketBookingProject.Server/TicketBookingProject.Server.csproj" />
+</Solution>

@@ -1,0 +1,10 @@
+{
+"SpaProxyServer": {
+"ServerUrl": "https://localhost:65211",
+"RedirectUrl": "",
+"LaunchCommand": "npm start",
+"WorkingDirectory": "C:\\Users\\maiqu\\source\\repos\\TicketBookingProject\\TicketBookingProject.Server\\..\\ticketbookingproject.client",
+"MaxTimeoutInSeconds": "120",
+"KeepRunning": "false"
+}
+}
