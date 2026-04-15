@@ -1,5 +1,10 @@
 /* ─── Google Font ─────────────────────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
 
 /* ─── Reset & Base ───────────────────────────────────────────────────────── */
 *,
@@ -16,13 +21,12 @@ html {
 }
 
 body {
-  font-family: 'DM Sans', 'Segoe UI', sans-serif;
-  background-color: #ffffff;
-  color: #1a1a1a;
-  line-height: 1.6;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
 
 a {
   color: inherit;
@@ -36,3 +40,4 @@ input,
 button {
   font-size: inherit;
 }
+

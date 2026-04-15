@@ -1,0 +1,356 @@
+<!-- Breadcrumbs -->
+<nav class="flex flex-wrap items-center gap-2 mb-4">
+  <a class="text-slate-500 hover:text-primary text-sm font-medium transition-colors flex items-center gap-1"
+     href="/events">
+    <span class="material-symbols-outlined text-sm">calendar_today</span> Events
+  </a>
+  <span class="text-slate-400 text-sm material-symbols-outlined">chevron_right</span>
+  <span class="text-slate-900 dark:text-slate-100 text-sm font-semibold">Edit Event</span>
+</nav>
+
+<!-- Loading state -->
+<div *ngIf="isLoading" class="flex justify-center items-center py-20">
+  <span class="material-symbols-outlined animate-spin text-4xl text-primary">progress_activity</span>
+</div>
+
+<form *ngIf="!isLoading" [formGroup]="form" (ngSubmit)="onSubmit()" class="form-wrap">
+  <h2 class="form-title">Edit Venue Event</h2>
+
+  <div class="stepper">
+    <div class="step-item" *ngFor="let step of steps; let i = index" [class.active]="isActive(i)"
+         [class.done]="isCompleted(i)" (click)="goToStep(i)">
+      <div class="dot-wrap">
+        <div class="dot-ring"></div>
+        <div class="dot">
+          <ng-container *ngIf="isCompleted(i); else showNum">&#10003;</ng-container>
+          <ng-template #showNum>{{ i + 1 }}</ng-template>
+        </div>
+      </div>
+      <div class="step-line" *ngIf="i < steps.length - 1"></div>
+      <span class="step-label">{{ step.label }}</span>
+    </div>
+  </div>
+
+  <!-- ─── Step 0: Details ──────────────────────────────────────────────── -->
+  <div class="panel" [hidden]="currentStep !== 0">
+    <app-card icon="event_note" title="Event Information">
+      <div formGroupName="details">
+        <div class="fg">
+          <label class="block text-sm font-medium">Event name</label>
+          <input class="rounded-lg border border-slate-200 bg-slate-50 mt-2 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
+                 type="text" formControlName="name" placeholder="Summer Music Festival 2024" />
+          @if (getError('details.name', 'Event Name')) {
+          <p class="text-xs text-red-500">{{ getError('details.name', 'Event Name') }}</p>
+          }
+        </div>
+
+        <div class="fg">
+          <label class="block text-sm font-medium">Description</label>
+          <input class="rounded-lg border border-slate-200 bg-slate-50 mt-2 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
+                 type="text" formControlName="description" placeholder="Describe your event...." />
+          @if (getError('details.description', 'Event Description')) {
+          <p class="text-xs text-red-500">{{ getError('details.description', 'Event Description') }}</p>
+          }
+        </div>
+
+        <div class="fg">
+          <label class="block text-sm font-medium">Category</label>
+          <select class="mt-2" formControlName="category">
+            <option value="" disabled>--Select--</option>
+            <option *ngFor="let c of categories" [value]="c.id">{{ c.name }}</option>
+          </select>
+          @if (getError('details.category', 'Event Category')) {
+          <p class="text-xs text-red-500">{{ getError('details.category', 'Event Category') }}</p>
+          }
+        </div>
+
+        <div class="fg">
+          <label class="block text-sm font-medium">Venue</label>
+          <select class="mt-2" formControlName="venue">
+            <option value="" disabled>--Select--</option>
+            <option *ngFor="let a of venues" [value]="a.id">{{ a.name }}</option>
+          </select>
+          @if (getError('details.venue', 'Event Venue')) {
+          <p class="text-xs text-red-500">{{ getError('details.venue', 'Event Venue') }}</p>
+          }
+        </div>
+
+        <div class="date-time-row mb-4">
+          <div class="field-group">
+            <label class="block text-sm font-medium">When is event going to active?</label>
+            <input class="rounded-lg border border-slate-200 bg-slate-50 mt-2 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
+                   type="date" formControlName="startTime" />
+            @if (getError('details.startTime', 'Event StartTime')) {
+            <p class="text-xs text-red-500">{{ getError('details.startTime', 'Event StartTime') }}</p>
+            }
+          </div>
+
+          <div class="field-group">
+            <label class="block text-sm font-medium">When is event going to finish?</label>
+            <input class="rounded-lg border border-slate-200 bg-slate-50 mt-2 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
+                   type="date" formControlName="endTime" />
+            @if (getError('details.endTime', 'Event EndTime')) {
+            <p class="text-xs text-red-500">{{ getError('details.endTime', 'Event EndTime') }}</p>
+            }
+          </div>
+        </div>
+
+        <!-- Image uploader -->
+        <div class="form-section">
+          <div class="form-section__row">
+            <label class="block text-sm font-medium form-section__label">Event images</label>
+          </div>
+
+          <div class="image-uploader mt-2">
+            <!--Drop Zone (chỉ hiện khi chưa có ảnh nào)-->
+            <div *ngIf="images.length === 0" (dragover)="onDragOver($event)" (dragleave)="onDragLeave()"
+                 (drop)="onDrop($event)" class="image-uploader__dropzone"
+                 [class.image-uploader__dropzone--dragover]="isDragOver">
+              <input type="file" multiple (change)="onFileSelect($event)" accept="image/*" #fileInput />
+              <span class="material-symbols-outlined image-uploader__icon">cloud_upload</span>
+              <div class="image-uploader__dropzone-text">
+                <strong>Drag &amp; drop images here</strong>
+                <span>PNG, JPG, WEBP — up to 10 MB each</span>
+              </div>
+              <span class="image-uploader__browse-btn" (click)="fileInput.click()">Browse files</span>
+            </div>
+
+            <!--Preview grid-->
+            <div class="image-uploader__preview-grid" *ngIf="images.length > 0">
+              <div class="image-uploader__preview-item" *ngFor="let img of images; let i = index">
+                <img class="image-uploader__preview-img" [src]="img.preview" />
+                <!-- Badge phân biệt ảnh cũ / mới -->
+                <span class="absolute top-1 left-1 text-[10px] px-1 rounded"
+                      [class.bg-blue-500]="img.isExisting"
+                      [class.bg-green-500]="!img.isExisting"
+                      style="color:#fff">
+                  {{ img.isExisting ? 'Saved' : 'New' }}
+                </span>
+                <button class="image-uploader__remove-btn" type="button" (click)="removeImage(i)">
+                  <span class="material-symbols-outlined">close</span>
+                </button>
+              </div>
+            </div>
+
+            <input #addMoreInput type="file" hidden multiple accept="image/*" (change)="onFileSelect($event)" />
+
+            <button class="image-uploader__add-more" *ngIf="images.length > 0 && images.length < MAX_IMAGES"
+                    type="button" (click)="addMoreInput.click()">
+              <span class="material-symbols-outlined">add_photo_alternate</span>
+              Add more images
+            </button>
+
+            <span class="image-uploader__hint">
+              First image will be used as the event cover. You can upload up to {{ MAX_IMAGES }} images.
+            </span>
+          </div>
+        </div>
+      </div>
+    </app-card>
+  </div>
+
+  <!-- ─── Step 1: Tickets ──────────────────────────────────────────────── -->
+  <div class="panel" [hidden]="currentStep !== 1">
+    <app-card icon="mobile_ticket" title="Ticket Information">
+      <p class="hint">Manage tickets for your event.</p>
+
+      <div class="ticket-header">
+        <span>Tickets ({{ tickets.length }})</span>
+        <button type="button" class="btn-add" (click)="createTicket()">+ Add Tickets</button>
+      </div>
+
+      <div class="tcard" *ngFor="let ticket of tickets; let i = index">
+        <div class="tcard-top">
+          <div class="tcard-icon">{{ ticket.initials }}</div>
+          <div class="tcard-meta">
+            <strong>{{ ticket.name }} — ${{ ticket.price }}.00</strong>
+          </div>
+          <div class="tcard-actions">
+            <button type="button" class="btn-dot">&#8942;</button>
+            <app-table-actions [id]="i"
+                               (edit)="editTicket($event)"
+                               (delete)="deleteTicket($event)"
+                               (view)="viewTicket($event)">
+            </app-table-actions>
+          </div>
+        </div>
+        <div class="tcard-info">
+          <div><small>Total tickets</small><strong>{{ ticket.quantity }}</strong></div>
+          <div><small>Limit per customer</small><strong>{{ ticket.maxPerUser }}</strong></div>
+        </div>
+      </div>
+    </app-card>
+  </div>
+
+  <!-- ─── Step 2: Settings ─────────────────────────────────────────────── -->
+  <div class="panel" [hidden]="currentStep !== 2">
+    <app-card icon="settings_cinematic_blur" title="Settings">
+      <div formGroupName="settings">
+
+        <div class="getTime">
+          <div class="toggle-row mb-4">
+            <label class="toggle-switch">
+              <input type="checkbox" formControlName="startImmediately" />
+              <span class="slider"></span>
+            </label>
+            <div class="toggle-label">
+              <span class="toggle-title">I want the bookings to start immediately.</span>
+              <span class="toggle-hint">Disable this option if you want to start your booking from a specific date and time.</span>
+            </div>
+          </div>
+
+          <ng-container formGroupName="bookingStart">
+            <div class="booking-section" *ngIf="!isImmediate">
+              <h3 class="booking-heading">Booking starts on</h3>
+              <p class="booking-desc">Specify the date and time when you want the booking to start.</p>
+              <div class="date-time-row mb-4">
+                <div class="field-group">
+                  <label class="field-label">Event Date.<span class="required">*</span></label>
+                  <div class="input-wrapper">
+                    <input type="date" class="field-input" formControlName="date" [class.is-invalid]="isDateInvalid" />
+                    <span class="input-icon">📅</span>
+                    @if (getError('settings.bookingStart.date', 'Sale Start Time')) {
+                    <p class="text-xs text-red-500">{{ getError('settings.bookingStart.date', 'Sale Start Time') }}</p>
+                    }
+                  </div>
+                </div>
+                <div class="field-group">
+                  <label class="field-label">Time</label>
+                  <div class="input-wrapper">
+                    <input type="time" class="field-input" formControlName="time" />
+                    <span class="input-icon">🕐</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+
+        <div class="getTime">
+          <div class="toggle-row mb-4">
+            <label class="toggle-switch">
+              <input type="checkbox" formControlName="endImmediately" />
+              <span class="slider"></span>
+            </label>
+            <div class="toggle-label">
+              <span class="toggle-title">I want the bookings to end immediately when the event ends.</span>
+              <span class="toggle-hint">Disable this option if you want to end your booking at a specific date and time.</span>
+            </div>
+          </div>
+
+          <ng-container formGroupName="bookingEnd">
+            <div class="booking-section" *ngIf="!isEndImmediate">
+              <h3 class="booking-heading">Booking ends on</h3>
+              <p class="booking-desc">Specify the date and time when you want the booking to end.</p>
+              <div class="date-time-row mb-4">
+                <div class="field-group">
+                  <label class="field-label">Event Date.<span class="required">*</span></label>
+                  <div class="input-wrapper">
+                    <input type="date" class="field-input" formControlName="date" [class.is-invalid]="isEndDateInvalid" />
+                    <span class="input-icon">📅</span>
+                    @if (getError('settings.bookingEnd.date', 'Sale End Time')) {
+                    <p class="text-xs text-red-500">{{ getError('settings.bookingEnd.date', 'Sale End Time') }}</p>
+                    }
+                  </div>
+                </div>
+                <div class="field-group">
+                  <label class="field-label">Time</label>
+                  <div class="input-wrapper">
+                    <input type="time" class="field-input" formControlName="time" />
+                    <span class="input-icon">🕐</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+
+        <div class="fg">
+          <label class="block text-sm font-medium">Ticket Per Booking</label>
+          <select class="rounded-lg border border-slate-200 bg-slate-50 mt-2 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
+                  formControlName="ticketsPerBooking">
+            <option value="" disabled>--Select--</option>
+            <option *ngFor="let n of [1,2,3,4,5,6,7,8,9,10]" [value]="n">{{ n }}</option>
+          </select>
+        </div>
+
+      </div>
+    </app-card>
+  </div>
+
+  <div class="form-nav">
+    <button type="button" class="btn btn--back" *ngIf="currentStep > 0" (click)="prevStep()">
+      ← Back
+    </button>
+    <button type="button" class="btn btn--next" (click)="onNextOrSubmit()">
+      {{ isLastStep ? '✓ Save Changes' : 'Next →' }}
+    </button>
+  </div>
+</form>
+
+<!-- Edit ticket dialog -->
+<app-confirm-dialog [isOpen]="isDialogEditOpen" [config]="dialogEditConfig"
+                    (confirmed)="onConfirmed()" (cancelled)="onCancelled()">
+  <div [formGroup]="ticketFormEdit">
+    <div class="flex flex-col gap-1.5">
+      <label class="text-sm font-medium">Ticket Name Type</label>
+      <input class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+             formControlName="name" placeholder="Name" />
+      @if(getInvalid('name', 'Name')){ <p class="text-xs text-red-500">{{ getInvalid('name', 'Name') }}</p> }
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <label class="text-sm font-medium">Price</label>
+      <input class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+             formControlName="price" placeholder="Price" type="number" />
+      @if(getInvalid('price', 'Price')){ <p class="text-xs text-red-500">{{ getInvalid('price', 'Price') }}</p> }
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <label class="text-sm font-medium">Quantity</label>
+      <input class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+             formControlName="quantity" placeholder="Quantity" type="number" />
+      @if(getInvalid('quantity', 'Quantity')){ <p class="text-xs text-red-500">{{ getInvalid('quantity', 'Quantity') }}</p> }
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <label class="text-sm font-medium">Max Ticket per User</label>
+      <input class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+             formControlName="maxPerUser" placeholder="maxPerUser" type="number" />
+      @if(getInvalid('maxPerUser', 'maxPerUser')){ <p class="text-xs text-red-500">{{ getInvalid('maxPerUser', 'maxPerUser') }}</p> }
+    </div>
+  </div>
+</app-confirm-dialog>
+
+<!-- Create ticket dialog -->
+<app-confirm-dialog [isOpen]="isDialogCreateOpen" [config]="dialogCreateConfig"
+                    (confirmed)="onCreateConfirmed()" (cancelled)="onCreateCancelled()">
+  <div [formGroup]="ticketFormCreate">
+    <div class="flex flex-col gap-1.5">
+      <label class="text-sm font-medium">Ticket Name Type</label>
+      <input class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+             formControlName="name" placeholder="Name" />
+      @if(getCreateInvalid('name', 'Name')){ <p class="text-xs text-red-500">{{ getCreateInvalid('name', 'Name') }}</p> }
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <label class="text-sm font-medium">Price</label>
+      <input class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+             formControlName="price" placeholder="Price" type="number" />
+      @if(getCreateInvalid('price', 'Price')){ <p class="text-xs text-red-500">{{ getCreateInvalid('price', 'Price') }}</p> }
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <label class="text-sm font-medium">Quantity</label>
+      <input class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+             formControlName="quantity" placeholder="Quantity" type="number" />
+      @if(getCreateInvalid('quantity', 'Quantity')){ <p class="text-xs text-red-500">{{ getCreateInvalid('quantity', 'Quantity') }}</p> }
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <label class="text-sm font-medium">Max Ticket per User</label>
+      <input class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+             formControlName="maxPerUser" placeholder="maxPerUser" type="number" />
+      @if(getCreateInvalid('maxPerUser', 'maxPerUser')){ <p class="text-xs text-red-500">{{ getCreateInvalid('maxPerUser', 'maxPerUser') }}</p> }
+    </div>
+  </div>
+</app-confirm-dialog>
+
+<!-- Delete ticket dialog -->
+<app-confirm-dialog [isOpen]="isDialogDeleteOpen" [config]="dialogDeleteConfig"
+                    (confirmed)="onDeleteConfirmed()" (cancelled)="onDeleteCancelled()">
+</app-confirm-dialog>

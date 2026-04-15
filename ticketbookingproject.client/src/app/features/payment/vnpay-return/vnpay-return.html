@@ -1,0 +1,67 @@
+<main class="payment-container">
+  <!-- Success State -->
+  <div class="hero-section success" *ngIf="isSuccess">
+    <div class="status-stack">
+      <div class="status-outer"></div>
+      <div class="status-inner">
+        <span class="material-symbols-outlined">check</span>
+      </div>
+    </div>
+    <h1 class="headline">Payment Successful</h1>
+    <p class="subline">Your transaction has been processed securely.</p>
+  </div>
+
+  <!-- Failure State -->
+  <div class="hero-section failure" *ngIf="!isSuccess">
+    <div class="status-stack">
+      <div class="status-outer"></div>
+      <div class="status-inner">
+        <span class="material-symbols-outlined">error</span>
+      </div>
+    </div>
+    <h1 class="headline">Thanh toán thất bại</h1>
+    <p class="subline">
+      {{ getErrorMessage(responseCode) }}
+    </p>
+  </div>
+
+  <!-- Transaction Card -->
+  <div class="summary-card">
+    <div class="card-header">
+      <div class="amount-wrapper">
+        <span class="label">Total Amount</span>
+        <div class="amount">
+          {{ amount | number }} <span class="currency">VND</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-content">
+      <div class="info-grid">
+        <div class="info-group">
+          <span class="info-label">Order ID</span>
+          <p class="info-value">{{ orderId }}</p>
+        </div>
+        <div class="info-group">
+          <span class="info-label">Transaction ID</span>
+          <p class="info-value">{{ transactionId }}</p>
+        </div>
+        <div class="info-group">
+          <span class="info-label">Date & Time</span>
+          <p class="info-value">{{ date | date:'EEEE, dd/MM/yyyy' }}</p>
+        </div>
+        <div class="info-group">
+          <span class="info-label">Merchant</span>
+          <p class="info-value">VNPay Services</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Branding -->
+  <div class="branding">
+    <div class="line"></div>
+    <span class="branding-text">Verified by VNPay</span>
+    <div class="line"></div>
+  </div>
+</main>

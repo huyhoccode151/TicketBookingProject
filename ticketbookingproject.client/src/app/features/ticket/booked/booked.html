@@ -1,0 +1,173 @@
+  <!-- ── Top Navigation ─────────────────────────────── --
+
+  <!-- ── Main Content ───────────────────────────────── -->
+  <main class="page-main">
+    <section class="ticket-section">
+
+      <!-- Section header -->
+      <!--<div class="section-header">
+    <div class="section-header__eyebrow">
+      <div class="section-header__rule"></div>
+      <span class="section-header__label">E-Ticket Identification</span>
+    </div>
+    <h1 class="section-header__title">Your Premium Access</h1>
+  </div>-->
+      <!-- ── Loading state ──────────────────────────── -->
+      <div class="ticket-loading" *ngIf="loading">
+        <app-loader />
+      </div>
+
+      <!-- ── Empty state ────────────────────────────── -->
+      <div class="ticket-empty" *ngIf="!loading && tickets == null">
+        <span class="material-symbols-outlined ticket-empty__icon">confirmation_number</span>
+        <p class="ticket-empty__title">No tickets found</p>
+        <p class="ticket-empty__sub">Booking #{{ bookingId }} has no tickets attached.</p>
+      </div>
+
+      <!-- ── Carousel wrapper ───────────────────────── -->
+      <ng-container *ngIf="!loading">
+        <div class="ticket-wrapper">
+        </div>
+        <!-- Pagination indicator -->
+        <div class="ticket-pagination" *ngIf="tickets && tickets.length >= 1">
+          <button class="ticket-pagination__arrow--left"
+                  (click)="prevTicket()"
+                  [disabled]="currentIndex === 0"
+                  aria-label="Previous ticket">
+            <span class="material-symbols-outlined">chevron_left</span>
+          </button>
+
+          <!-- Ticket Card (current ticket only) -->
+          <div class="ticket-card" *ngIf="tickets[currentIndex] as ticket">
+
+            <!-- Left: Event Visual -->
+            <div class="ticket-card__visual">
+              <img class="ticket-card__image"
+                   [src]="getThumbnail(ticket.imageUrl)"
+                   [alt]="ticket.eventName" />
+              <div class="ticket-card__overlay"></div>
+              <div class="ticket-card__content">
+                <div class="ticket-card__badge">
+                  <span>{{ ticket.ticketTypeName }}</span>
+                </div>
+                <h2 class="ticket-card__title">{{ ticket.eventName }}</h2>
+                <div class="ticket-card__meta">
+                  <div class="ticket-card__meta-item">
+                    <span class="material-symbols-outlined">event</span>
+                    <span>{{ ticket.eventActiveAt }}</span>
+                  </div>
+                  <div class="ticket-card__meta-item">
+                    <span class="material-symbols-outlined">location_on</span>
+                    <span>{{ ticket.venueName }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Perforation dividers -->
+            <div class="ticket-card__perf-desktop perforation-line"></div>
+            <div class="ticket-card__perf-mobile"></div>
+
+            <!-- Right: Info & QR -->
+            <div class="ticket-card__info">
+
+              <div class="ticket-card__info-top">
+
+                <!-- Status badge -->
+                <div class="ticket-card__status" [class.ticket-card__status--active]="!ticket.isCheckedIn">
+                  <span class="material-symbols-outlined">
+                    {{ !ticket.isCheckedIn ? 'check_circle' : 'cancel' }}
+                  </span>
+                  <span>{{ !ticket.isCheckedIn ? 'Active' : 'Inactive' }}</span>
+                </div>
+
+                <!-- Tier / Seat grid -->
+                <div class="ticket-card__meta-grid">
+                  <div class="ticket-card__meta-cell ticket-card__meta-cell--primary">
+                    <p>Tier</p>
+                    <p>{{ ticket.statusLabel }}</p>
+                  </div>
+                  <div class="ticket-card__meta-cell ticket-card__meta-cell--white ticket-card__meta-cell--right">
+                    <p>Seat</p>
+                    <p>{{ ticket.seatLabel }}</p>
+                  </div>
+                </div>
+
+                <!-- Ticket ID -->
+                <div class="ticket-card__ticket-id">
+                  <p>Ticket ID</p>
+                  <p>#{{ ticket.id }}</p>
+                </div>
+
+              </div>
+
+              <!-- QR Code -->
+              <div class="ticket-card__qr-block">
+                <div class="ticket-card__qr-wrap">
+                  <!--
+              Ideally render an actual QR from ticket.qrCode.
+              Using a placeholder API here; swap for your QR lib/component.
+            -->
+                  <img [src]="'https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=' + ticket.qrCode"
+                       alt="QR code for {{ ticket.eventName }}" />
+                </div>
+                <div class="ticket-card__qr-label">
+                  <p>Scan for Entry</p>
+                  <div class="ticket-card__qr-rule"></div>
+                </div>
+              </div>
+
+              <!-- Footer branding -->
+              <div class="ticket-card__footer">
+                <p>Verified Ticket</p>
+                <span class="material-symbols-outlined">verified</span>
+              </div>
+
+            </div>
+          </div><!-- /.ticket-card -->
+          <button class="ticket-pagination__arrow--right"
+                  (click)="nextTicket()"
+                  [disabled]="currentIndex === tickets.length - 1"
+                  aria-label="Next ticket">
+            <span class="material-symbols-outlined">chevron_right</span>
+          </button>
+
+          <span class="ticket-pagination__count">
+            {{ currentIndex + 1 }} / {{ tickets.length }}
+          </span>
+        </div>
+        <!-- Action Buttons -->
+        <div class="ticket-actions">
+          <button class="btn btn--primary">
+            <span class="material-symbols-outlined">download</span>
+            Download PDF
+          </button>
+          <button class="btn btn--secondary">
+            <span class="material-symbols-outlined">share</span>
+            Share Ticket
+          </button>
+        </div>
+      </ng-container>
+      
+    </section>
+  </main>
+
+  <!-- ── Bottom Navigation (mobile) ────────────────── -->
+  <nav class="bottom-nav">
+    <div class="bottom-nav__item">
+      <span class="material-symbols-outlined">event</span>
+      <span>Events</span>
+    </div>
+    <div class="bottom-nav__item is-active">
+      <span class="material-symbols-outlined">confirmation_number</span>
+      <span>Tickets</span>
+    </div>
+    <div class="bottom-nav__item">
+      <span class="material-symbols-outlined">account_balance_wallet</span>
+      <span>Wallet</span>
+    </div>
+    <div class="bottom-nav__item">
+      <span class="material-symbols-outlined">person</span>
+      <span>Profile</span>
+    </div>
+  </nav>

@@ -1,0 +1,70 @@
+<aside class="sidebar">
+  <nav class="nav-section">
+    <p class="nav-label">Main Menu</p>
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-item">
+      <span class="material-symbols-outlined">dashboard</span>
+      <span>Overview</span>
+    </a>
+
+    <a routerLink="/events" routerLinkActive="active" class="nav-item">
+      <span class="material-symbols-outlined">calendar_today</span>
+      <span>All Events</span>
+    </a>
+
+    <a *hasPermission="'user:manage'" routerLink="/users" routerLinkActive="active" class="nav-item">
+      <span class="material-symbols-outlined">group</span>
+      <span>Users</span>
+    </a>
+
+    <a href="/bookings" class="nav-item">
+      <span class="material-symbols-outlined">featured_play_list</span>
+      <span>Bookings</span>
+    </a>
+
+    <a href="/payments" class="nav-item">
+      <span class="material-symbols-outlined">Payments</span>
+      <span>Payments</span>
+    </a>
+  </nav>
+
+  <nav class="nav-section">
+    <p class="nav-label">Operations</p>
+    <a href="/audit-logs" class="nav-item">
+      <span class="material-symbols-outlined">tune</span>
+      <span>Audit Logs</span>
+    </a>
+    <a href="/my-booking" class="nav-item">
+      <span class="material-symbols-outlined">Orders</span>
+      <span>My Booking</span>
+    </a>
+    
+    <a href="#" class="nav-item">
+      <span class="material-symbols-outlined">account_balance_wallet</span>
+      <span>Permissions</span>
+    </a>
+    <a href="#" class="nav-item">
+      <span class="material-symbols-outlined">tune</span>
+      <span>System Settings</span>
+    </a>
+    <a href="#" class="nav-item">
+      <div class="icon-with-badge">
+        <span class="material-symbols-outlined">confirmation_number</span>
+        <span class="badge-dot"></span>
+      </div>
+      <span>Support Tickets</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="health-card">
+      <p class="health-label">Server Health</p>
+      <div class="health-stat">
+        <span>Stability</span>
+        <span class="stat-value">99.9%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 99.9%"></div>
+      </div>
+    </div>
+  </div>
+</aside>

@@ -22,6 +22,13 @@ public class PaymentMappingProfile : Profile
         [PaymentMethod.VnPay] = "VNPay",
     };
 
+    public class CreatePaymentRequest
+    {
+        public long Amount { get; set; }
+        public string BookingInfo { get; set; } = string.Empty;
+        public string BookingId { get; set; }  = string.Empty;
+    }
+
     public PaymentMappingProfile()
     {
         // ── Payment → PaymentStatusResponse ───────────────────
@@ -60,5 +67,17 @@ public class PaymentMappingProfile : Profile
                 o => o.MapFrom(s => (byte)s.Status))
             .ForMember(d => d.StatusLabel,
                 o => o.MapFrom(s => StatusLabels.GetValueOrDefault(s.Status, s.Status.ToString())));
+
+        CreateMap<Payment, AdminPaymentListItemResponse>()
+            .ForCtorParam("Id", o => o.MapFrom(s => s.Id))
+            .ForCtorParam("UserEmail", o => o.MapFrom(s => s.User.Email))
+            .ForCtorParam("EventName", o => o.MapFrom(s => s.Booking.Event.Name))
+            .ForCtorParam("PaymentTransaction", o => o.MapFrom(s => s.PaymentTransaction))
+            .ForCtorParam("PaymentMethodLabel", o => o.MapFrom(s => s.PaymentMethod.ToString()))
+            .ForCtorParam("TotalAmount", o => o.MapFrom(s => s.TotalAmount))
+            .ForCtorParam("Status", o => o.MapFrom(s => s.Status))
+            .ForCtorParam("StatusLabel", o => o.MapFrom(s => s.Status.ToString()))
+            .ForCtorParam("CreatedAt", o => o.MapFrom(s => s.CreatedAt));
+
     }
 }

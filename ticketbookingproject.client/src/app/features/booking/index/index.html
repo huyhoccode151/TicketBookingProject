@@ -1,0 +1,121 @@
+<main class="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark">
+  <div *ngIf="loading">
+    <app-loader />
+  </div>
+
+  <div *ngIf="!loading" class="w-full p-8">
+    <app-page-header title="Booking Management"
+                     subtitle="Manage and monitor all event bookings.">
+    </app-page-header>
+
+    <app-data-table>
+      <app-table-toolbar (search)="onSearch($event)">
+        <app-filter-select label="Status"
+                           [options]="statusOptions"
+                           [value]="filters.status"
+                           (valueChange)="filters.status=$event; loadBookings()">
+        </app-filter-select>
+
+        <div class="date-range-filter">
+          <span class="text-xs text-slate-500 font-semibold">Date Range</span>
+          <input type="date" class="bg-slate-50"
+                 [(ngModel)]="filters.dateFrom"
+                 [max]="filters.dateTo || ''"
+                 (change)="onDateChange()">
+          <span>—</span>
+          <input type="date" class="bg-slate-50"
+                 [(ngModel)]="filters.dateTo"
+                 [min]="filters.dateFrom || ''"
+                 (change)="onDateChange()">
+          <button *ngIf="filters.dateFrom || filters.dateTo"
+                  (click)="filters.dateFrom=''; filters.dateTo=''; loadBookings()"
+                  class="ml-2 text-slate-400 hover:text-red-500">
+            ✕
+          </button>
+        </div>
+      </app-table-toolbar>
+
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-slate-50 dark:bg-slate-800/50">
+            <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">#</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500">User</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500">Event</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 text-center">Seats</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500">Amount</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 text-right">Created At</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 text-right">Status</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 text-right">Action</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+          <tr *ngFor="let booking of bookings; let i = index"
+              class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+
+            <td class="px-6 py-4 text-sm">
+              {{(filters.page - 1) * filters.pageSize + i + 1 }}
+            </td>
+
+            <td class="px-6 py-4">
+              <div class="flex flex-col">
+                <span class="font-semibold text-sm text-slate-900 dark:text-slate-100">
+                  {{booking.userFullName}}
+                </span>
+                <span class="text-xs text-slate-500 dark:text-slate-400">
+                  {{booking.userEmail}}
+                </span>
+              </div>
+            </td>
+
+            <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+              <div class="truncate max-w-[200px]" [title]="booking.eventName">
+                {{booking.eventName}}
+              </div>
+            </td>
+
+            <td class="px-6 py-4 text-sm text-center font-medium text-slate-700 dark:text-slate-300">
+              {{booking.seatCount}}
+            </td>
+
+            <td class="px-6 py-4 text-sm font-medium text-slate-700 dark:text-slate-300">
+              {{booking.totalAmount | number}} đ
+            </td>
+
+            <td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400 text-right">
+              {{booking.createdAt | date:'dd/MM/yyyy HH:mm'}}
+            </td>
+
+            <td class="px-6 py-4 text-right">
+              <span class="inline-flex items-center gap-1.5 text-xs font-bold" [ngClass]="getStatusColor(booking.status)">
+                <span class="h-2 w-2 rounded-full" [ngClass]="getStatusDotClass(booking.status)"></span>
+                {{booking.statusLabel}}
+              </span>
+            </td>
+
+            <td class="px-6 py-4 text-right">
+              <app-table-actions [id]="booking.id"
+                                 (edit)="viewBooking($event)"
+                                 (delete)="deleteBooking($event)"
+                                 (view)="viewBooking($event)">
+              </app-table-actions>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </app-data-table>
+
+    <!-- Pagination -->
+    <app-pagination [page]="filters.page"
+                    [pageSize]="filters.pageSize"
+                    [totalPages]="totalPages"
+                    [totalCount]="totalCount"
+                    (pageChange)="onPageChange($event)">
+    </app-pagination>
+  </div>
+
+  <app-confirm-dialog [isOpen]="isDialogOpen"
+                      [config]="dialogConfig"
+                      (confirmed)="onConfirmed()"
+                      (cancelled)="onCancelled()" />
+</main>

@@ -49,6 +49,9 @@ public partial class TicketBookingProjectContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+    public DbSet<AuditLog> AuditLogs { get; set; }
+    public virtual DbSet<UserPermission> UserPermissions { get; set; }
+
     public virtual DbSet<Venue> Venues { get; set; }
 
     public virtual DbSet<VenueSection> VenueSections { get; set; }
@@ -108,10 +111,17 @@ public partial class TicketBookingProjectContext : DbContext
 
             entity.HasIndex(e => e.EventSeatId, "IDX_bd_event_seat_id");
 
+            entity.HasIndex(e => e.TicketTypeId, "IDX_bd_ticket_type_id");
+
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.BookingId).HasColumnName("booking_id");
-            entity.Property(e => e.EventSeatId).HasColumnName("event_seat_id");
+            entity.Property(e => e.EventSeatId).HasColumnName("event_seat_id").IsRequired(false);
+            entity.Property(e => e.TicketTypeId).HasColumnName("ticket_type_id");
             entity.Property(e => e.Price).HasColumnName("price");
+            entity.Property(e => e.Quantity)
+                .HasColumnName("quantity")
+                .IsRequired()
+                .HasDefaultValue(1);
 
             entity.HasOne(d => d.Booking).WithMany(p => p.BookingDetails)
                 .HasForeignKey(d => d.BookingId)
@@ -119,8 +129,13 @@ public partial class TicketBookingProjectContext : DbContext
 
             entity.HasOne(d => d.EventSeat).WithMany(p => p.BookingDetails)
                 .HasForeignKey(d => d.EventSeatId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("FK_bd_event_seat");
+
+            entity.HasOne(d => d.TicketType)
+                .WithMany(p => p.BookingDetails)
+                .HasForeignKey(d => d.TicketTypeId)
+                .HasConstraintName("FK_bd_ticket_type");
         });
 
         modelBuilder.Entity<Category>(entity =>
@@ -373,6 +388,36 @@ public partial class TicketBookingProjectContext : DbContext
                 .HasColumnName("resource");
         });
 
+        modelBuilder.Entity<UserPermission>(entity =>
+        {
+            entity.ToTable("user_permissions");
+
+            entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.Effect)
+                .HasDefaultValue(1)
+                .HasComment("1=allow, -1=deny (override role)");
+
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime2(0)");
+
+            entity.HasIndex(e => new { e.UserId, e.PermissionId })
+                .IsUnique();
+
+            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => new { e.UserId, e.Effect });
+
+            entity.HasOne(e => e.User)
+                .WithMany(u => u.UserPermissions)
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Permission)
+                .WithMany(p => p.UserPermissions)
+                .HasForeignKey(e => e.PermissionId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
         modelBuilder.Entity<RefreshToken>(entity =>
         {
             entity.ToTable("refresh_tokens");
@@ -540,11 +585,18 @@ public partial class TicketBookingProjectContext : DbContext
                 .HasPrecision(0)
                 .HasColumnName("created_at");
             entity.Property(e => e.EventSeatId).HasColumnName("event_seat_id");
+            entity.Property(e => e.TicketTypeId).HasColumnName("ticket_type_id");
+            entity.Property(e => e.Quantity).IsRequired().HasColumnName("quantity");
             entity.Property(e => e.ExpiresAt)
                 .HasPrecision(0)
                 .HasColumnName("expires_at");
             entity.Property(e => e.Status).HasColumnName("status");
             entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.HasOne(e => e.TicketType)
+                .WithMany(t => t.SeatHolds)
+                .HasForeignKey(e => e.TicketTypeId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasOne(d => d.Booking).WithMany(p => p.SeatHolds)
                 .HasForeignKey(d => d.BookingId)
@@ -572,6 +624,8 @@ public partial class TicketBookingProjectContext : DbContext
 
             entity.HasIndex(e => e.Status, "IDX_tickets_status");
 
+            entity.HasIndex(e => e.TicketTypeId, "IDX_tickets_ticket_type_id");
+
             entity.HasIndex(e => e.QrCode, "UQ_tickets_qr_code").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("id");
@@ -584,6 +638,7 @@ public partial class TicketBookingProjectContext : DbContext
                 .HasPrecision(0)
                 .HasColumnName("created_at");
             entity.Property(e => e.EventSeatId).HasColumnName("event_seat_id");
+            entity.Property(e => e.TicketTypeId).HasColumnName("ticket_type_id");
             entity.Property(e => e.QrCode)
                 .HasMaxLength(255)
                 .HasColumnName("qr_code");
@@ -602,6 +657,12 @@ public partial class TicketBookingProjectContext : DbContext
                 .HasForeignKey(d => d.EventSeatId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_t_event_seat");
+
+            entity.HasOne(t => t.TicketType)
+                .WithMany(p => p.Tickets)
+                .HasForeignKey(t => t.TicketTypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_t_ticket_type");
         });
 
         modelBuilder.Entity<TicketType>(entity =>
@@ -637,6 +698,8 @@ public partial class TicketBookingProjectContext : DbContext
                 .HasConstraintName("FK_tt_event");
         });
 
+
+        modelBuilder.Entity<User>().HasQueryFilter(u => u.DeletedAt == null);
         modelBuilder.Entity<User>(entity =>
         {
             entity.ToTable("users");
@@ -755,6 +818,39 @@ public partial class TicketBookingProjectContext : DbContext
             entity.HasOne(d => d.Venue).WithMany(p => p.VenueSections)
                 .HasForeignKey(d => d.VenueId)
                 .HasConstraintName("FK_vs_venue");
+        });
+
+        modelBuilder.Entity<AuditLog>(entity =>
+        {
+            entity.ToTable("audit_logs");
+
+            entity.HasKey(x => x.Id);
+
+            entity.Property(x => x.Action)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            entity.Property(x => x.EntityType)
+                .HasMaxLength(100);
+
+            entity.Property(x => x.Description)
+                .IsRequired()
+                .HasMaxLength(500);
+
+            entity.Property(x => x.Metadata)
+                .HasColumnType("nvarchar(max)");
+
+            entity.Property(x => x.CreatedAt)
+                .HasDefaultValueSql("GETUTCDATE()");
+
+            entity.HasOne(x => x.User)
+                .WithMany()
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(x => x.UserId);
+            entity.HasIndex(x => x.Action);
+            entity.HasIndex(x => x.CreatedAt);
         });
 
         OnModelCreatingPartial(modelBuilder);

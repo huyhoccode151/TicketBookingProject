@@ -52,4 +52,6 @@ public partial class User : IEntities, IDelEntity
     public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
 
     public virtual ICollection<Role> Roles { get; set; } = new List<Role>();
+
+    public ICollection<UserPermission> UserPermissions { get; set; } = new List<UserPermission>();
 }

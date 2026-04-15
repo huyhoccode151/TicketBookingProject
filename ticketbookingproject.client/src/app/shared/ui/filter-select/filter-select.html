@@ -1,0 +1,18 @@
+<div class="flex items-center gap-2">
+  <span class="text-xs text-slate-500 font-semibold">
+    {{label}}
+  </span>
+
+  <select class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
+          [value]="value"
+          (change)="onChange($event)">
+
+    <option value="">All</option>
+
+    <option *ngFor="let o of options" [value]="o.value">
+      {{o.label}}
+    </option>
+
+  </select>
+
+</div>

@@ -1,0 +1,43 @@
+  <header class="header">
+    <div class="header-left">
+      <div class="logo">
+        <span class="material-symbols-outlined">layers</span>
+        <h2>Barren</h2>
+      </div>
+      <div class="search-container">
+        <div class="search-box">
+          <span class="material-symbols-outlined">search</span>
+          <input type="text" placeholder="Search events, users, or tickets...">
+        </div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="actions">
+        <button class="icon-btn"><span class="material-symbols-outlined">notifications</span></button>
+        <button class="icon-btn"><span class="material-symbols-outlined">settings</span></button>
+      </div>
+      <div class="divider"></div>
+      <div class="user-profile" (click)="toggleDropdown($event)">
+        <div class="user-info">
+          <p class="user-name">Admin User</p>
+          <p class="user-role">System Manager</p>
+        </div>
+        <div class="avatar">
+          <span class="material-symbols-outlined">shield_person</span>
+        </div>
+
+        <div class="user-dropdown" *ngIf="isDropdownOpen" (click)="$event.stopPropagation()">
+          <!--<button class="dropdown-item" (click)="goProfile()">
+            <span class="material-symbols-outlined">person</span>
+            Profile
+          </button>-->
+
+          <button class="dropdown-item" (click)="logout()">
+            <span class="material-symbols-outlined">logout</span>
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+

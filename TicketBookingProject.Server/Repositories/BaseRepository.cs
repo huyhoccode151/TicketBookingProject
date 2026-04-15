@@ -47,4 +47,5 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class, IEntities
         => predicate == null ? await _dbset.CountAsync() : await _dbset.CountAsync(predicate);
 
     public virtual IQueryable<T> Query() => _dbset.AsNoTracking();
+    public virtual async Task SaveChanges() => await _db.SaveChangesAsync();
 }

@@ -14,7 +14,12 @@ public class VenueMappingProfile : Profile
 
         // ── Venue → VenueListItemResponse ─────────────────────
         CreateMap<Venue, VenueListItemResponse>()
-            .ForMember(d => d.SectionCount,
+            .ForCtorParam("Id", o => o.MapFrom(s => s.Id))
+            .ForCtorParam("Name", o => o.MapFrom(s => s.Name))
+            .ForCtorParam("Province", o => o.MapFrom(s => s.Province))
+            .ForCtorParam("AddressDetail", o => o.MapFrom(s => s.AddressDetail))
+            .ForCtorParam("Capacity", o => o.MapFrom(s => s.Capacity))
+            .ForCtorParam("SectionCount",
                 o => o.MapFrom(s => s.VenueSections.Count));
 
         // ── Venue → VenueDetailResponse ───────────────────────

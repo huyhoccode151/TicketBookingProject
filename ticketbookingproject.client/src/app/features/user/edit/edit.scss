@@ -1,0 +1,70 @@
+.loading-state {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 2rem;
+  justify-content: center;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #e5e7eb;
+  border-top-color: #6b7280;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.perm-list {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.perm-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  border-top: 1px solid #f3f4f6;
+  transition: background 0.15s;
+
+  &:first-child {
+    border-top: none;
+  }
+
+  &:hover {
+    background: #f9fafb;
+  }
+
+  input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+    accent-color: #4f46e5;
+    flex-shrink: 0;
+  }
+}
+
+.perm-key {
+  font-family: monospace;
+  font-size: 13px;
+  color: #111827;
+}
+
+.perm-label {
+  font-size: 13px;
+  color: #6b7280;
+}

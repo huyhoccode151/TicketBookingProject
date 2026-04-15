@@ -14,9 +14,10 @@ public record CategoryResponse(
 public record EventListRequest : PagedRequest
 {
     public string? Search { get; init; }
-    public int? CategoryId { get; init; }
-    public int? VenueId { get; init; }
-    public byte? Status { get; init; }
+    public string? Category { get; init; }
+    public string? Venue { get; init; }
+    public EventStatus? Status { get; init; }
+    public DatePreset? DatePreset { get; init; }
     public DateTime? DateFrom { get; init; }
     public DateTime? DateTo { get; init; }
     public bool OnSaleOnly { get; init; } = false;
@@ -29,7 +30,9 @@ public record EventListItemResponse(
     string VenueName,
     string Province,
     string OrganizerName,
-    byte Status,
+    int TicketQuantity,
+    int TicketSold,
+    EventStatus Status,
     string StatusLabel,
     DateTime ActiveAt,
     DateTime EndAt,
@@ -51,17 +54,17 @@ public record EventDetailResponse(
     CategoryResponse Category,
     EventVenueResponse Venue,
     EventOrganizerResponse Organizer,
-    byte Status,
+    EventStatus Status,
     string StatusLabel,
-    DateTime ActiveAt,
-    DateTime EndAt,
-    DateTime SaleStartAt,
-    DateTime SaleEndAt,
+    DateTime? ActiveAt,
+    DateTime? EndAt,
+    DateTime? SaleStartAt,
+    DateTime? SaleEndAt,
     int MaxTicketsPerBooking,
     List<EventPosterResponse> Posters,
     List<TicketTypeResponse> TicketTypes,
-    DateTime CreatedAt,
-    DateTime UpdatedAt);
+    DateTime? CreatedAt,
+    DateTime? UpdatedAt);
 
 public record EventVenueResponse(
     int Id,
@@ -112,24 +115,53 @@ public record CreateEventRequest
 
     [Required, MinLength(1)]
     public List<CreateTicketTypeRequest> TicketTypes { get; init; } = [];
+
+    [Required, MinLength(1)]
+    public List<IFormFile> Posters { get; init; } = [];
 }
 
 public record UpdateEventRequest
 {
-    [StringLength(512, MinimumLength = 5)]
-    public string? Name { get; init; }
+    [Required, StringLength(512, MinimumLength = 5)]
+    public string Name { get; init; } = default!;
 
-    public string? Description { get; init; }
+    [Required]
+    public string Description { get; init; } = default!;
 
-    public int? CategoryId { get; init; }
+    [Required]
+    public int VenueId { get; init; }
 
-    public DateTime? ActiveAt { get; init; }
-    public DateTime? EndAt { get; init; }
-    public DateTime? SaleStartAt { get; init; }
-    public DateTime? SaleEndAt { get; init; }
+    [Required]
+    public int CategoryId { get; init; }
+
+    [Required]
+    public DateTime ActiveAt { get; init; }
+
+    [Required]
+    public DateTime EndAt { get; init; }
+
+    [Required]
+    public DateTime SaleStartAt { get; init; }
+
+    [Required]
+    public DateTime SaleEndAt { get; init; }
 
     [Range(1, 100)]
-    public int? MaxTicketsPerBooking { get; init; }
+    public int MaxTicketsPerBooking { get; init; } = 10;
+
+    [Required, MinLength(1)]
+    public List<CreateTicketTypeRequest> TicketTypes { get; init; } = [];
+
+    public List<IFormFile>? Posters { get; init; } = [];
+
+    [Required]
+    public string PosterMeta { get; init; } = default!;
+}
+
+public class PosterMetaDto
+{
+    public int? PosterId { get; set; }
+    public bool IsPrimary { get; set; }
 }
 
 public record UpdateEventStatusRequest
@@ -233,3 +265,22 @@ public record EventSeatResponse(
     long Price,
     byte Status,          // 0=available, 1=reserved, 2=sold, 3=locked
     string StatusLabel);
+
+public record UploadPosterRequest(
+    int Index,
+    string Url
+    );
+
+public record TicketTypeHoldRequest
+{
+    public int Id { get; set; }
+    public int Quantity { get; set; }
+}
+
+public record HoldTicketsRequest
+{
+    [Required, MinLength(1)]
+    public List<TicketTypeHoldRequest> Items { get; init; } = new List<TicketTypeHoldRequest>();
+    
+    public int EventSeatIds { get; init; }
+}

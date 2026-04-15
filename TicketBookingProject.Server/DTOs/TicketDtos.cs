@@ -5,10 +5,36 @@ namespace TicketBookingProject.Server;
 
 public record TicketListRequest : PagedRequest
 {
-    public byte? Status { get; init; }
-    public int? EventId { get; init; }
-    public int? BookingId { get; init; }
+    public BookingStatus? Status { get; init; }
+    public string? Search { get; init; }
 }
+
+
+public record BookingTicketListItemResponse(
+    int Id,
+    string EventName,
+    string ImageUrl,
+    string VenueName,
+    DateTime EventActiveAt,
+    int SeatCount,
+    long TotalAmount,
+    byte Status,
+    string StatusLabel,
+    DateTime CreatedAt,
+    List<TicketBookingListItemResponse> Tickets);
+
+public record TicketBookingListItemResponse(
+    int Id,
+    string? SectionName,
+    string? Row,
+    string? SeatNumber,
+    byte? SeatType,
+    string TicketTypeName,
+    long Price,
+    string QrCode,
+    byte Status,
+    string StatusLabel,
+    DateTime CreatedAt);
 
 public record TicketListItemResponse(
     int Id,
@@ -26,6 +52,7 @@ public record TicketListItemResponse(
     string StatusLabel,
     DateTime CreatedAt);
 
+
 // ─────────────────────────────────────────────
 // TICKET DETAIL
 // ─────────────────────────────────────────────
@@ -33,14 +60,30 @@ public record TicketListItemResponse(
 public record TicketDetailResponse(
     int Id,
     int BookingId,
-    TicketEventDto Event,
-    TicketSeatDto Seat,
     string QrCode,
-    byte Status,
+    string ImageUrl,
+    string VenueName,
+    string Province,
+    string AddressDetails,
     string StatusLabel,
+    string EventName,
+    DateTime? EventActiveAt,
+    string TicketTypeName,
+    string? SeatLabel,
+    bool IsCheckedIn,
     DateTime? CheckedInAt,
     string? CheckedInByName,
     DateTime CreatedAt);
+
+public class TicketCreateRequest
+{
+    public int BookingId { get; init; }
+    public int? EventSeatId { get; init; }
+    public int TicketTypeId { get; init; }
+    public DateTime? CreatedAt { get; init; }
+    public string? QrCode { get; init; }
+    public TicketStatus Status { get; init; }
+}
 
 public record TicketEventDto(
     int Id,

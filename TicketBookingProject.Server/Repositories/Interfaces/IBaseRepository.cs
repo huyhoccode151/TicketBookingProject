@@ -15,4 +15,6 @@ public interface IBaseRepository<T> where T : class, IEntities
     Task UpdateAsync(T entity);
     Task ForceDeleteAsync(T entity);
     Task<int> MultiForceDelete(List<int> ids);
+
+    Task SaveChanges();
 }

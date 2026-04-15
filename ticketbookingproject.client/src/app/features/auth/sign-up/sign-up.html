@@ -1,0 +1,157 @@
+<body class="auth-page">
+  <!-- Cột trái: Sidebar quảng bá -->
+  <aside class="aside-panel" style="display: sticker; position: fixed; height: 100vh; align-items: center; gap: 12px; z-index: 10;">
+    <div class="logo-area" style="display: sticker; align-items: center; gap: 12px; z-index: 10;">
+      <div style="width: 40px; height: 40px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+        <span style="color: var(--color-primary); font-weight: 800; font-size: 24px;">B</span>
+      </div>
+      <span style="font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">Barren</span>
+    </div>
+
+    <div style="position: relative; margin-bottom: 40px;">
+      <h1 style="font-size: 42px; font-weight: 800; line-height: 1.2;">
+        The Easiest Way to Create Events and Sell More Tickets Online
+      </h1>
+    </div>
+
+    <!-- Pattern trang trí có thể thêm lại bằng JS như cũ -->
+    <div id="triangleContainer" style="position: absolute; inset: 0;"></div>
+  </aside>
+
+  <!-- Cột phải: Form đăng ký -->
+  <main class="main-panel" style="margin-left: 550px; flex: 1; display: flex; padding: 40px">
+    <div class="top-right-link">
+      <span style="color: var(--color-text-muted);">Already have an account?</span>
+      <a href="/login" class="link-alt">Sign In</a>
+    </div>
+
+    <div class="form-container">
+      <h2 class="form-title">Sign up to Ticket Booking</h2>
+
+      <form [formGroup]="signUpForm" (ngSubmit)="onSubmit()" novalidate>
+        <!-- Grid cho Tên -->
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">First Name*</label>
+            <input type="text"
+                   class="form-input"
+                   [class.is-error]="submitted && firstnameControl.invalid"
+                   formControlName="firstname"
+                   placeholder="John">
+            <span class="error-msg" *ngIf="submitted && firstnameControl.invalid">
+              <ng-container *ngIf="firstnameControl.errors?.['required']">First name is required.</ng-container>
+              <ng-container *ngIf="firstnameControl.errors?.['maxlength']">First name must be at max 50 characters.</ng-container>
+            </span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Name*</label>
+            <input type="text"
+                   class="form-input"
+                   [class.is-error]="submitted && lastnameControl.invalid"
+                   formControlName="lastname"
+                   placeholder="Doe">
+            <span class="error-msg" *ngIf="submitted && lastnameControl.invalid">
+              <ng-container *ngIf="lastnameControl.errors?.['required']">Last name is required.</ng-container>
+              <ng-container *ngIf="lastnameControl.errors?.['maxlength']">Last name must be at max 50 characters.</ng-container>
+            </span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">User Name*</label>
+          <input type="email"
+                 class="form-input"
+                 [class.is-error]="submitted && usernameControl.invalid"
+                 formControlName="username"
+                 placeholder="johndoe">
+          <span class="error-msg" *ngIf="submitted && usernameControl.invalid">
+            <ng-container *ngIf="usernameControl.errors?.['required']">Username is required.</ng-container>
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email"
+                 class="form-input"
+                 [class.is-error]="submitted && emailControl.invalid"
+                 formControlName="email"
+                 placeholder="john@example.com">
+          <span class="error-msg" *ngIf="submitted && emailControl.invalid">
+            <ng-container *ngIf="emailControl.errors?.['required']">Email is required.</ng-container>
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password*</label>
+          <div style="position: relative;">
+            <input id="password"
+                   [type]="showPassword ? 'text' : 'password'"
+                   class="form-input"
+                   [class.is-error]="submitted && passwordControl.invalid"
+                   formControlName="password"
+                   placeholder="Enter your password"
+                   autocomplete="current-password">
+            <span class="error-msg" *ngIf="submitted && passwordControl.invalid">
+              <ng-container *ngIf="passwordControl.errors?.['required']">Password is required.</ng-container>
+              <ng-container *ngIf="passwordControl.errors?.['minlength']">Password must be at least 6 characters.</ng-container>
+            </span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Confirm Password*</label>
+          <div style="position: relative;">
+            <input id="password"
+                   [type]="showPassword ? 'text' : 'password'"
+                   class="form-input"
+                   [class.is-error]="submitted && passwordControl.invalid"
+                   formControlName="confirm_password"
+                   placeholder="Enter your password"
+                   autocomplete="current-password">
+            <span class="error-msg" *ngIf="submitted && confirmPasswordControl.invalid">
+              <ng-container *ngIf="confirmPasswordControl.errors?.['required']">Password is required.</ng-container>
+              <ng-container *ngIf="confirmPasswordControl.errors?.['minlength']">Password must be at least 6 characters.</ng-container>
+            </span>
+          </div>
+          <div class="alert alert-error" *ngIf="errorMessage">
+            {{ errorMessage }}
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary" [disabled]="isLoading">Create Account</button>
+        <span *ngIf="!isLoading">
+          Sign Up
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+            <polyline points="10 17 15 12 10 7" />
+            <line x1="15" y1="12" x2="3" y2="12" />
+          </svg>
+        </span>
+        <span *ngIf="isLoading" class="spinner"></span>
+
+        <p class="terms-text">
+          By clicking "Create Account", you agree to Barren
+          <a href="#" class="link-alt">Terms & Conditions</a> and have read the
+          <a href="#" class="link-alt">Privacy Policy</a>.
+        </p>
+      </form>
+
+      <div class="divider">or</div>
+
+      <div class="social-buttons">
+        <button class="btn-social">
+          <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" width="18" alt="Google">
+          Sign in with Google
+        </button>
+        <button class="btn-social">
+          <svg width="18" height="18" fill="#1877F2" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"></path></svg>
+          Sign in with Facebook
+        </button>
+      </div>
+
+      <footer style="margin-top: 40px; text-align: center; font-size: 12px; color: var(--color-text-muted);">
+        © 2024, Barren. All rights reserved.
+      </footer>
+    </div>
+  </main>
+</body>

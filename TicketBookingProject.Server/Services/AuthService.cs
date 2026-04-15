@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
+using TicketBookingProject.Server.Enums;
 using TicketBookingProject.Server.Models;
 
 namespace TicketBookingProject.Server;
@@ -11,12 +12,14 @@ public class AuthService : IAuthService
     private readonly IRefreshTokenRepository _rfToken;
     private readonly ITokenService _tokenService;
     private readonly IConfiguration _cfg;
-    public AuthService(IUserRepository users, IRefreshTokenRepository rfToken, ITokenService tokenService, IConfiguration cfg)
+    private readonly IAuditLogService _auditLog;
+    public AuthService(IUserRepository users, IRefreshTokenRepository rfToken, ITokenService tokenService, IConfiguration cfg, IAuditLogService auditLog)
     {
         _users = users;
         _rfToken = rfToken;
         _tokenService = tokenService;
         _cfg = cfg;
+        _auditLog = auditLog;
     }
 
     public async Task<TokenResponse> Login(LoginRequest user, string? ip = null, CancellationToken ct = default)
@@ -27,7 +30,7 @@ public class AuthService : IAuthService
         if (foundUser.LockoutEnd < DateTime.UtcNow) throw new Exception("Tài khoản bị khóa. " +
             $"Hãy thử lại sau {Math.Ceiling((foundUser.LockoutEnd.Value - DateTime.UtcNow).TotalMinutes)} phút.");
 
-        if (!PasswordHasher.Verify(PasswordHasher.Hash(user.Password), foundUser.Password))
+        if (!PasswordHasher.Verify(user.Password, foundUser.Password))
         {
             foundUser.AccessFailedCount++;
             if (foundUser.AccessFailedCount > 5)
@@ -57,6 +60,20 @@ public class AuthService : IAuthService
             Status = RefreshTokenStatus.Active,
             IpAddress = ip,
         },ct);
+
+        _auditLog.AddLog(
+            AuditAction.Login,
+            "Login",
+            foundUser.Id,
+            $"Tài khoản {foundUser.Username} đăng nhập thành công",
+            new
+            {
+                foundUser.Username,
+                foundUser.Email,
+            },
+            foundUser.Id
+            );
+        await _users.SaveChanges();
 
         return new TokenResponse { AccessToken = accessToken, RefreshToken = refreshToken };
     }

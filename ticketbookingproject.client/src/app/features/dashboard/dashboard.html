@@ -1,0 +1,128 @@
+<div class="page-header">
+  <div class="page-title">
+    <h1>System Administrator Dashboard</h1>
+    <p>Real-time platform performance and management overview.</p>
+  </div>
+  <div class="page-actions">
+    <button class="btn secondary">
+      <span class="material-symbols-outlined">download</span>
+      Export Report
+    </button>
+    <button class="btn primary">
+      <span class="material-symbols-outlined">add</span>
+      New Announcement
+    </button>
+  </div>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-header">
+      <div class="stat-icon primary-bg"><span class="material-symbols-outlined">payments</span></div>
+      <span class="trend positive"><span class="material-symbols-outlined">trending_up</span> +12.5%</span>
+    </div>
+    <p class="stat-label">Total Platform Revenue</p>
+    <p class="stat-value">$452,890.00</p>
+  </div>
+  <div class="stat-card">
+    <div class="stat-header">
+      <div class="stat-icon blue-bg"><span class="material-symbols-outlined">event_available</span></div>
+      <span class="trend positive"><span class="material-symbols-outlined">trending_up</span> +5.2%</span>
+    </div>
+    <p class="stat-label">Active Events</p>
+    <p class="stat-value">1,284</p>
+  </div>
+  <div class="stat-card">
+    <div class="stat-header">
+      <div class="stat-icon purple-bg"><span class="material-symbols-outlined">person_add</span></div>
+      <span class="trend positive"><span class="material-symbols-outlined">trending_up</span> +8.1%</span>
+    </div>
+    <p class="stat-label">Total Users</p>
+    <p class="stat-value">42,500</p>
+  </div>
+  <div class="stat-card">
+    <div class="stat-header">
+      <div class="stat-icon orange-bg"><span class="material-symbols-outlined">pending_actions</span></div>
+      <span class="trend negative"><span class="material-symbols-outlined">trending_down</span> -2.3%</span>
+    </div>
+    <p class="stat-label">Pending Approvals</p>
+    <p class="stat-value">18</p>
+  </div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-header">
+    <div class="chart-title">
+      <h3>Platform Growth</h3>
+      <p>User signups & Event creations over the last 6 months</p>
+    </div>
+    <div class="chart-legend">
+      <div class="legend-item"><span class="dot primary-dot"></span> Signups</div>
+      <div class="legend-item"><span class="dot gray-dot"></span> Events</div>
+    </div>
+  </div>
+  <div class="chart-container">
+    <svg preserveAspectRatio="none" viewBox="0 0 1000 250">
+      <defs>
+        <linearGradient id="gradient-chart" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stop-color="#2aa74d" stop-opacity="0.3"></stop>
+          <stop offset="100%" stop-color="#2aa74d" stop-opacity="0"></stop>
+        </linearGradient>
+      </defs>
+      <path d="M0,180 Q100,160 200,190 Q300,220 400,140 Q500,60 600,100 Q700,140 800,80 Q900,20 1000,40 L1000,250 L0,250 Z" fill="url(#gradient-chart)"></path>
+      <path d="M0,180 Q100,160 200,190 Q300,220 400,140 Q500,60 600,100 Q700,140 800,80 Q900,20 1000,40" fill="none" stroke="#2aa74d" stroke-linecap="round" stroke-width="3"></path>
+      <path d="M0,220 Q100,210 200,230 Q300,200 400,210 Q500,180 600,190 Q700,170 800,185 Q900,150 1000,160" fill="none" stroke="#cbd5e1" stroke-dasharray="8,4" stroke-width="2"></path>
+    </svg>
+    <div class="chart-labels">
+      <span>January</span>
+      <span>February</span>
+      <span>March</span>
+      <span>April</span>
+      <span>May</span>
+      <span>June</span>
+    </div>
+  </div>
+</div>
+
+<div class="activity-card">
+  <div class="activity-header">
+    <h3>Latest Activity</h3>
+    <button class="text-link">View All Activity</button>
+  </div>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Action</th>
+          <th>User / Organizer</th>
+          <th>Subject</th>
+          <th>Status</th>
+          <th>Timestamp</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let activity of activities">
+          <td>
+            <div class="action-cell">
+              <span class="material-symbols-outlined" [style.color]="activity.iconColor">{{activity.icon}}</span>
+              <span class="action-text">{{activity.action}}</span>
+            </div>
+          </td>
+          <td>
+            <div class="user-cell">
+              <div class="user-avatar">{{activity.userInitials}}</div>
+              <span class="user-name-text">{{activity.user}}</span>
+            </div>
+          </td>
+          <td><span class="subject-text">{{activity.subject}}</span></td>
+          <td><span class="status-badge" [ngClass]="activity.statusClass">{{activity.status}}</span></td>
+          <td><span class="timestamp-text">{{activity.time}}</span></td>
+          <td class="actions-cell">
+            <button class="material-symbols-outlined">more_vert</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

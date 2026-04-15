@@ -1,0 +1,125 @@
+<main class="event-page-container">
+
+  <div *ngIf="loading">
+    <app-loader />
+  </div>
+
+  <div class="layout-grid" *ngIf="!loading">
+
+    <!-- CỘT TRÁI (CHÍNH) -->
+    <div class="content-main">
+      <!-- Carousel -->
+      <div class="carousel-section">
+        <div class="main-image-container">
+          <img [src]="getThumbnail(images[currentIndex].imageUrl)" [alt]="images[currentIndex].imageUrl" class="fade-in" />
+          <div class="nav-overlay">
+            <button (click)="changeImage(-1)" class="nav-btn"><span class="material-symbols-outlined">chevron_left</span></button>
+            <button (click)="changeImage(1)" class="nav-btn"><span class="material-symbols-outlined">chevron_right</span></button>
+          </div>
+        </div>
+        <div class="thumbnails">
+          <div *ngFor="let img of images; let i = index"
+               (click)="setIndex(i)"
+               [class.active]="i === currentIndex"
+               class="thumb">
+            <img [src]="getThumbnail(img.imageUrl)" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Header Nội dung -->
+      <header class="event-header">
+        <span class="badge">Exhibition & Gala</span>
+        <h1>{{name}}</h1>
+        <p class="lead">{{description}}</p>
+      </header>
+
+      <!-- About Section -->
+      <section class="details-section">
+        <h2>About This Event</h2>
+        <p>Join us for an exclusive evening at the Vanguard Pavilion, where we explore the evolving landscape of digital curation. This event brings together world-renowned archivists, digital artists, and technologists.</p>
+
+        <div class="info-cards">
+          <div class="card">
+            <span class="material-symbols-outlined">verified</span>
+            <div>
+              <strong>Exclusive Access</strong>
+              <p>Limited VIP entry for private viewing.</p>
+            </div>
+          </div>
+          <div class="card">
+            <span class="material-symbols-outlined">restaurant</span>
+            <div>
+              <strong>Curated Dining</strong>
+              <p>Bespoke catering menu by Chef Julian.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- CỘT PHẢI (SIDEBAR) -->
+    <aside class="sidebar">
+      <div class="ticket-wrap">
+        <div class="ticket">
+          <div class="ticket-top">
+            <div class="ticket-badge">LIVE MUSIC</div>
+            <p class="ticket-event-name">{{name}}</p>
+            <p class="ticket-organizer">by {{username}} +  · {{venue}}</p>
+          </div>
+
+          <div class="ticket-divider">
+            <div class="ticket-notch left"></div>
+            <div class="ticket-notch right"></div>
+          </div>
+
+          <div class="ticket-body">
+            <div class="ticket-countdown">
+              <div class="countdown-label">Time remaining</div>
+              <div class="countdown-boxes">
+                <div class="countdown-box"><span>{{ days }}</span> <small>Days</small></div>
+                <div class="countdown-box"><span>{{ hours }}</span><small>Hrs</small></div>
+                <div class="countdown-box"><span>{{ minutes }}</span><small>Mins</small></div>
+                <div class="countdown-box"><span>{{ seconds }}</span><small>Secs</small></div>
+              </div>
+            </div>
+
+            <div class="ticket-meta-grid">
+              <div class="ticket-meta-item">
+                <span class="ticket-meta-icon">calendar_today</span>
+                <span class="ticket-meta-label">Date</span>
+                <span class="ticket-meta-value">{{ activeAt | date:'EEEE, dd/MM/yyyy' }}</span>
+              </div>
+              <div class="ticket-meta-item">
+                <span class="ticket-meta-icon">schedule</span>
+                <span class="ticket-meta-label">Time</span>
+                <span class="ticket-meta-value">{{ activeAt | date:'HH:mm' }} – {{ endAt | date:'HH:mm' }}</span>
+              </div>
+              <div class="ticket-meta-item">
+                <span class="ticket-meta-icon">location_on</span>
+                <span class="ticket-meta-label">Venue</span>
+                <span class="ticket-meta-value">{{venue}}</span>
+              </div>
+              <div class="ticket-meta-item">
+                <span class="ticket-meta-icon">confirmation_number</span>
+                <span class="ticket-meta-label">Sale ends</span>
+                <span class="ticket-meta-value">{{ saleEndAt | date:'EEEE, dd/MM/yyyy' }}</span>
+              </div>
+            </div>
+
+            <div class="ticket-barcode">
+              <div class="barcode-lines" id="barcode"></div>
+              <div class="barcode-info">
+                <div class="barcode-id">#EVT-2026-00042</div>
+                <div class="barcode-seat">General · up to {{maxTicketsPerBooking}} tickets</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-book">Book now ↗</button>
+        </div>
+</aside>
+
+  </div>
+</main>

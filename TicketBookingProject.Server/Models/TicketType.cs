@@ -29,5 +29,11 @@ public partial class TicketType
 
     public virtual Event Event { get; set; } = null!;
 
+    public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
+
+    public virtual ICollection<SeatHold> SeatHolds { get; set; } = new List<SeatHold>();
+
     public virtual ICollection<EventSeat> EventSeats { get; set; } = new List<EventSeat>();
+
+    public virtual ICollection<BookingDetail> BookingDetails { get; set; } = new List<BookingDetail>();
 }

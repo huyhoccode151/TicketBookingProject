@@ -49,17 +49,17 @@ public class BookingMappingProfile : Profile
                 o => o.MapFrom(s => StatusLabels.GetValueOrDefault(s.Status, s.Status.ToString())));
 
         // ── Booking → BookingDetailResponse ───────────────────
-        CreateMap<Booking, BookingDetailResponse>()
-            .ForMember(d => d.Event,
-                o => o.MapFrom(s => s.Event))
-            .ForMember(d => d.Items,
-                o => o.MapFrom(s => s.BookingDetails))
-            .ForMember(d => d.Status,
-                o => o.MapFrom(s => (byte)s.Status))
-            .ForMember(d => d.StatusLabel,
-                o => o.MapFrom(s => StatusLabels.GetValueOrDefault(s.Status, s.Status.ToString())))
-            .ForMember(d => d.Payment,
-                o => o.MapFrom(s => s.Payments.OrderByDescending(p => p.CreatedAt).FirstOrDefault()));
+        //CreateMap<Booking, BookingDetailResponse>()
+        //    .ForMember(d => d.Event,
+        //        o => o.MapFrom(s => s.Event))
+        //    .ForMember(d => d.Items,
+        //        o => o.MapFrom(s => s.BookingDetails))
+        //    .ForMember(d => d.Status,
+        //        o => o.MapFrom(s => (byte)s.Status))
+        //    .ForMember(d => d.StatusLabel,
+        //        o => o.MapFrom(s => StatusLabels.GetValueOrDefault(s.Status, s.Status.ToString())))
+        //    .ForMember(d => d.Payment,
+        //        o => o.MapFrom(s => s.Payments.OrderByDescending(p => p.CreatedAt).FirstOrDefault()));
 
         // ── Event → BookingEventDto ───────────────────────────
         CreateMap<Event, BookingEventDto>()
@@ -152,5 +152,41 @@ public class BookingMappingProfile : Profile
                 o => o.MapFrom(s => s.TicketType.Name))
             .ForMember(d => d.Price,
                 o => o.MapFrom(s => s.Price ?? s.TicketType.Price));
+
+        //CreateMap<SeatHold, BookingDetails>()
+        //    .ForMember(d => d.EventSeatId, o => o.MapFrom(s => s.EventSeatId))
+        //    .ForMember(d => d.TicketTypeId, o => o.MapFrom(s => s.TicketTypeId))
+        //    .ForMember(d => d.Price, o => o.MapFrom(s => s.TicketType.Price * s.Quantity));
+
+        CreateMap<Booking, BookingTicketDetails>()
+            .ForMember(d => d.UserId, o => o.MapFrom(b => b.UserId))
+            .ForMember(d => d.EventId, o => o.MapFrom(b => b.EventId))
+            .ForMember(d => d.TotalAmount, o => o.MapFrom(b => b.TotalAmount))
+            .ForMember(d => d.ExpiresAt, o => o.MapFrom(b => b.ExpiresAt))
+            .ForMember(d => d.Details, o => o.MapFrom(b => b.BookingDetails))
+            .ForMember(d => d.SeatHolds, o => o.MapFrom(b => b.SeatHolds));
+
+        CreateMap<SeatHold, SeatHolds>()
+            .ForMember(d => d.EventSeatId, o => o.MapFrom(s => s.EventSeatId))
+            .ForMember(d => d.TicketTypeId, o => o.MapFrom(s => s.TicketTypeId))
+            .ForMember(d => d.Quantity, o => o.MapFrom(s => s.Quantity));
+
+        CreateMap<BookingDetail, BookingDetails>()
+            .ForMember(d => d.EventSeatId, o => o.MapFrom(s => s.EventSeatId))
+            .ForMember(d => d.TicketTypeId, o => o.MapFrom(s => s.TicketTypeId))
+            .ForMember(d => d.TicketTypeName, o => o.MapFrom(s => s.TicketType.Name))
+            .ForMember(d => d.Quantity, o => o.MapFrom(s => s.Quantity))
+            .ForMember(d => d.Price, o => o.MapFrom(s => s.Price));
+
+        CreateMap<Booking, AdminBookingListItemResponse>()
+            .ForCtorParam("Id", o => o.MapFrom(s => s.Id))
+            .ForCtorParam("UserEmail", o => o.MapFrom(s => s.User.Email))
+            .ForCtorParam("UserFullName", o => o.MapFrom(s => s.User.Firstname + s.User.Lastname))
+            .ForCtorParam("EventName", o => o.MapFrom(s => s.Event.Name))
+            .ForCtorParam("SeatCount", o => o.MapFrom(s => s.BookingDetails.Count()))
+            .ForCtorParam("TotalAmount", o => o.MapFrom(s => s.TotalAmount))
+            .ForCtorParam("Status", o => o.MapFrom(s => s.Status))
+            .ForCtorParam("StatusLabel", o => o.MapFrom(s => s.Status.ToString()))
+            .ForCtorParam("CreatedAt", o => o.MapFrom(s => s.CreatedAt));
     }
 }

@@ -1,0 +1,589 @@
+// Variables
+$primary: #6200ee;
+$surface: #ffffff;
+$bg-light: #f8f9fa;
+$text-main: #1c1b1f;
+$text-muted: #49454f;
+$radius: 16px;
+
+.event-page-container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.layout-grid {
+  display: grid;
+  grid-template-columns: 1fr; // Mobile: 1 cột
+  gap: 3rem;
+  align-items: flex-start; // Giữ sidebar không bị kéo dài theo nội dung trái
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(12, 1fr); // Desktop: Chia 12 cột
+  }
+}
+
+// Nội dung chính bên trái
+.content-main {
+  @media (min-width: 1024px) {
+    grid-column: span 8;
+  }
+
+  .carousel-section {
+    margin-bottom: 2.5rem;
+
+    .main-image-container {
+      position: relative;
+      aspect-ratio: 16/9;
+      border-radius: $radius;
+      overflow: hidden;
+      background: #eee;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .nav-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 1rem;
+        opacity: 0;
+        transition: 0.3s;
+
+        .nav-btn {
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          border: none;
+          background: rgba(255,255,255,0.9);
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+      }
+
+      &:hover .nav-overlay {
+        opacity: 1;
+      }
+    }
+
+    .thumbnails {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+
+      .thumb {
+        width: 80px;
+        height: 50px;
+        border-radius: 8px;
+        overflow: hidden;
+        cursor: pointer;
+        border: 2px solid transparent;
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        &.active {
+          border-color: $primary;
+        }
+      }
+    }
+  }
+
+  .event-header {
+    margin-bottom: 2rem;
+
+    .badge {
+      color: $primary;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 13px;
+    }
+
+    h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      margin: 1rem 0;
+      color: $text-main;
+      line-height: 1.1;
+    }
+
+    .lead {
+      font-size: 1.25rem;
+      color: $text-muted;
+    }
+  }
+
+  .info-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 2rem;
+
+    .card {
+      background: $bg-light;
+      padding: 1.5rem;
+      border-radius: $radius;
+      display: flex;
+      gap: 1rem;
+
+      span {
+        color: $primary;
+      }
+
+      strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      p {
+        font-size: 0.85rem;
+        margin: 0;
+        color: $text-muted;
+      }
+    }
+  }
+}
+
+// Sidebar bên phải
+.sidebar {
+  @media (min-width: 1024px) {
+    grid-column: 9 / span 4;
+    position: sticky;
+    top: 2rem; // Sidebar sẽ hít lên trên khi cuộn
+  }
+
+  .sticky-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .booking-card {
+    background: $surface;
+    border-radius: $radius;
+    padding: 2rem;
+    padding: 2rem;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+    border: 1px solid rgba(0,0,0,0.05);
+
+    .timer-boxes {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+      margin: 1rem 0 2rem;
+
+      .box {
+        background: rgba($primary, 0.1);
+        color: $primary;
+        text-align: center;
+        padding: 0.75rem 0;
+        border-radius: 8px;
+
+        span {
+          display: block;
+          font-size: 1.5rem;
+          font-weight: 800;
+        }
+
+        small {
+          font-size: 10px;
+          text-transform: uppercase;
+        }
+      }
+    }
+
+    .qty-selector {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: $bg-light;
+      border-radius: 100px;
+      padding: 0.5rem;
+      margin: 1.5rem 0;
+
+      button {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .qty {
+        font-weight: 800;
+        font-size: 1.1rem;
+      }
+    }
+
+    .total {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px border $bg-light;
+      padding-top: 1.5rem;
+      margin-bottom: 1.5rem;
+
+      strong {
+        font-size: 1.75rem;
+        font-weight: 800;
+      }
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 1.25rem;
+      border-radius: 100px;
+      border: none;
+      background: $primary;
+      color: white;
+      font-weight: 700;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: 0.3s;
+
+      &:hover {
+        transform: scale(0.98);
+        opacity: 0.9;
+      }
+    }
+  }
+
+  .meta-info {
+    background: $bg-light;
+    border-radius: $radius;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+
+    .meta-item {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+
+      span {
+        color: $primary;
+        font-size: 20px;
+      }
+
+      img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .label {
+        font-size: 10px;
+        text-transform: uppercase;
+        color: $text-muted;
+        margin: 0;
+      }
+    }
+  }
+}
+
+.sidebar {
+  position: sticky;
+  top: 1.5rem;
+  width: 100%;
+}
+
+.ticket-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+// ── Ticket container ──────────────────────────────────────────
+.ticket {
+  width: 100%;
+  background: var(--color-bg, #fff);
+  border: 0.5px solid #e2e8f0;
+  border-radius: 16px;
+  overflow: hidden;
+
+  .dark & {
+    background: #1e293b;
+    border-color: #334155;
+  }
+}
+
+// ── Header (tối) ──────────────────────────────────────────────
+.ticket-top {
+  background: #1a1a2e;
+  padding: 1.25rem 1.25rem 1.5rem;
+
+  .ticket-badge {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+    border: 0.5px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .ticket-event-name {
+    font-size: 18px;
+    font-weight: 500;
+    color: #fff;
+    margin: 0 0 6px;
+    line-height: 1.3;
+  }
+
+  .ticket-organizer {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+    margin: 0;
+  }
+}
+
+// ── Đường cắt răng cưa ────────────────────────────────────────
+.ticket-divider {
+  display: flex;
+  align-items: center;
+  position: relative;
+  height: 0;
+  margin: 0 -1px;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    border-top: 1.5px dashed #e2e8f0;
+
+    .dark & {
+      border-color: #334155;
+    }
+  }
+
+  .ticket-notch {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #f8fafc;
+    border: 0.5px solid #e2e8f0;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+
+    .dark & {
+      background: #0f172a;
+      border-color: #334155;
+    }
+
+    &.left {
+      margin-left: -12px;
+    }
+
+    &.right {
+      margin-right: -12px;
+      margin-left: auto;
+    }
+  }
+}
+
+// ── Body ──────────────────────────────────────────────────────
+.ticket-body {
+  padding: 1.25rem;
+}
+
+// Countdown
+.ticket-countdown {
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 0.875rem 1rem;
+  margin-bottom: 1rem;
+
+  .dark & {
+    background: #0f172a;
+  }
+
+  .countdown-label {
+    font-size: 11px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+
+  .countdown-boxes {
+    display: flex;
+    gap: 8px;
+  }
+
+  .countdown-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #fff;
+    border: 0.5px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 6px 4px;
+
+    .dark & {
+      background: #1e293b;
+      border-color: #334155;
+    }
+
+    span {
+      font-size: 20px;
+      font-weight: 500;
+      color: #1a1a2e;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+
+      .dark & {
+        color: #f1f5f9;
+      }
+    }
+
+    small {
+      font-size: 10px;
+      color: #94a3b8;
+      margin-top: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+  }
+}
+
+// Meta grid
+.ticket-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 1.25rem;
+}
+
+.ticket-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ticket-meta-icon {
+  font-family: 'Material Symbols Outlined', sans-serif;
+  font-size: 16px;
+  color: #94a3b8;
+  margin-bottom: 2px;
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 20;
+}
+
+.ticket-meta-label {
+  font-size: 11px;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.ticket-meta-value {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1e293b;
+
+  .dark & {
+    color: #f1f5f9;
+  }
+}
+
+// Barcode
+.ticket-barcode {
+  border-top: 0.5px solid #e2e8f0;
+  padding-top: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .dark & {
+    border-color: #334155;
+  }
+
+  .barcode-lines {
+    display: flex;
+    gap: 2px;
+    height: 40px;
+    align-items: flex-end;
+
+    span {
+      display: block;
+      background: #94a3b8;
+      width: 2px;
+      opacity: 0.5;
+    }
+  }
+
+  .barcode-info {
+    flex: 1;
+
+    .barcode-id {
+      font-size: 11px;
+      color: #94a3b8;
+      font-family: monospace;
+      letter-spacing: 0.05em;
+    }
+
+    .barcode-seat {
+      font-size: 13px;
+      font-weight: 500;
+      color: #1e293b;
+      margin-top: 2px;
+
+      .dark & {
+        color: #f1f5f9;
+      }
+    }
+  }
+}
+
+// ── Button ────────────────────────────────────────────────────
+.btn-book {
+  width: 100%;
+  background: #1a1a2e;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: opacity 0.15s, transform 0.1s;
+
+  &:hover {
+    opacity: 0.85;
+  }
+
+  &:active {
+    transform: scale(0.99);
+  }
+}
+
+.label {
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: $text-muted;
+  letter-spacing: 0.5px;
+}

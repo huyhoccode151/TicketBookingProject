@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace TicketBookingProject.Server.Models;
 
-public partial class EventPoster
+public partial class EventPoster : IEntities
 {
     public int Id { get; set; }
 

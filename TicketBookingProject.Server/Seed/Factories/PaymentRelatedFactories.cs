@@ -33,7 +33,7 @@ public static class TicketFactory
         List<BookingDetail> details,
         TicketStatus status = TicketStatus.Valid,
         int? checkedInBy = null)
-        => details.Select(d => Create(bookingId, d.EventSeatId, status, checkedInBy)).ToList();
+        => details.Select(d => Create(bookingId, d.EventSeatId ?? 0, status, checkedInBy)).ToList();
 }
 
 // ─────────────────────────────────────────────

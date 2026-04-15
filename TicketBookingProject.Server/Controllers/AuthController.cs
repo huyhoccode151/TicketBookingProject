@@ -6,7 +6,7 @@ using TicketBookingProject.Server;
 
 namespace MyApp.Namespace
 {
-    [Route("api/[controller]")]
+    [Route("api/auth/")]
     [ApiController]
     public class AuthController : ControllerBase
     {

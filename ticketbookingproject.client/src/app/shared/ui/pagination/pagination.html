@@ -1,0 +1,41 @@
+<div class="p-4 bg-slate-50 border-t flex items-center justify-between">
+  <p class="text-xs text-slate-500 font-medium">
+    Showing
+    <span class="text-slate-900">{{start}}</span>
+    to
+    <span class="text-slate-900">{{end}}</span>
+    of
+    <span class="text-slate-900">{{totalCount}}</span>
+    records
+  </p>
+
+  <div class="flex items-center gap-1">
+    <button (click)="changePage(page-1)"
+            [disabled]="page===1"
+            class="w-8 h-8 flex items-center justify-center rounded border">
+      <span class="material-symbols-outlined text-base">chevron_left</span>
+    </button>
+
+    <!-- Pages -->
+    <ng-container *ngFor="let p of pages">
+      <span *ngIf="p==='...'" class="px-1 text-slate-400 text-xs">
+        ...
+      </span>
+
+      <button *ngIf="p!=='...'"
+              (click)="changePage($any(p))"
+              class="w-8 h-8 flex items-center justify-center rounded text-xs font-bold"
+              [class.bg-primary]="page===p"
+              [class.text-white]="page===p">
+        {{p}}
+      </button>
+    </ng-container>
+
+    <!-- Next -->
+    <button (click)="changePage(page+1)"
+            [disabled]="page===totalPages"
+            class="w-8 h-8 flex items-center justify-center rounded border">
+      <span class="material-symbols-outlined text-base">chevron_right</span>
+    </button>
+  </div>
+</div>

@@ -1,0 +1,39 @@
+<ng-container *ngFor="let pos of positions">
+  <div class="toast-container" [ngClass]="pos" *ngIf="grouped[pos].length > 0">
+    <div *ngFor="let toast of grouped[pos]; trackBy: trackById"
+         class="toast"
+         [ngClass]="toast.type"
+         role="alert"
+         aria-live="polite">
+      <!-- Icon -->
+      <span class="toast-icon" [innerHTML]="icon(toast.type)"></span>
+
+      <!-- Body -->
+      <div class="toast-body">
+        <p class="toast-title">{{ toast.title }}</p>
+        <p class="toast-message" *ngIf="toast.message">{{ toast.message }}</p>
+        <button class="toast-action"
+                *ngIf="toast.action"
+                (click)="toast.action!.callback(); dismiss(toast.id)">
+          {{ toast.action!.label }}
+        </button>
+      </div>
+
+      <!-- Close -->
+      <button class="toast-close"
+              *ngIf="toast.closable"
+              (click)="dismiss(toast.id)"
+              aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+
+      <!-- Progress bar -->
+      <div class="toast-progress"
+           *ngIf="toast.progress && toast.duration && toast.duration > 0"
+           [style.animation-duration.ms]="toast.duration"></div>
+    </div>
+  </div>
+</ng-container>

@@ -7,6 +7,7 @@ public interface IUserRepository : IBaseRepository<User>
     Task<List<string>> GetPermissionsByUserIdAsync(int userId, CancellationToken ct = default);
     Task<User?> GetByUserNameAsync(string username, CancellationToken ct = default);
     Task<User?> GetByIdAsync(int id, CancellationToken ct = default);
+    Task<PagedResponse<User>> GetAllUsers(UserListRequest req);
     Task<List<string>> GetUserRolesAsync(int userId, CancellationToken ct = default);
     string? GetJwtConfig(string key);
     Task<User> CreateAsync(User user, CancellationToken ct = default);
@@ -16,4 +17,6 @@ public interface IUserRepository : IBaseRepository<User>
     Task<int> MultiRestoreUser(List<int> ids);
     Task<int> MultiSoftDelete(List<int> ids);
     Task<int> MultiForceDeleteUser(List<int> ids, CancellationToken ct = default);
+    Task<List<string>> GetRolePermissions(int userId, CancellationToken ct = default);
+    Task<UserStatsDto> GetUserStats();
 }

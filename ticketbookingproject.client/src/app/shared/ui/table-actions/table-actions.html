@@ -1,0 +1,18 @@
+<div class="flex justify-end gap-2">
+
+  <button type="button" class="p-1.5 hover:bg-slate-100 rounded text-slate-400 hover:text-primary"
+          (click)="edit.emit(id)">
+    <span class="material-symbols-outlined text-xl">edit</span>
+  </button>
+
+  <button type="button" class="p-1.5 hover:bg-slate-100 rounded text-slate-400 hover:text-red-500"
+          (click)="delete.emit(id)">
+    <span class="material-symbols-outlined text-xl">delete</span>
+  </button>
+
+  <button type="button" class="p-1.5 hover:bg-slate-100 rounded text-slate-400 hover:text-slate-900"
+          (click)="view.emit(id)">
+    <span class="material-symbols-outlined text-xl">visibility</span>
+  </button>
+
+</div>

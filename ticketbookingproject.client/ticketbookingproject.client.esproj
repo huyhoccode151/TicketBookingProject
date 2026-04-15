@@ -7,4 +7,16 @@
     <!-- Folder where production build objects will be placed -->
     <BuildOutputFolder>$(MSBuildProjectDirectory)\dist\ticketbookingproject.client\browser\</BuildOutputFolder>
   </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="src\app\features\booking\services\" />
+    <Folder Include="src\app\features\event\models\" />
+    <Folder Include="src\app\features\event\services\" />
+    <Folder Include="src\app\features\payment\services\" />
+    <Folder Include="src\app\features\ticket\services\" />
+    <Folder Include="src\app\shared\data-access\" />
+    <Folder Include="src\app\shared\directives\" />
+    <Folder Include="src\app\shared\styles\" />
+    <Folder Include="src\app\shared\ui\button\" />
+    <Folder Include="src\app\shared\utils\" />
+  </ItemGroup>
 </Project>

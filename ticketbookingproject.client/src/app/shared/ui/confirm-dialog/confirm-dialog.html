@@ -1,0 +1,60 @@
+<div class="dialog-backdrop"
+     *ngIf="isVisible"
+     [class.animate-in]="!isAnimatingOut"
+     [class.animate-out]="isAnimatingOut"
+     (click)="onBackdropClick($event)"
+     role="dialog"
+     aria-modal="true"
+     [attr.aria-labelledby]="'dialog-title'">
+  <div class="dialog-panel" [attr.data-variant]="config.variant ?? 'danger'">
+    <!-- Header -->
+    <div class="dialog-header">
+      <div class="icon-wrapper">
+        <span class="material-symbols-outlined"
+              [ngClass]="{
+          'text-danger': config.variant === 'danger',
+          'text-warning': config.variant === 'warning',
+          'text-info': config.variant === 'info',
+          'text-success': config.variant === 'success'
+        }">
+          {{ variantIcon }}
+        </span>
+      </div>
+
+      <button class="close-btn" (click)="onCancel()" aria-label="Đóng">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="dialog-body">
+      <h2 class="dialog-title" id="dialog-title">{{ config.title }}</h2>
+      <p class="dialog-message">{{ config.message }}</p>
+      <p class="dialog-detail" *ngIf="config.detail">{{ config.detail }}</p>
+      <ng-content></ng-content>
+    </div>
+
+    <!-- Footer -->
+    <div class="dialog-footer">
+      <button class="btn btn-cancel" (click)="onCancel()">
+        {{ config.cancelText ?? 'Hủy' }}
+      </button>
+      <button class="btn btn-confirm"
+              [attr.data-variant]="config.variant ?? 'danger'"
+              (click)="onConfirm()">
+        <span class="material-symbols-outlined"
+              [ngClass]="{
+  'text-danger': config.variant === 'danger',
+  'text-warning': config.variant === 'warning',
+  'text-info': config.variant === 'info',
+  'text-success': config.variant === 'success'
+}">
+          {{ variantIcon }}
+        </span>
+        {{ config.confirmText ?? 'Xác nhận' }}
+      </button>
+    </div>
+  </div>
+</div>

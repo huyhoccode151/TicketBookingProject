@@ -49,18 +49,25 @@ public class TicketMappingProfile : Profile
 
         // ── Ticket → TicketDetailResponse ─────────────────────
         CreateMap<Ticket, TicketDetailResponse>()
-            .ForMember(d => d.Event,
-                o => o.MapFrom(s => s.EventSeat.Event))
-            .ForMember(d => d.Seat,
-                o => o.MapFrom(s => s.EventSeat))
-            .ForMember(d => d.Status,
-                o => o.MapFrom(s => (byte)s.Status))
-            .ForMember(d => d.StatusLabel,
-                o => o.MapFrom(s => StatusLabels.GetValueOrDefault(s.Status, s.Status.ToString())))
-            .ForMember(d => d.CheckedInByName,
-                o => o.MapFrom(s => s.CheckedInByNavigation != null
-                    ? $"{s.CheckedInByNavigation.Firstname} {s.CheckedInByNavigation.Lastname}"
-                    : null));
+            .ForCtorParam("Id", o => o.MapFrom(s => s.Id))
+            .ForCtorParam("BookingId", o => o.MapFrom(s => s.BookingId))
+            .ForCtorParam("QrCode", o => o.MapFrom(s => s.QrCode))
+            .ForCtorParam("StatusLabel", o => o.MapFrom(s => s.Status.ToString()))
+            .ForCtorParam("VenueName", o => o.MapFrom(s => s.Booking.Event.Venue.Name))
+            .ForCtorParam("Province", o => o.MapFrom(s => s.Booking.Event.Venue.Province))
+            .ForCtorParam("AddressDetails", o => o.MapFrom(s => s.Booking.Event.Venue.AddressDetail))
+            .ForCtorParam("EventName", o => o.MapFrom(s => s.Booking.Event.Name))
+            .ForCtorParam("ImageUrl", o => o.MapFrom(s => s.Booking.Event.EventPosters.Where(e => e.IsPrimary == true).Select(p => p.ImageUrl).FirstOrDefault()))
+            .ForCtorParam("EventActiveAt", o => o.MapFrom(s => s.Booking.Event.ActiveAt))
+            .ForCtorParam("TicketTypeName", o => o.MapFrom(s => s.TicketType.Name))
+            .ForCtorParam("SeatLabel", o => o.MapFrom(s => s.EventSeat.Seat.SeatNumber))
+            .ForCtorParam("IsCheckedIn", o => o.MapFrom(s => s.CheckedInAt != null))
+            .ForCtorParam("CheckedInAt", o => o.MapFrom(s => s.CheckedInAt))
+            .ForCtorParam("CheckedInByName", o => o.MapFrom(s => 
+                s.CheckedInByNavigation != null
+                ? s.CheckedInByNavigation.Username
+                : null))
+            .ForMember("CreatedAt", o => o.MapFrom(s => s.CreatedAt));
 
         // ── Event → TicketEventDto ────────────────────────────
         CreateMap<Event, TicketEventDto>()
@@ -92,5 +99,41 @@ public class TicketMappingProfile : Profile
                 o => o.MapFrom(s => s.TicketType.Name))
             .ForMember(d => d.Price,
                 o => o.MapFrom(s => s.Price ?? s.TicketType.Price));
+
+        // ── Booking → BookingTicketListItemResponse ─────────────────────────
+        CreateMap<Booking, BookingTicketListItemResponse>()
+            .ForCtorParam("Id", o => o.MapFrom(s => s.Id))
+            .ForCtorParam("EventName", o => o.MapFrom(s => s.Event.Name))
+            .ForCtorParam("ImageUrl", o => o.MapFrom(s => s.Event.EventPosters.Where(p => p.IsPrimary).Select(p => p.ImageUrl).FirstOrDefault()))
+            .ForCtorParam("VenueName", o => o.MapFrom(s => s.Event.Venue.Name))
+            .ForCtorParam("EventActiveAt", o => o.MapFrom(s => s.Event.ActiveAt))
+            .ForCtorParam("SeatCount", o => o.MapFrom(s => s.BookingDetails.Count()))
+            .ForCtorParam("TotalAmount", o => o.MapFrom(s => s.TotalAmount))
+            .ForCtorParam("Status", o => o.MapFrom(s => s.Status))
+            .ForCtorParam("StatusLabel", o => o.MapFrom(s => s.Status.ToString()))
+            .ForCtorParam("CreatedAt", o => o.MapFrom(s => s.CreatedAt))
+            .ForCtorParam("Tickets", o => o.MapFrom(s => s.Tickets));
+
+        // ── Ticket → TicketBookingListItemResponse ─────────────────────────
+        CreateMap<Ticket, TicketBookingListItemResponse>()
+            .ForCtorParam("Id", o => o.MapFrom(s => s.Id))
+            .ForCtorParam("SectionName", o => o.MapFrom(s => s.EventSeat.Seat.Section.Name != null
+                                                            ? s.EventSeat.Seat.Section.Name
+                                                            : null))
+            .ForCtorParam("Row", o => o.MapFrom(s => s.EventSeat.Seat.Row != null
+                                                            ? s.EventSeat.Seat.Row
+                                                            : null))
+            .ForCtorParam("SeatNumber", o => o.MapFrom(s => s.EventSeat.Seat.SeatNumber != null
+                                                            ? s.EventSeat.Seat.SeatNumber
+                                                            : null))
+            .ForCtorParam("SeatType", o => o.MapFrom(s => s.EventSeat.Seat.SeatType))
+            .ForCtorParam("TicketTypeName", o => o.MapFrom(s => s.TicketType.Name))
+            .ForCtorParam("Price", o => o.MapFrom(s => s.TicketType.Price))
+            .ForCtorParam("QrCode", o => o.MapFrom(s => s.QrCode))
+            .ForCtorParam("Status", o => o.MapFrom(s => s.Status))
+            .ForCtorParam("StatusLabel", o => o.MapFrom(s => s.Status.ToString()))
+            .ForCtorParam("CreatedAt", o => o.MapFrom(s => s.CreatedAt));
+
     }
+
 }

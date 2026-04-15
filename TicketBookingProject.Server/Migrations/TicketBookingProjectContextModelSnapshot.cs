@@ -39,6 +39,54 @@ namespace TicketBookingProject.Server.Migrations
                     b.ToTable("role_permissions", (string)null);
                 });
 
+            modelBuilder.Entity("TicketBookingProject.Server.AuditLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<long?>("EntityId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Metadata")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Action");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("audit_logs", (string)null);
+                });
+
             modelBuilder.Entity("TicketBookingProject.Server.Models.Booking", b =>
                 {
                     b.Property<int>("Id")
@@ -110,7 +158,7 @@ namespace TicketBookingProject.Server.Migrations
                         .HasColumnType("int")
                         .HasColumnName("booking_id");
 
-                    b.Property<int>("EventSeatId")
+                    b.Property<int?>("EventSeatId")
                         .HasColumnType("int")
                         .HasColumnName("event_seat_id");
 
@@ -118,11 +166,23 @@ namespace TicketBookingProject.Server.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("price");
 
+                    b.Property<int>("Quantity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(1)
+                        .HasColumnName("quantity");
+
+                    b.Property<int>("TicketTypeId")
+                        .HasColumnType("int")
+                        .HasColumnName("ticket_type_id");
+
                     b.HasKey("Id");
 
                     b.HasIndex(new[] { "BookingId" }, "IDX_bd_booking_id");
 
                     b.HasIndex(new[] { "EventSeatId" }, "IDX_bd_event_seat_id");
+
+                    b.HasIndex(new[] { "TicketTypeId" }, "IDX_bd_ticket_type_id");
 
                     b.ToTable("booking_details", (string)null);
                 });
@@ -720,7 +780,7 @@ namespace TicketBookingProject.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("BookingId")
+                    b.Property<int?>("BookingId")
                         .HasColumnType("int")
                         .HasColumnName("booking_id");
 
@@ -729,7 +789,7 @@ namespace TicketBookingProject.Server.Migrations
                         .HasColumnType("datetime2(0)")
                         .HasColumnName("created_at");
 
-                    b.Property<int>("EventSeatId")
+                    b.Property<int?>("EventSeatId")
                         .HasColumnType("int")
                         .HasColumnName("event_seat_id");
 
@@ -738,9 +798,17 @@ namespace TicketBookingProject.Server.Migrations
                         .HasColumnType("datetime2(0)")
                         .HasColumnName("expires_at");
 
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int")
+                        .HasColumnName("quantity");
+
                     b.Property<byte>("Status")
                         .HasColumnType("tinyint")
                         .HasColumnName("status");
+
+                    b.Property<int>("TicketTypeId")
+                        .HasColumnType("int")
+                        .HasColumnName("ticket_type_id");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int")
@@ -750,6 +818,8 @@ namespace TicketBookingProject.Server.Migrations
 
                     b.HasIndex("BookingId");
 
+                    b.HasIndex("TicketTypeId");
+
                     b.HasIndex(new[] { "ExpiresAt" }, "IDX_sh_expires_at");
 
                     b.HasIndex(new[] { "Status", "ExpiresAt" }, "IDX_sh_status_exp");
@@ -757,7 +827,8 @@ namespace TicketBookingProject.Server.Migrations
                     b.HasIndex(new[] { "UserId", "Status" }, "IDX_sh_user_status");
 
                     b.HasIndex(new[] { "EventSeatId" }, "UQ_sh_event_seat_id")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[event_seat_id] IS NOT NULL");
 
                     b.ToTable("seat_holds", (string)null);
                 });
@@ -789,7 +860,7 @@ namespace TicketBookingProject.Server.Migrations
                         .HasColumnType("datetime2(0)")
                         .HasColumnName("created_at");
 
-                    b.Property<int>("EventSeatId")
+                    b.Property<int?>("EventSeatId")
                         .HasColumnType("int")
                         .HasColumnName("event_seat_id");
 
@@ -803,6 +874,10 @@ namespace TicketBookingProject.Server.Migrations
                         .HasColumnType("tinyint")
                         .HasColumnName("status");
 
+                    b.Property<int>("TicketTypeId")
+                        .HasColumnType("int")
+                        .HasColumnName("ticket_type_id");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CheckedInBy");
@@ -812,6 +887,8 @@ namespace TicketBookingProject.Server.Migrations
                     b.HasIndex(new[] { "EventSeatId" }, "IDX_tickets_event_seat_id");
 
                     b.HasIndex(new[] { "Status" }, "IDX_tickets_status");
+
+                    b.HasIndex(new[] { "TicketTypeId" }, "IDX_tickets_ticket_type_id");
 
                     b.HasIndex(new[] { "QrCode" }, "UQ_tickets_qr_code")
                         .IsUnique();
@@ -931,7 +1008,7 @@ namespace TicketBookingProject.Server.Migrations
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("lastname");
 
-                    b.Property<DateTime?>("Lockout_end")
+                    b.Property<DateTime?>("LockoutEnd")
                         .HasPrecision(0)
                         .HasColumnType("datetime2(0)")
                         .HasColumnName("lockout_end");
@@ -1065,6 +1142,43 @@ namespace TicketBookingProject.Server.Migrations
                     b.ToTable("venue_sections", (string)null);
                 });
 
+            modelBuilder.Entity("TicketBookingProject.Server.UserPermission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<short>("Effect")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("1=allow, -1=deny (override role)");
+
+                    b.Property<int>("PermissionId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PermissionId");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("UserId", "Effect");
+
+                    b.HasIndex("UserId", "PermissionId")
+                        .IsUnique();
+
+                    b.ToTable("user_permissions", (string)null);
+                });
+
             modelBuilder.Entity("UserRole", b =>
                 {
                     b.Property<int>("UserId")
@@ -1099,6 +1213,16 @@ namespace TicketBookingProject.Server.Migrations
                         .HasConstraintName("FK_rp_role");
                 });
 
+            modelBuilder.Entity("TicketBookingProject.Server.AuditLog", b =>
+                {
+                    b.HasOne("TicketBookingProject.Server.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("TicketBookingProject.Server.Models.Booking", b =>
                 {
                     b.HasOne("TicketBookingProject.Server.Models.Event", "Event")
@@ -1130,12 +1254,21 @@ namespace TicketBookingProject.Server.Migrations
                     b.HasOne("TicketBookingProject.Server.Models.EventSeat", "EventSeat")
                         .WithMany("BookingDetails")
                         .HasForeignKey("EventSeatId")
-                        .IsRequired()
+                        .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_bd_event_seat");
+
+                    b.HasOne("TicketBookingProject.Server.Models.TicketType", "TicketType")
+                        .WithMany("BookingDetails")
+                        .HasForeignKey("TicketTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_bd_ticket_type");
 
                     b.Navigation("Booking");
 
                     b.Navigation("EventSeat");
+
+                    b.Navigation("TicketType");
                 });
 
             modelBuilder.Entity("TicketBookingProject.Server.Models.Event", b =>
@@ -1311,14 +1444,18 @@ namespace TicketBookingProject.Server.Migrations
                     b.HasOne("TicketBookingProject.Server.Models.Booking", "Booking")
                         .WithMany("SeatHolds")
                         .HasForeignKey("BookingId")
-                        .IsRequired()
                         .HasConstraintName("FK_sh_booking");
 
                     b.HasOne("TicketBookingProject.Server.Models.EventSeat", "EventSeat")
                         .WithOne("SeatHold")
                         .HasForeignKey("TicketBookingProject.Server.Models.SeatHold", "EventSeatId")
-                        .IsRequired()
                         .HasConstraintName("FK_sh_event_seat");
+
+                    b.HasOne("TicketBookingProject.Server.Models.TicketType", "TicketType")
+                        .WithMany("SeatHolds")
+                        .HasForeignKey("TicketTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("TicketBookingProject.Server.Models.User", "User")
                         .WithMany("SeatHolds")
@@ -1329,6 +1466,8 @@ namespace TicketBookingProject.Server.Migrations
                     b.Navigation("Booking");
 
                     b.Navigation("EventSeat");
+
+                    b.Navigation("TicketType");
 
                     b.Navigation("User");
                 });
@@ -1349,14 +1488,21 @@ namespace TicketBookingProject.Server.Migrations
                     b.HasOne("TicketBookingProject.Server.Models.EventSeat", "EventSeat")
                         .WithMany("Tickets")
                         .HasForeignKey("EventSeatId")
-                        .IsRequired()
                         .HasConstraintName("FK_t_event_seat");
+
+                    b.HasOne("TicketBookingProject.Server.Models.TicketType", "TicketType")
+                        .WithMany("Tickets")
+                        .HasForeignKey("TicketTypeId")
+                        .IsRequired()
+                        .HasConstraintName("FK_t_ticket_type");
 
                     b.Navigation("Booking");
 
                     b.Navigation("CheckedInByNavigation");
 
                     b.Navigation("EventSeat");
+
+                    b.Navigation("TicketType");
                 });
 
             modelBuilder.Entity("TicketBookingProject.Server.Models.TicketType", b =>
@@ -1381,6 +1527,25 @@ namespace TicketBookingProject.Server.Migrations
                         .HasConstraintName("FK_vs_venue");
 
                     b.Navigation("Venue");
+                });
+
+            modelBuilder.Entity("TicketBookingProject.Server.UserPermission", b =>
+                {
+                    b.HasOne("TicketBookingProject.Server.Models.Permission", "Permission")
+                        .WithMany("UserPermissions")
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TicketBookingProject.Server.Models.User", "User")
+                        .WithMany("UserPermissions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Permission");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("UserRole", b =>
@@ -1447,6 +1612,11 @@ namespace TicketBookingProject.Server.Migrations
                     b.Navigation("Refunds");
                 });
 
+            modelBuilder.Entity("TicketBookingProject.Server.Models.Permission", b =>
+                {
+                    b.Navigation("UserPermissions");
+                });
+
             modelBuilder.Entity("TicketBookingProject.Server.Models.Seat", b =>
                 {
                     b.Navigation("EventSeats");
@@ -1454,7 +1624,13 @@ namespace TicketBookingProject.Server.Migrations
 
             modelBuilder.Entity("TicketBookingProject.Server.Models.TicketType", b =>
                 {
+                    b.Navigation("BookingDetails");
+
                     b.Navigation("EventSeats");
+
+                    b.Navigation("SeatHolds");
+
+                    b.Navigation("Tickets");
                 });
 
             modelBuilder.Entity("TicketBookingProject.Server.Models.User", b =>
@@ -1474,6 +1650,8 @@ namespace TicketBookingProject.Server.Migrations
                     b.Navigation("SeatHolds");
 
                     b.Navigation("Tickets");
+
+                    b.Navigation("UserPermissions");
                 });
 
             modelBuilder.Entity("TicketBookingProject.Server.Models.Venue", b =>

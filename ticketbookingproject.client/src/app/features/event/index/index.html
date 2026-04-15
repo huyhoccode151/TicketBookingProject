@@ -1,0 +1,141 @@
+<main class="p-8">
+
+  <div *ngIf="loading">
+    <app-loader />
+  </div>
+
+  <div class="max-w-7xl mx-auto" *ngIf="!loading">
+    <!-- Title Section -->
+    <app-page-header title="Event Management"
+                     subtitle="Manage and monitor all platform participants.">
+
+      <a class="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2" href="/events/create">
+
+        <span class="material-symbols-outlined text-base">
+          add
+        </span>
+
+        Add New Event
+
+      </a>
+
+    </app-page-header>
+    <!-- Filter Bar -->
+    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 mb-8">
+      <div class="flex flex-col lg:flex-row gap-4 items-center justify-between">
+        <app-table-toolbar (search)="onSearch($event)">
+          <app-filter-select label="Category"
+                             [options]="categoryOptions"
+                             [value]="filter.category"
+                             (valueChange)="filter.category=$event; loadEvent()">
+          </app-filter-select>
+          <app-filter-select label="Venue"
+                             [options]="venueOptions"
+                             [value]="filter.venue"
+                             (valueChange)="filter.venue=$event; loadEvent()">
+          </app-filter-select>
+          <app-filter-select label="Status"
+                             [options]="statusOptions"
+                             [value]="filter.status"
+                             (valueChange)="filter.status=$event; loadEvent()">
+          </app-filter-select>
+        </app-table-toolbar>
+      </div>
+    </div>
+    <!-- Event Grid -->
+    <div class="grid grid-cols-1 gap-6">
+      <!-- Horizontal Event Card - Matching Image 3 -->
+      <div *ngFor="let event of events" class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+        <!-- Top Section -->
+        <div class="p-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
+          <div class="flex items-center gap-6">
+            <div class="w-32 h-20 bg-slate-100 rounded-lg overflow-hidden shrink-0">
+              <div class="w-full h-full bg-cover bg-center"
+                   data-alt="Tutorial on Canvas Painting"
+                   [style.background-image]="'url(' + getThumbnail(event.thumbnailUrl) + ')'">
+              </div>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+              {{event.name}}
+            </h3>
+          </div>
+          <app-table-actions [id]="event.id"
+                             (edit)="editEvent($event)"
+                             (delete)="deleteEvent($event)"
+                             (view)="viewEvent($event)">
+          </app-table-actions>
+        </div>
+        <!-- Bottom Section: Data Points Row -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-6 bg-slate-50/30 dark:bg-slate-800/20">
+          <!-- Status -->
+          <div class="flex items-center gap-4">
+            <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+              <span class="material-symbols-outlined text-slate-700 dark:text-slate-300 filled text-[20px]">location_on</span>
+            </div>
+            <div>
+              <p class="text-[11px] text-slate-500 uppercase tracking-wider font-medium">
+                Status
+              </p>
+              <p class="text-sm font-bold text-slate-900 dark:text-white">{{event.status}}</p>
+            </div>
+          </div>
+          <!-- Starts on -->
+          <div class="flex items-center gap-4">
+            <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+              <span class="material-symbols-outlined text-slate-700 dark:text-slate-300 filled text-[20px]">calendar_today</span>
+            </div>
+            <div>
+              <p class="text-[11px] text-slate-500 uppercase tracking-wider font-medium">
+                Starts on
+              </p>
+              <p class="text-sm font-bold text-slate-900 dark:text-white">
+                {{event.activeAt | date:'yyyy-MM-dd'}}
+              </p>
+            </div>
+          </div>
+          <!-- Ticket -->
+          <div class="flex items-center gap-4">
+            <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+              <span class="material-symbols-outlined text-slate-700 dark:text-slate-300 filled text-[20px]">confirmation_number</span>
+            </div>
+            <div>
+              <p class="text-[11px] text-slate-500 uppercase tracking-wider font-medium">
+                Ticket
+              </p>
+              <p class="text-sm font-bold text-slate-900 dark:text-white">{{event.ticketQuantity}}</p>
+            </div>
+          </div>
+          <!-- Tickets sold -->
+          <div class="flex items-center gap-4">
+            <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+              <span class="material-symbols-outlined text-slate-700 dark:text-slate-300 filled text-[20px]">local_offer</span>
+            </div>
+            <div>
+              <p class="text-[11px] text-slate-500 uppercase tracking-wider font-medium">
+                Tickets sold
+              </p>
+              <p class="text-sm font-bold text-slate-900 dark:text-white">{{event.ticketSold}}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <app-pagination [page]="page"
+                      [pageSize]="pageSize"
+                      [totalPages]="totalPages"
+                      [totalCount]="totalCount"
+                      (pageChange)="onPageChange($event)">
+      </app-pagination>
+    </div>
+
+    <!-- Empty State Placeholder -->
+    <div class="mt-12 text-center py-20 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
+      <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
+        <span class="material-symbols-outlined text-slate-400 text-3xl">event_busy</span>
+      </div>
+      <p class="text-slate-500 text-sm font-medium">No other events found for this filter.</p>
+      <button class="mt-4 text-primary font-bold text-sm hover:underline">Clear all filters</button>
+    </div>
+  </div>
+  <app-confirm-dialog [isOpen]="isDialogOpen" [config]="dialogConfig" (confirmed)="onConfirmed()"
+                      (cancelled)="onCancelled()" />
+</main>

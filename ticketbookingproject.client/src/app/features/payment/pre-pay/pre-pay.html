@@ -1,0 +1,116 @@
+<div class="checkout-page">
+  <!-- Header -->
+  <header class="navbar">
+    <div class="nav-content">
+      <div class="brand">
+        <button class="back-btn"><span class="material-symbols-outlined">arrow_back</span></button>
+        <h1>LUXE EVENTS</h1>
+      </div>
+      <div class="nav-info">
+        <span class="step-label">Checkout</span>
+        <span class="material-symbols-outlined timer-icon">timer</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-container">
+    <div class="layout-grid">
+
+      <!-- Cột trái: Thông tin sự kiện -->
+      <div class="content-left">
+        <div class="timer-banner">
+          <span class="material-symbols-outlined">alarm</span>
+          <p>Time remaining to pay: <strong>{{ formatTime(timeLeft) }}</strong></p>
+        </div>
+
+        <section class="event-card">
+          <div class="banner-img">
+            <img src="https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&q=80&w=1200" alt="Event">
+            <div class="banner-overlay">
+              <h2>The Nocturnal Symphony</h2>
+            </div>
+          </div>
+          <div class="event-info">
+            <div class="info-item">
+              <span class="material-symbols-outlined icon">calendar_today</span>
+              <div>
+                <label>Date & Time</label>
+                <p>{{ activeTime | date:'EEEE, dd/MM/yyyy' }}</p>
+              </div>
+            </div>
+            <div class="info-item">
+              <span class="material-symbols-outlined icon">location_on</span>
+              <div>
+                <label>Venue</label>
+                <p>{{ venueName || 'Grand Lyric Opera House' }}</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="tickets-section">
+          <h3>Selected Tickets</h3>
+          <div class="ticket-list">
+            <div class="ticket-item" *ngFor="let t of ticketSelected">
+              <div class="ticket-details">
+                <h4>{{ t.name }}</h4>
+                <p class="sub"></p>
+                <p class="calc">{{ t.quantity }} x {{ t.price }} VND</p>
+              </div>
+              <div class="ticket-price">
+                {{ (t.quantity * t.price) | number }} VND
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Cột phải: Thanh toán -->
+      <aside class="content-right">
+        <div class="payment-sidebar">
+          <h3>Payment Summary</h3>
+
+          <div class="summary-rows">
+            <!--tổng tiền booking-->
+            <div class="row"><span>Subtotal</span><span>{{ totalAmount | number}} VND</span></div>
+            <!--phí dịch vụ, mã giảm giá, thêm sau-->
+            <div class="row"><span>Service Fee (2%)</span><span>81,600 VND</span></div>
+          </div>
+
+          <div class="total-section">
+            <div class="total-label">
+              <span class="tag">Total Amount</span>
+              <!--chưa cộng phí dục vụ-->
+              <span class="amount">{{ totalAmount | number}} VND</span>
+            </div>
+            <span class="tax-note">Tax included</span>
+          </div>
+
+          <!--<div class="payment-selector">
+            <p class="section-title">Select Payment Method</p>
+
+            <label class="method-box" [class.active]="selectedPayment === 'card'">
+              <div class="method-content">
+                <span class="material-symbols-outlined">credit_card</span>
+                <span>Credit/Debit Card</span>
+              </div>
+              <input type="radio" name="pay" [(ngModel)]="selectedPayment" value="card">
+            </label>
+
+            <label class="method-box" [class.active]="selectedPayment === 'momo'">
+              <div class="method-content">
+                <span class="material-symbols-outlined momo-icon">account_balance_wallet</span>
+                <span>Momo E-wallet</span>
+              </div>
+              <input type="radio" name="pay" [(ngModel)]="selectedPayment" value="momo">
+            </label>
+          </div>-->
+
+          <button class="btn-pay" (click)="confirmPayNow()">Confirm & Pay Now</button>
+          <p class="terms">By clicking confirm, you agree to our <a href="#">Terms of Service</a></p>
+        </div>
+      </aside>
+
+    </div>
+  </main>
+</div>

@@ -1,0 +1,71 @@
+.booking-card-overlay {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 50%, transparent 100%);
+}
+
+.primary-gradient {
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+}
+
+:host {
+  display: block;
+  --primary: #6366f1;
+  --on-primary: #ffffff;
+  --primary-container: #e0e7ff;
+  --on-primary-container: #3730a3;
+  --surface: #f8fafc;
+  --on-surface: #0f172a;
+  --on-surface-variant: #64748b;
+  --outline-variant: #e2e8f0;
+  --surface-container-lowest: #ffffff;
+  --surface-container: #f1f5f9;
+  --surface-container-high: #e2e8f0;
+  --error: #ef4444;
+}
+
+.bg-surface {
+  background-color: var(--surface);
+}
+
+.text-on-surface-variant {
+  color: var(--on-surface-variant);
+}
+
+.bg-surface-container-lowest {
+  background-color: var(--surface-container-lowest);
+}
+
+.border-outline-variant\/15 {
+  border-color: rgba(226, 232, 240, 0.15);
+}
+
+.ring-outline-variant\/15 {
+  --tw-ring-color: rgba(226, 232, 240, 0.15);
+}
+
+.bg-primary-container {
+  background-color: var(--primary-container);
+}
+
+.text-on-primary-container {
+  color: var(--on-primary-container);
+}
+
+.bg-surface-container {
+  background-color: var(--surface-container);
+}
+
+.bg-surface-container-high {
+  background-color: var(--surface-container-high);
+}
+
+.text-primary {
+  color: var(--primary);
+}
+
+.text-error {
+  color: var(--error);
+}
+
+.bg-error {
+  background-color: var(--error);
+}

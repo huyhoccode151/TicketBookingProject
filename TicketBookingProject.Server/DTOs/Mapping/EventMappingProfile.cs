@@ -38,34 +38,42 @@ public class EventMappingProfile : Profile
         // ── CreateEventRequest → Event ────────────────────────
         CreateMap<CreateEventRequest, Event>()
             .ForMember(d => d.Status, o => o.MapFrom(_ => EventStatus.Draft))
-            .ForMember(d => d.CreatedAt, o => o.MapFrom(_ => DateTime.UtcNow))
-            .ForMember(d => d.UpdatedAt, o => o.MapFrom(_ => DateTime.UtcNow))
-            .ForMember(d => d.DeletedAt, o => o.Ignore());
+            .ForMember(d => d.TicketTypes, o => o.Ignore())
+            .ForMember(d => d.EventPosters, o => o.Ignore());
+
+        CreateMap<UpdateEventRequest, Event>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+            .ForMember(dest => dest.OrganizerId, opt => opt.Ignore())
+            .ForMember(dest => dest.EventPosters, opt => opt.Ignore())
+            .ForMember(dest => dest.TicketTypes, opt => opt.Ignore());
 
         // ── Event → EventListItemResponse ─────────────────────
         CreateMap<Event, EventListItemResponse>()
-            .ForMember(d => d.CategoryName,
+            .ForCtorParam("CategoryName",
                 o => o.MapFrom(s => s.Category.Name))
-            .ForMember(d => d.VenueName,
+            .ForCtorParam("VenueName",
                 o => o.MapFrom(s => s.Venue.Name))
-            .ForMember(d => d.Province,
+            .ForCtorParam("Province",
                 o => o.MapFrom(s => s.Venue.Province))
-            .ForMember(d => d.OrganizerName,
+            .ForCtorParam("OrganizerName",
                 o => o.MapFrom(s => $"{s.Organizer.Firstname} {s.Organizer.Lastname}"))
-            .ForMember(d => d.Status,
+            .ForCtorParam("TicketQuantity", o => o.MapFrom(s => s.TicketTypes.Any() ? s.TicketTypes.Sum(t => t.Quantity) : 0))
+            .ForCtorParam("TicketSold", o => o.MapFrom(s => s.TicketTypes.Any() ? s.TicketTypes.Sum(t => t.SoldQuantity) : 0))
+            .ForCtorParam("Status",
                 o => o.MapFrom(s => (byte)s.Status))
-            .ForMember(d => d.StatusLabel,
+            .ForCtorParam("StatusLabel",
                 o => o.MapFrom(s => StatusLabels.GetValueOrDefault(s.Status, s.Status.ToString())))
-            .ForMember(d => d.MinPrice,
+            .ForCtorParam("MinPrice",
                 o => o.MapFrom(s => s.TicketTypes.Any() ? s.TicketTypes.Min(t => t.Price) : 0L))
-            .ForMember(d => d.MaxPrice,
+            .ForCtorParam("MaxPrice",
                 o => o.MapFrom(s => s.TicketTypes.Any() ? s.TicketTypes.Max(t => t.Price) : 0L))
-            .ForMember(d => d.ThumbnailUrl,
+            .ForCtorParam("ThumbnailUrl",
                 o => o.MapFrom(s => s.EventPosters
                     .Where(p => p.ImageType == ImageType.Thumbnail || p.IsPrimary)
                     .Select(p => p.ImageUrl)
                     .FirstOrDefault()))
-            .ForMember(d => d.IsSaleOpen,
+            .ForCtorParam("IsSaleOpen",
                 o => o.MapFrom(s =>
                     s.SaleStartAt <= DateTime.UtcNow &&
                     s.SaleEndAt >= DateTime.UtcNow &&
@@ -73,19 +81,19 @@ public class EventMappingProfile : Profile
 
         // ── Event → EventDetailResponse ───────────────────────
         CreateMap<Event, EventDetailResponse>()
-            .ForMember(d => d.Category,
+            .ForCtorParam("Category",
                 o => o.MapFrom(s => s.Category))
-            .ForMember(d => d.Venue,
+            .ForCtorParam("Venue",
                 o => o.MapFrom(s => s.Venue))
-            .ForMember(d => d.Organizer,
+            .ForCtorParam("Organizer",
                 o => o.MapFrom(s => s.Organizer))
-            .ForMember(d => d.Status,
+            .ForCtorParam("Status",
                 o => o.MapFrom(s => (byte)s.Status))
-            .ForMember(d => d.StatusLabel,
+            .ForCtorParam("StatusLabel",
                 o => o.MapFrom(s => StatusLabels.GetValueOrDefault(s.Status, s.Status.ToString())))
-            .ForMember(d => d.Posters,
+            .ForCtorParam("Posters",
                 o => o.MapFrom(s => s.EventPosters))
-            .ForMember(d => d.TicketTypes,
+            .ForCtorParam("TicketTypes",
                 o => o.MapFrom(s => s.TicketTypes));
 
         // ── Venue → EventVenueResponse ────────────────────────
@@ -108,11 +116,11 @@ public class EventMappingProfile : Profile
 
         // ── TicketType → TicketTypeResponse ───────────────────
         CreateMap<TicketType, TicketTypeResponse>()
-            .ForMember(d => d.AvailableQuantity,
+            .ForCtorParam("AvailableQuantity",
                 o => o.MapFrom(s => s.Quantity - s.SoldQuantity))
-            .ForMember(d => d.Status,
+            .ForCtorParam("Status",
                 o => o.MapFrom(s => (byte)s.Status))
-            .ForMember(d => d.StatusLabel,
+            .ForCtorParam("StatusLabel",
                 o => o.MapFrom(s => TicketStatusLabels.GetValueOrDefault(s.Status, s.Status.ToString())));
 
         // ── EventSeat → EventSeatResponse ─────────────────────
@@ -137,5 +145,6 @@ public class EventMappingProfile : Profile
             .ForMember(d => d.SectionId, o => o.MapFrom(s => s.Id))
             .ForMember(d => d.SectionName, o => o.MapFrom(s => s.Name))
             .ForMember(d => d.Seats, o => o.Ignore());  // populated from event_seats in service
+
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.Identity.Client;
+using System.ComponentModel.DataAnnotations;
 using static Azure.Core.HttpHeader;
 
 namespace TicketBookingProject.Server;
@@ -90,8 +91,8 @@ public record PaymentListItemResponse(
 public record AdminPaymentListRequest : PagedRequest
 {
     public string? Search { get; init; }   // transaction id hoặc user email
-    public byte? Status { get; init; }
-    public byte? Method { get; init; }
+    public PaymentStatus? Status { get; init; }
+    public PaymentMethod? Method { get; init; }
     public DateTime? DateFrom { get; init; }
     public DateTime? DateTo { get; init; }
 }
@@ -106,3 +107,27 @@ public record AdminPaymentListItemResponse(
     byte Status,
     string StatusLabel,
     DateTime CreatedAt);
+
+public class VnPaymentResponseModel
+{
+    public bool Success { get; set; }
+    public string PaymentMethod { get; set; } = string.Empty;
+    public long TotalAmount { get; set; }
+    public string OrderDescription { get; set; } = string.Empty;
+    public string OrderId { get; set; } = string.Empty;
+    public string PaymentId { get; set; } = string.Empty;
+    public string TransactionId { get; set; } = string.Empty;
+    public string Token { get; set; } = string.Empty;
+    public string VnPayResponseCode { get; set; } = string.Empty;
+    public IQueryCollection MetaData { get; set; } = new QueryCollection();
+    public string? IdempotencyKey { get; set; }
+}
+
+public class VnPayReturnResponseDto
+{
+    public bool Success { get; set; }
+    public string? Message { get; set; }
+    public string? OrderId { get; set; }
+    public decimal? Amount { get; set; }
+    public string? TransactionId { get; set; }
+}

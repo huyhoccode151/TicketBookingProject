@@ -1,0 +1,262 @@
+// Variables
+$border-color: #e5e7eb;
+$text-primary: #111827;
+$text-secondary: #6b7280;
+$toggle-active: #6366f1;
+$toggle-inactive: #d1d5db;
+$bg-white: #ffffff;
+$bg-page: #f9fafb;
+$input-border: #d1d5db;
+$input-focus: #6366f1;
+$label-color: #374151;
+$required-color: #374151;
+$transition: 0.2s ease;
+
+.setting-container {
+  background: $bg-white;
+  border: 1px solid $border-color;
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  max-width: 860px;
+  width: 100%;
+}
+
+// Header
+.setting-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 24px;
+  border-bottom: 1px solid $border-color;
+
+  .setting-icon {
+    font-size: 18px;
+    color: $text-primary;
+  }
+
+  .setting-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0;
+  }
+}
+
+// Body
+.setting-body {
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+// Intro section
+.section-intro {
+  .section-heading {
+    font-size: 14px;
+    font-weight: 700;
+    color: $text-primary;
+    margin: 0 0 6px;
+  }
+
+  .section-desc {
+    font-size: 13px;
+    color: $text-secondary;
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+// Toggle row
+.toggle-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+
+  .toggle-label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .toggle-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: $text-primary;
+    }
+
+    .toggle-hint {
+      font-size: 12.5px;
+      color: $text-secondary;
+      line-height: 1.5;
+    }
+  }
+}
+
+// Toggle switch
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 24px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  cursor: pointer;
+
+  input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+  }
+
+  .slider {
+    position: absolute;
+    inset: 0;
+    background: $toggle-inactive;
+    border-radius: 24px;
+    transition: background $transition;
+
+    &::before {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      left: 3px;
+      top: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: transform $transition;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  input:checked + .slider {
+    background: $toggle-active;
+  }
+
+    input:checked + .slider::before {
+      transform: translateX(18px);
+    }
+
+  input:focus + .slider {
+    outline: 2px solid rgba($toggle-active, 0.3);
+    outline-offset: 1px;
+  }
+}
+
+// Booking section
+.booking-section {
+  animation: fadeIn 0.25s ease;
+
+  .booking-heading {
+    font-size: 14px;
+    font-weight: 700;
+    color: $text-primary;
+    margin: 0 0 6px;
+  }
+
+  .booking-desc {
+    font-size: 13px;
+    color: $text-secondary;
+    margin: 0 0 20px;
+  }
+}
+
+// Date-time fields
+.date-time-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+
+  @media (max-width: 540px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  .field-label {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: $label-color;
+
+    .required {
+      color: $required-color;
+      margin-left: 1px;
+    }
+  }
+
+  .input-wrapper {
+    position: relative;
+
+    .field-input {
+      width: 100%;
+      padding: 10px 40px 10px 14px;
+      border: 1px solid $input-border;
+      border-radius: 6px;
+      font-size: 13.5px;
+      color: $text-primary;
+      background: $bg-white;
+      box-sizing: border-box;
+      transition: border-color $transition, box-shadow $transition;
+      appearance: none;
+      -webkit-appearance: none;
+
+      &::placeholder {
+        color: #9ca3af;
+      }
+
+      &:focus {
+        outline: none;
+        border-color: $input-focus;
+        box-shadow: 0 0 0 3px rgba($input-focus, 0.1);
+      }
+    }
+
+    .input-icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 15px;
+      color: $text-secondary;
+      pointer-events: none;
+    }
+  }
+}
+
+// Immediate info banner
+.immediate-info {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 6px;
+  padding: 12px 16px;
+  animation: fadeIn 0.25s ease;
+
+  .immediate-text {
+    font-size: 13px;
+    color: #15803d;
+    margin: 0;
+
+    strong {
+      font-weight: 700;
+    }
+  }
+}
+
+// Animation
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

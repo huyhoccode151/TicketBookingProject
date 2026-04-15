@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace TicketBookingProject.Server.Models;
 
-public partial class Permission
+public partial class Permission : IEntities
 {
     public int Id { get; set; }
 
@@ -16,4 +16,6 @@ public partial class Permission
     public string? Description { get; set; }
 
     public virtual ICollection<Role> Roles { get; set; } = new List<Role>();
+
+    public ICollection<UserPermission> UserPermissions { get; set; } = new List<UserPermission>();
 }

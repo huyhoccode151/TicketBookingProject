@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using TicketBookingProject.Server.Models;
 
 namespace TicketBookingProject.Server;
 
@@ -61,19 +62,6 @@ public record BookingListItemResponse(
     string StatusLabel,
     DateTime CreatedAt);
 
-public record BookingDetailResponse(
-    int Id,
-    BookingEventDto Event,
-    List<BookingDetailDto> Items,
-    long TotalAmount,
-    byte Status,
-    string StatusLabel,
-    DateTime? ExpiresAt,
-    string? CancelledReason,
-    BookingPaymentSummaryDto? Payment,
-    DateTime CreatedAt,
-    DateTime UpdatedAt);
-
 public record BookingEventDto(
     int Id,
     string Name,
@@ -131,9 +119,8 @@ public record SeatHoldStatusResponse(
 
 public record AdminBookingListRequest : PagedRequest
 {
-    public string? Search { get; init; }   // user email hoặc booking id
-    public byte? Status { get; init; }
-    public int? EventId { get; init; }
+    public string? Search { get; init; }   // user email hoặc booking id hoặc event name
+    public BookingStatus? Status { get; init; }
     public DateTime? DateFrom { get; init; }
     public DateTime? DateTo { get; init; }
 }
@@ -148,3 +135,80 @@ public record AdminBookingListItemResponse(
     byte Status,
     string StatusLabel,
     DateTime CreatedAt);
+
+public record BookingTicketDetails
+{
+    public int Id { get; set; }
+
+    public int UserId { get; set; }
+
+    public int EventId { get; set; }
+
+    public long TotalAmount { get; set; } = 0;
+    public DateTime? ExpiresAt { get; set; }
+    public List<BookingDetails> Details { get; set; } = new List<BookingDetails>();
+    public List<SeatHolds> SeatHolds { get; set; } = new List<SeatHolds>();
+}
+
+public record SeatHolds
+{
+    public int Id { get; set; }
+    public int? EventSeatId { get; set; }
+    public int TicketTypeId { get; set; }
+    public int Quantity { get; set; }
+}
+
+    public record BookingDetails
+{
+    public int? EventSeatId { get; set; }
+
+    public long Price { get; set; }
+
+    public int Quantity { get; set; }
+
+    public int TicketTypeId { get; set; }
+    public string? TicketTypeName { get; set; } = string.Empty;
+}
+
+public class BookingResponse
+{
+    public int Id { get; set; }
+    public int UserId { get; set; }
+    public int EventId { get; set; }
+    public string Status { get; set; } = string.Empty;
+    public DateTime? CreatedAt { get; set; }
+
+    public List<BookingDetailResponse> Details { get; set; } = new List<BookingDetailResponse>();
+}
+
+public class BookingDetailResponse
+{
+    public int? EventSeatId { get; set; }
+    public int TicketTypeId { get; set; }
+    public int Quantity { get; set; }
+    public decimal Price { get; set; }
+}
+
+public class QuickPayResquest
+{
+    public string orderInfo { get; set; }
+    public string partnerCode { get; set; }
+    public string redirectUrl { get; set; }
+    public string ipnUrl { get; set; }
+    public long amount { get; set; }
+    public string orderId { get; set; }
+    public string requestId { get; set; }
+    public string requestType { get; set; }
+    public string extraData { get; set; }
+    public string partnerName { get; set; }
+    public string storeId { get; set; }
+    public string paymentCode { get; set; }
+    public string orderGroupId { get; set; }
+    public bool autoCapture { get; set; }
+    public string lang { get; set; }
+    public string signature { get; set; }
+}
+
+public class MomoResponse { public string? payUrl { get; set; } }
+
+public class VnPayResponse { public string? payUrl { get; set; } }

@@ -18,11 +18,6 @@ public record RegisterRequest
 
     [Required, StringLength(100, MinimumLength = 8)]
     public string Password { get; init; } = default!;
-
-    [Required, Compare(nameof(Password))]
-    public string ConfirmPassword { get; init; } = default!;
-
-    public byte? Gender { get; init; }
 }
 
 public record RegisterResponse(
@@ -152,4 +147,33 @@ public class TokenResponse
 {
     public string AccessToken { get; set; } = default!;
     public string RefreshToken { get; set; } = default!;
+}
+
+public class ForceChangePasswordRequest
+{
+    [Required, StringLength(100, MinimumLength = 8)]
+    public string NewPassword { get; init; } = default!;
+}
+
+public record AuditLogRequest : PagedRequest
+{
+    public string? Search { get; init; }
+}
+
+public class AuditUserDto
+{
+    public string Username { get; set; } = null!;
+    public string Email { get; set; } = null!;
+}
+
+public class AuditLogDto
+{
+    public long Id { get; set; }
+    public string Action { get; set; } = null!;
+    public string EntityType { get; set; } = null!;
+    public long? EntityId { get; set; }
+    public string? Description { get; set; }
+    public DateTime CreatedAt { get; set; }
+
+    public AuditUserDto? User { get; set; }
 }

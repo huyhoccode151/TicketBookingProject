@@ -1,0 +1,35 @@
+.date-range-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  input[type="date"] {
+    padding: 6px 10px;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+
+    &:focus {
+      outline: none;
+      border-color: #1890ff;
+    }
+  }
+
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 50%;
+    background: #d9d9d9;
+    cursor: pointer;
+    font-size: 12px;
+
+    &:hover {
+      background: #bfbfbf;
+    }
+  }
+}

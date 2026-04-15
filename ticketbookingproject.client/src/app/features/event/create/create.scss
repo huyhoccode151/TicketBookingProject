@@ -1,0 +1,901 @@
+@use "sass:color";
+// ============================================================
+// Evergreen – Create Online Event
+// Design system tokens + component styles (SCSS)
+// ============================================================
+
+// ── Google Fonts ────────────────────────────────────────────
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+
+// ── Design Tokens ───────────────────────────────────────────
+$color-error-dim: #5c1202;
+$color-tertiary-fixed: #e2fbda;
+$color-outline-variant: #abb3b7;
+$color-primary-fixed: #a9f773;
+$color-background: #f8f9fa;
+$color-surface-dim: #d1dce0;
+$color-on-tertiary-fixed: #3a4f37;
+$color-surface-container-lowest: #ffffff;
+$color-tertiary-dim: #435940;
+$color-on-secondary-fixed-variant: #585c61;
+$color-tertiary: #4f654c;
+$color-on-tertiary-fixed-variant: #566c52;
+$color-surface-container: #eaeff1;
+$color-inverse-primary: #9eec69;
+$color-on-secondary: #f6f9ff;
+$color-secondary-dim: #4f5358;
+$color-primary: #316b00;
+$color-surface-variant: #dbe4e7;
+$color-surface-tint: #316b00;
+$color-outline: #737c7f;
+$color-inverse-surface: #0c0f10;
+$color-secondary: #5b5f64;
+$color-on-error-container: #742410;
+$color-on-surface: #2b3437;
+$color-on-primary-fixed: #1f4900;
+$color-primary-container: #a9f773;
+$color-on-primary-fixed-variant: #306800;
+$color-on-tertiary-container: #4c6148;
+$color-on-secondary-container: #4e5257;
+$color-surface-container-low: #f1f4f6;
+$color-error: #9e422c;
+$color-secondary-container: #dfe3e8;
+$color-error-container: #fe8b70;
+$color-tertiary-fixed-dim: #d3eccc;
+$color-tertiary-container: #e2fbda;
+$color-on-tertiary: #eaffe3;
+$color-surface-container-high: #e3e9ec;
+$color-surface: #f8f9fa;
+$color-primary-fixed-dim: #9be966;
+$color-on-primary: #e9ffd3;
+$color-secondary-fixed: #dfe3e8;
+$color-inverse-on-surface: #9b9d9e;
+$color-on-secondary-fixed: #3c4044;
+$color-on-background: #2b3437;
+$color-surface-bright: #f8f9fa;
+$color-secondary-fixed-dim: #d1d5da;
+$color-on-primary-container: #2a5d00;
+$color-primary-dim: #2a5e00;
+$color-on-surface-variant: #586064;
+$color-on-error: #fff7f6;
+$color-surface-container-highest: #dbe4e7;
+
+// ── Typography ──────────────────────────────────────────────
+$font-headline: 'Manrope', sans-serif;
+$font-body: 'Inter', sans-serif;
+$font-label: 'Inter', sans-serif;
+
+$text-primary: #111827;
+$text-secondary: #6b7280;
+$toggle-active: #6366f1;
+$toggle-inactive: #d1d5db;
+$bg-white: #ffffff;
+$input-border: #d1d5db;
+$input-focus: #6366f1;
+$label-color: #374151;
+$required-color: #374151;
+$transition: 0.2s ease;
+
+// ── Spacing & Radii ─────────────────────────────────────────
+$radius-sm: 0.125rem;
+$radius-lg: 0.25rem;
+$radius-xl: 0.5rem;
+$radius-full: 0.75rem;
+
+// venue-event-form.component.scss
+// ─────────────────────────────────────────────────────────────
+// Variables
+// ─────────────────────────────────────────────────────────────
+$green: #4caf50;
+$green-hover: #43a047;
+$green-glow: rgba(76, 175, 80, 0.22);
+$red: #ff5252;
+$border: #e0e0e0;
+$text: #212121;
+$text-muted: #757575;
+$bg: #f5f6f8;
+$white: #ffffff;
+$radius: 8px;
+$radius-lg: 12px;
+$ease: 0.28s ease;
+
+// ─────────────────────────────────────────────────────────────
+// Layout wrapper
+// ─────────────────────────────────────────────────────────────
+.form-wrap {
+  max-width: 760px;
+  margin: 2rem auto;
+  padding: 0 1rem 3rem;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  color: $text;
+}
+
+.form-title {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: $text;
+}
+
+// ─────────────────────────────────────────────────────────────
+// STEPPER
+// ─────────────────────────────────────────────────────────────
+.stepper {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex: 1;
+  max-width: 180px;
+  cursor: default;
+  // ── Đường kẻ ngang nối các bước ──
+  // Đặt .step-line bên trong .step-item, trải sang phải
+  .step-line {
+    position: absolute;
+    top: 18px; // căn giữa dot cao 36px
+    left: calc(50% + 20px);
+    right: calc(-50% + 20px);
+    height: 1.5px;
+    background: $border;
+    transition: background $ease;
+    z-index: 0;
+  }
+  // Khi bước này đã hoàn thành → tô xanh đường kẻ
+  &.done .step-line {
+    background: $green;
+  }
+  // Khi bước active → tô xanh đường kẻ bên trái nó (done đã xử lý rồi)
+  // Không cần xử lý thêm vì .done cover
+  // ── Dot wrapper (chứa ring + circle) ──
+  .dot-wrap {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    margin-bottom: 8px;
+    z-index: 1;
+  }
+  // Vòng glow xanh nhạt bên ngoài dot — chỉ hiện khi active
+  .dot-ring {
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    transition: border-color $ease;
+  }
+  // Circle chứa số
+  .dot {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #e8e8e8;
+    border: 1.5px solid $border;
+    color: $text-muted;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+    transition: background $ease, border-color $ease, color $ease, transform $ease;
+  }
+
+  .step-label {
+    font-size: 13px;
+    color: $text-muted;
+    font-weight: 400;
+    transition: color $ease, font-weight $ease;
+    text-align: center;
+  }
+  // ── STATE: active ──
+  &.active {
+    cursor: default;
+
+    .dot {
+      background: $green;
+      border-color: $green;
+      color: $white;
+      transform: scale(1.1);
+    }
+
+    .dot-ring {
+      border-color: $green-glow; // vòng glow xanh nhạt như trong ảnh
+    }
+
+    .step-label {
+      color: $green;
+      font-weight: 600;
+    }
+  }
+  // ── STATE: done (đã hoàn thành) ──
+  &.done {
+    cursor: pointer; // cho phép click quay lại
+
+    .dot {
+      background: $green;
+      border-color: $green;
+      color: $white;
+    }
+
+    .step-label {
+      color: $text;
+    }
+
+    &:hover .dot {
+      opacity: 0.85;
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// CARD chứa nội dung form
+// ─────────────────────────────────────────────────────────────
+.card {
+  background: $white;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  padding: 1.75rem;
+  min-height: 320px;
+}
+
+// ─────────────────────────────────────────────────────────────
+// FORM ELEMENTS
+// ─────────────────────────────────────────────────────────────
+.fg {
+  margin-bottom: 1rem;
+  input,
+  select,
+  textarea {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid $border;
+    border-radius: $radius;
+    font-size: 14px;
+    color: $text;
+    background: $white;
+    outline: none;
+    font-family: inherit;
+    // box-sizing: border-box;
+    transition: border-color $ease, box-shadow $ease;
+
+    &:focus {
+      border-color: $green;
+    }
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+    line-height: 1.5;
+  }
+}
+
+.row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.hint {
+  font-size: 13px;
+  color: $text-muted;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+// ─────────────────────────────────────────────────────────────
+// TICKET CARDS
+// ─────────────────────────────────────────────────────────────
+.ticket-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+
+  span {
+    font-size: 14px;
+    font-weight: 600;
+    color: $text;
+  }
+}
+
+.btn-add {
+  background: $green;
+  color: $white;
+  border: none;
+  border-radius: $radius;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background $ease;
+  font-family: inherit;
+
+  &:hover {
+    background: $green-hover;
+  }
+}
+
+.tcard {
+  border: 1px solid $border;
+  border-radius: $radius;
+  padding: 14px;
+  margin-bottom: 10px;
+
+  &-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &-icon {
+    width: 36px;
+    height: 36px;
+    background: #f0f0f0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-muted;
+    flex-shrink: 0;
+  }
+
+  &-meta {
+    strong {
+      display: block;
+      font-size: 14px;
+      color: $text;
+    }
+
+    small {
+      font-size: 12px;
+      color: $text-muted;
+    }
+  }
+
+  &-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &-info {
+    display: flex;
+    gap: 28px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid $border;
+
+    div {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    small {
+      font-size: 11px;
+      color: $text-muted;
+    }
+
+    strong {
+      font-size: 13px;
+      color: $text;
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// BADGE
+// ─────────────────────────────────────────────────────────────
+.badge-disc {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: $red;
+  color: $white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+// ─────────────────────────────────────────────────────────────
+// TOGGLE SWITCH
+// ─────────────────────────────────────────────────────────────
+.toggle-sw {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+  flex-shrink: 0;
+
+  input {
+    display: none;
+  }
+
+  span {
+    position: absolute;
+    inset: 0;
+    background: #ccc;
+    border-radius: 22px;
+    cursor: pointer;
+    transition: background $ease;
+
+    &::before {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background: $white;
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      transition: transform $ease;
+    }
+  }
+
+  input:checked + span {
+    background: $green;
+
+    &::before {
+      transform: translateX(18px);
+    }
+  }
+}
+
+.btn-dot {
+  background: none;
+  border: 1px solid $border;
+  border-radius: 6px;
+  padding: 3px 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: $text-muted;
+  line-height: 1;
+
+  &:hover {
+    background: #f5f5f5;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// SETTINGS — toggle rows
+// ─────────────────────────────────────────────────────────────
+.tog-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid $border;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.tog-info {
+  strong {
+    display: block;
+    font-size: 14px;
+    color: $text;
+  }
+
+  small {
+    font-size: 12px;
+    color: $text-muted;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// NAVIGATION BUTTONS
+// ─────────────────────────────────────────────────────────────
+.form-nav {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 1.5rem;
+}
+
+.btn {
+  padding: 9px 22px;
+  border-radius: $radius;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background $ease, transform $ease;
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  &--back {
+    background: $white;
+    color: $text;
+    border: 1px solid $border;
+
+    &:hover {
+      background: #f5f5f5;
+    }
+  }
+
+  &--next {
+    background: $green;
+    color: $white;
+    border: none;
+
+    &:hover {
+      background: $green-hover;
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Responsive
+// ─────────────────────────────────────────────────────────────
+@media (max-width: 500px) {
+  .row2 {
+    grid-template-columns: 1fr;
+  }
+
+  .step-item .step-line {
+    width: 60px;
+  }
+}
+
+
+
+// ============================================================
+// Image Uploader
+// ============================================================
+.image-uploader {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  // ── Drop Zone ───────────────────────────────────────────────
+  &__dropzone {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 2.5rem 1.5rem;
+    border-radius: $radius-xl * 2;
+    border: 2px dashed $color-outline-variant;
+    background-color: $color-surface-container-low;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+    // hidden real file input covers entire zone
+    input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    &:hover,
+    &--dragover {
+      border-color: $color-primary;
+      background-color: rgba($color-primary-container, 0.15);
+
+      .image-uploader__icon {
+        color: $color-primary;
+      }
+    }
+  }
+
+  &__icon {
+    font-size: 2.5rem;
+    color: $color-on-surface-variant;
+    transition: color 0.2s ease;
+    pointer-events: none;
+  }
+
+  &__dropzone-text {
+    text-align: center;
+    pointer-events: none;
+
+    strong {
+      display: block;
+      font-family: $font-headline;
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: $color-on-surface;
+    }
+
+    span {
+      font-size: 0.75rem;
+      color: $color-on-surface-variant;
+      margin-top: 0.25rem;
+      display: block;
+    }
+  }
+
+  &__browse-btn {
+    pointer-events: none;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.375rem 1rem;
+    border-radius: $radius-full;
+    background-color: $color-tertiary-container;
+    color: $color-on-tertiary-container;
+    transition: opacity 0.2s ease;
+  }
+  // ── Preview Grid ────────────────────────────────────────────
+  &__preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+    gap: 0.75rem;
+  }
+
+  &__preview-item {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    border-radius: $radius-xl;
+    overflow: hidden;
+    background-color: $color-surface-container;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+
+    &:first-child {
+      // hero / cover badge
+      &::after {
+        content: 'Cover';
+        position: absolute;
+        bottom: 0.375rem;
+        left: 0.375rem;
+        font-family: $font-label;
+        font-size: 0.625rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 0.2rem 0.5rem;
+        border-radius: $radius-full;
+        background-color: $color-primary;
+        color: $color-on-primary;
+      }
+    }
+  }
+
+  &__preview-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &__remove-btn {
+    position: absolute;
+    top: 0.375rem;
+    right: 0.375rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    cursor: pointer;
+    border: none;
+
+    .material-symbols-outlined {
+      font-size: 1rem;
+      pointer-events: none;
+    }
+
+    .image-uploader__preview-item:hover & {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+  }
+  // ── Add More button (text link style) ───────────────────────
+  &__add-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    align-self: flex-start;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: $color-primary;
+    padding: 0.375rem 0;
+    transition: opacity 0.2s ease;
+    background: none;
+    border: none;
+    cursor: pointer;
+
+    .material-symbols-outlined {
+      font-size: 1.125rem;
+    }
+
+    &:hover {
+      opacity: 0.7;
+    }
+  }
+  // ── Helper text ─────────────────────────────────────────────
+  &__hint {
+    font-size: 0.6875rem;
+    color: $color-on-surface-variant;
+  }
+}
+
+.getTime {
+  margin-bottom: 14px;
+  border-bottom-width: 1px;
+}
+
+.toggle-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+
+  .toggle-label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .toggle-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: $text-primary;
+    }
+
+    .toggle-hint {
+      font-size: 12.5px;
+      color: $text-secondary;
+      line-height: 1.5;
+    }
+  }
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 24px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  cursor: pointer;
+
+  input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+  }
+
+  .slider {
+    position: absolute;
+    inset: 0;
+    background: $toggle-inactive;
+    border-radius: 24px;
+    transition: background $transition;
+
+    &::before {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      left: 3px;
+      top: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: transform $transition;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  input:checked + .slider {
+    background: $toggle-active;
+  }
+
+    input:checked + .slider::before {
+      transform: translateX(18px);
+    }
+
+  input:focus + .slider {
+    outline: 2px solid rgba($toggle-active, 0.3);
+    outline-offset: 1px;
+  }
+}
+
+.booking-section {
+  animation: fadeIn 0.25s ease;
+
+  .booking-heading {
+    font-size: 14px;
+    font-weight: 700;
+    color: $text-primary;
+    margin: 0 0 6px;
+  }
+
+  .booking-desc {
+    font-size: 13px;
+    color: $text-secondary;
+    margin: 0 0 20px;
+  }
+}
+
+// Date-time fields
+.date-time-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+
+  @media (max-width: 540px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  .field-label {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: $label-color;
+
+    .required {
+      color: $required-color;
+      margin-left: 1px;
+    }
+  }
+
+  .input-wrapper {
+    position: relative;
+
+    .field-input {
+      width: 100%;
+      padding: 10px 40px 10px 14px;
+      border: 1px solid $input-border;
+      border-radius: 6px;
+      font-size: 13.5px;
+      color: $text-primary;
+      background: $bg-white;
+      box-sizing: border-box;
+      transition: border-color $transition, box-shadow $transition;
+      appearance: none;
+      -webkit-appearance: none;
+
+      &::placeholder {
+        color: #9ca3af;
+      }
+
+      &:focus {
+        outline: none;
+        border-color: $input-focus;
+        box-shadow: 0 0 0 3px rgba($input-focus, 0.1);
+      }
+    }
+
+    .input-icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 15px;
+      color: $text-secondary;
+      pointer-events: none;
+    }
+  }
+}
+

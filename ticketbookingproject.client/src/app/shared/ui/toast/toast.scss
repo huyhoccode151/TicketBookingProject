@@ -1,0 +1,213 @@
+// ─── Variables ──────────────────────────────────────────────────────────────
+$gap: 12px;
+$offset: 20px;
+$radius: 12px;
+$min-width: 320px;
+$max-width: 420px;
+
+$colors: ( success: (bg: #f0fdf4, border: #bbf7d0, icon: #16a34a, progress: #22c55e), error: (bg: #fff1f2, border: #fecdd3, icon: #dc2626, progress: #ef4444), warning: (bg: #fffbeb, border: #fde68a, icon: #d97706, progress: #f59e0b), info: (bg: #eff6ff, border: #bfdbfe, icon: #2563eb, progress: #3b82f6), loading: (bg: #f8fafc, border: #e2e8f0, icon: #6366f1, progress: #6366f1), );
+
+// ─── Container positioning ───────────────────────────────────────────────────
+.toast-container {
+  position: fixed;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: $gap;
+  pointer-events: none;
+
+  &.top-right {
+    top: $offset;
+    right: $offset;
+    align-items: flex-end;
+  }
+
+  &.top-left {
+    top: $offset;
+    left: $offset;
+    align-items: flex-start;
+  }
+
+  &.top-center {
+    top: $offset;
+    left: 50%;
+    transform: translateX(-50%);
+    align-items: center;
+  }
+
+  &.bottom-right {
+    bottom: $offset;
+    right: $offset;
+    align-items: flex-end;
+    flex-direction: column-reverse;
+  }
+
+  &.bottom-left {
+    bottom: $offset;
+    left: $offset;
+    align-items: flex-start;
+    flex-direction: column-reverse;
+  }
+
+  &.bottom-center {
+    bottom: $offset;
+    left: 50%;
+    transform: translateX(-50%);
+    align-items: center;
+    flex-direction: column-reverse;
+  }
+}
+
+// ─── Toast card ──────────────────────────────────────────────────────────────
+.toast {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: $min-width;
+  max-width: $max-width;
+  padding: 14px 16px 14px 14px;
+  border-radius: $radius;
+  border: 1px solid transparent;
+  box-shadow: 0 4px 24px rgba(0,0,0,.10), 0 1px 4px rgba(0,0,0,.06);
+  overflow: hidden;
+  pointer-events: auto;
+  animation: slideIn .3s cubic-bezier(.34,1.56,.64,1) both;
+
+  @each $type, $map in $colors {
+    &.#{$type} {
+      background: map-get($map, bg);
+      border-color: map-get($map, border);
+
+      .toast-icon {
+        color: map-get($map, icon);
+      }
+
+      .toast-progress {
+        background: map-get($map, progress);
+      }
+    }
+  }
+}
+
+// ─── Icon ────────────────────────────────────────────────────────────────────
+.toast-icon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .spin {
+    animation: spin 1s linear infinite;
+  }
+}
+
+// ─── Body ────────────────────────────────────────────────────────────────────
+.toast-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+  line-height: 1.4;
+}
+
+.toast-message {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.toast-action {
+  margin-top: 8px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid currentColor;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s;
+
+  &:hover {
+    background: rgba(0,0,0,.05);
+  }
+}
+
+// ─── Close button ────────────────────────────────────────────────────────────
+.toast-close {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #94a3b8;
+  transition: color .15s, background .15s;
+  padding: 0;
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  &:hover {
+    color: #475569;
+    background: rgba(0,0,0,.06);
+  }
+}
+
+// ─── Progress bar ────────────────────────────────────────────────────────────
+.toast-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  border-radius: 0 0 $radius $radius;
+  animation: shrink linear both;
+  transform-origin: left;
+}
+
+// ─── Keyframes ───────────────────────────────────────────────────────────────
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes shrink {
+  from {
+    transform: scaleX(1);
+  }
+
+  to {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

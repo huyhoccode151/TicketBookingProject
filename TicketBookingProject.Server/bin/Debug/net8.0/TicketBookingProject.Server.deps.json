@@ -12,11 +12,13 @@
           "BCrypt.Net-Next": "4.1.0",
           "Bogus": "35.6.5",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.8",
-          "Microsoft.AspNetCore.SpaProxy": "8.0.24",
+          "Microsoft.AspNetCore.SpaProxy": "8.0.25",
           "Microsoft.EntityFrameworkCore": "8.0.8",
           "Microsoft.EntityFrameworkCore.Design": "8.0.8",
           "Microsoft.EntityFrameworkCore.SqlServer": "8.0.8",
-          "Swashbuckle.AspNetCore": "6.6.2"
+          "Newtonsoft.Json": "13.0.4",
+          "Swashbuckle.AspNetCore": "6.6.2",
+          "System.Linq.Dynamic.Core": "1.7.1"
         },
         "runtime": {
           "TicketBookingProject.Server.dll": {}
@@ -91,11 +93,11 @@
           }
         }
       },
-      "Microsoft.AspNetCore.SpaProxy/8.0.24": {
+      "Microsoft.AspNetCore.SpaProxy/8.0.25": {
         "runtime": {
           "lib/net8.0/Microsoft.AspNetCore.SpaProxy.dll": {
-            "assemblyVersion": "8.0.24.0",
-            "fileVersion": "8.0.2426.7207"
+            "assemblyVersion": "8.0.25.0",
+            "fileVersion": "8.0.2526.11225"
           }
         }
       },
@@ -570,6 +572,14 @@
           }
         }
       },
+      "Newtonsoft.Json/13.0.4": {
+        "runtime": {
+          "lib/net6.0/Newtonsoft.Json.dll": {
+            "assemblyVersion": "13.0.0.0",
+            "fileVersion": "13.0.4.30916"
+          }
+        }
+      },
       "Swashbuckle.AspNetCore/6.6.2": {
         "dependencies": {
           "Swashbuckle.AspNetCore.Swagger": "6.6.2",
@@ -724,6 +734,14 @@
           }
         }
       },
+      "System.Linq.Dynamic.Core/1.7.1": {
+        "runtime": {
+          "lib/net8.0/System.Linq.Dynamic.Core.dll": {
+            "assemblyVersion": "1.7.1.0",
+            "fileVersion": "1.7.1.0"
+          }
+        }
+      },
       "System.Memory.Data/1.0.2": {
         "runtime": {
           "lib/netstandard2.0/System.Memory.Data.dll": {
@@ -854,12 +872,12 @@
       "path": "microsoft.aspnetcore.authentication.jwtbearer/8.0.8",
       "hashPath": "microsoft.aspnetcore.authentication.jwtbearer.8.0.8.nupkg.sha512"
     },
-    "Microsoft.AspNetCore.SpaProxy/8.0.24": {
+    "Microsoft.AspNetCore.SpaProxy/8.0.25": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-Rp0r2Ie9zd8k+TYV10TYDGxu+fLoQoOtd8lRyRvaM/SK2BqqtG0k5JewmUJsYXu6jy5mXc9vuNydQb5AjFrz1g==",
-      "path": "microsoft.aspnetcore.spaproxy/8.0.24",
-      "hashPath": "microsoft.aspnetcore.spaproxy.8.0.24.nupkg.sha512"
+      "sha512": "sha512-jDv9gydWXVRAMtphfpBJloNDwUED8t01RJEs2HSpguv+6an/VdXllo7FRMkbvHdyL7I3J2hmbEQBg/XIrtZGWA==",
+      "path": "microsoft.aspnetcore.spaproxy/8.0.25",
+      "hashPath": "microsoft.aspnetcore.spaproxy.8.0.25.nupkg.sha512"
     },
     "Microsoft.Bcl.AsyncInterfaces/6.0.0": {
       "type": "package",
@@ -1036,6 +1054,13 @@
       "path": "mono.texttemplating/2.2.1",
       "hashPath": "mono.texttemplating.2.2.1.nupkg.sha512"
     },
+    "Newtonsoft.Json/13.0.4": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-pdgNNMai3zv51W5aq268sujXUyx7SNdE2bj1wZcWjAQrKMFZV260lbqYop1d2GM67JI1huLRwxo9ZqnfF/lC6A==",
+      "path": "newtonsoft.json/13.0.4",
+      "hashPath": "newtonsoft.json.13.0.4.nupkg.sha512"
+    },
     "Swashbuckle.AspNetCore/6.6.2": {
       "type": "package",
       "serviceable": true,
@@ -1133,6 +1158,13 @@
       "sha512": "sha512-Thhbe1peAmtSBFaV/ohtykXiZSOkx59Da44hvtWfIMFofDA3M3LaVyjstACf2rKGn4dEDR2cUpRAZ0Xs/zB+7Q==",
       "path": "system.identitymodel.tokens.jwt/7.1.2",
       "hashPath": "system.identitymodel.tokens.jwt.7.1.2.nupkg.sha512"
+    },
+    "System.Linq.Dynamic.Core/1.7.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-qlgku/j9r0fei52yxR5ho9nC/fWGZuaELqPkZmJm24QZbBW4cL3sVWri1dZ0cKgARD7cgFKBdRqzxYoIG5Q0Cg==",
+      "path": "system.linq.dynamic.core/1.7.1",
+      "hashPath": "system.linq.dynamic.core.1.7.1.nupkg.sha512"
     },
     "System.Memory.Data/1.0.2": {
       "type": "package",

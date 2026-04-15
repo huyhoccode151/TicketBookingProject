@@ -27,7 +27,9 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.1" />
     <PackageReference Include="System.Linq.Queryable" Version="4.3.0" />
   </ItemGroup>
 
@@ -40,8 +42,6 @@
   <ItemGroup>
     <Folder Include="Common\Authorization\" />
     <Folder Include="DTOs\Mapping\" />
-    <Folder Include="Enums\" />
-    <Folder Include="Helpers\" />
     <Folder Include="Migrations\" />
     <Folder Include="Services\Interfaces\" />
   </ItemGroup>

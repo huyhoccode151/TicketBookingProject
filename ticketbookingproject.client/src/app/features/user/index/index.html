@@ -1,0 +1,139 @@
+<main class="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark">
+
+  <div *ngIf="loading">
+    <app-loader />
+  </div>
+
+  <div *ngIf="!loading" class="w-full p-8">
+
+    <!-- Header -->
+    <app-page-header title="User Management"
+                     subtitle="Manage and monitor all platform participants.">
+
+      <a class="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2" href="/users/create">
+
+        <span class="material-symbols-outlined text-base">
+          add
+        </span>
+
+        Add New User
+
+      </a>
+
+    </app-page-header>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <app-stat-card label="Total Users"
+                     [value]="statUsers.totalUsers.value.toString()"
+                     [change]="statUsers.totalUsers.change">
+      </app-stat-card>
+
+      <app-stat-card label="New Users (this week)"
+                     [value]="statUsers.newUsers.value.toString()"
+                     [change]="statUsers.newUsers.change">>
+      </app-stat-card>
+
+      <!--<app-stat-card label="Active Now"
+                     value="856"
+                     change="3.4%">
+      </app-stat-card>-->
+    </div>
+
+    <!-- Table -->
+    <app-data-table>
+      <!-- Toolbar -->
+      <app-table-toolbar (search)="onSearch($event)">
+        <app-filter-select label="Role"
+                           [options]="roleOptions"
+                           [value]="filter.role"
+                           (valueChange)="filter.role=$event; loadUser()">
+        </app-filter-select>
+        <app-filter-select label="Status"
+                           [options]="statusOptions"
+                           [value]="filter.status"
+                           (valueChange)="filter.status=$event; loadUser()">
+        </app-filter-select>
+        <app-filter-select label="LoginType"
+                           [options]="loginTypes"
+                           [value]="filter.loginType"
+                           (valueChange)="filter.loginType=$event; loadUser()">
+        </app-filter-select>
+
+      </app-table-toolbar>
+
+      <!-- Table -->
+      <table class="w-full text-left border-collapse">
+
+        <thead>
+          <tr class="bg-slate-50 dark:bg-slate-800/50">
+            <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">#</th>
+            <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">UserName</th>
+            <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">Email</th>
+            <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">Role</th>
+            <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">Status</th>
+            <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500 text-right">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+
+          <tr *ngFor="let user of users; let i = index"
+              class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+            <td class="px-6 py-4">
+              {{(page - 1) * pageSize + i + 1 }}
+            </td>
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3">
+                <span class="font-semibold text-sm">
+                  {{user.username}}
+                </span>
+              </div>
+            </td>
+
+            <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+              {{user.email}}
+            </td>
+
+            <td class="px-6 py-4">
+              <span *ngFor="let role of user.roles" [ngClass]="getRoleClass(role)">
+                {{ role | titlecase }}
+              </span>
+            </td>
+
+            <td class="px-6 py-4">
+              <span class="flex items-center gap-1.5 text-xs font-bold text-primary">
+                <span [ngClass]="getStatusClass(user.status)"></span>
+                {{user.status}}
+              </span>
+            </td>
+
+            <td class="px-6 py-4 text-right">
+
+              <app-table-actions [id]="user.id"
+                                 (edit)="editUser($event)"
+                                 (delete)="deleteUser($event)"
+                                 (view)="viewUser($event)">
+              </app-table-actions>
+
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+      <!-- Pagination -->
+      <app-pagination [page]="page"
+                      [pageSize]="pageSize"
+                      [totalPages]="totalPages"
+                      [totalCount]="totalCount"
+                      (pageChange)="onPageChange($event)">
+      </app-pagination>
+
+    </app-data-table>
+    <app-confirm-dialog [isOpen]="isDialogOpen" [config]="dialogConfig" (confirmed)="onConfirmed()"
+                        (cancelled)="onCancelled()" />
+  </div>
+</main>

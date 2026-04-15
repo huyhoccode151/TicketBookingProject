@@ -1,0 +1,62 @@
+<div class="setting-container" [formGroup]="form">
+  <div class="setting-header">
+    <span class="setting-icon">⚙</span>
+    <h2 class="setting-title">Setting</h2>
+  </div>
+
+  <div class="setting-body">
+    <div class="section-intro">
+      <h3 class="section-heading">Let's configure a few additional options for your event!</h3>
+      <p class="section-desc">Change the following settings based on your preferences to customise your event accordingly.</p>
+    </div>
+
+    <div class="toggle-row">
+      <label class="toggle-switch">
+        <input type="checkbox"
+               formControlName="startImmediately" />
+        <span class="slider"></span>
+      </label>
+      <div class="toggle-label">
+        <span class="toggle-title">I want the bookings to start immediately.</span>
+        <span class="toggle-hint">Disable this option if you want to start your booking from a specific date and time.</span>
+      </div>
+    </div>
+
+    <ng-container formGroupName="bookingStart">
+      <div class="booking-section" *ngIf="!isImmediate">
+        <h3 class="booking-heading">Booking starts on</h3>
+        <p class="booking-desc">Specify the date and time when you want the booking to start.</p>
+
+        <div class="date-time-row">
+          <div class="field-group">
+            <label class="field-label">Event Date.<span class="required">*</span></label>
+            <div class="input-wrapper">
+              <input type="date"
+                     class="field-input"
+                     formControlName="date"
+                     [class.is-invalid]="isDateInvalid" />
+              <span class="input-icon">📅</span>
+            </div>
+            <span class="error-msg" *ngIf="isDateInvalid">Date is required.</span>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Time</label>
+            <div class="input-wrapper">
+              <input type="time"
+                     class="field-input"
+                     formControlName="time" />
+              <span class="input-icon">🕐</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <div class="immediate-info" *ngIf="isImmediate">
+      <p class="immediate-text">
+        Bookings will start <strong>immediately</strong> once the event is published.
+      </p>
+    </div>
+  </div>
+</div>
