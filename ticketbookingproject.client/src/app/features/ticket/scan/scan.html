@@ -1,0 +1,84 @@
+<div class="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+  <div class="bg-white rounded-2xl shadow-lg w-full max-w-md p-8">
+
+    <h1 class="text-2xl font-extrabold text-center text-gray-800 mb-8">
+      📷 Check-in Ticket
+    </h1>
+
+    <!-- QR Scanner -->
+    <div *ngIf="!result && !loading">
+      <div id="qr-reader" class="w-full rounded-xl overflow-hidden mb-4"></div>
+
+      <button *ngIf="!scanning"
+              class="w-full bg-[#6abf45] hover:bg-[#5aa33a] text-white font-bold py-3 rounded-xl transition mb-4"
+              (click)="startScan()">
+        Check QR Code
+      </button>
+
+      <!-- Manual input -->
+      <div class="flex gap-2 mt-2">
+        <input class="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#6abf45]"
+               placeholder="Or enter code manually..."
+               [(ngModel)]="manualCode"
+               (keyup.enter)="submitManual()" />
+        <button class="bg-gray-800 text-white px-4 rounded-xl text-sm font-bold hover:bg-gray-700 transition"
+                (click)="submitManual()">
+          OK
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="flex flex-col items-center py-10 gap-4">
+      <div class="w-12 h-12 border-4 border-[#6abf45] border-t-transparent rounded-full animate-spin"></div>
+      <p class="text-gray-500 text-sm">Đang xử lý...</p>
+    </div>
+
+    <!-- Success -->
+    <div *ngIf="result?.success" class="text-center">
+      <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <span class="text-4xl">✅</span>
+      </div>
+      <h2 class="text-xl font-extrabold text-green-600 mb-1">Check-in thành công!</h2>
+      <p class="text-gray-500 text-sm mb-6">{{result.message}}</p>
+
+      <div class="bg-gray-50 rounded-xl p-4 text-left text-sm space-y-2 mb-6">
+        <div class="flex justify-between">
+          <span class="text-gray-500">Khách hàng</span>
+          <span class="font-bold">{{result.ticket?.booking?.user?.firstname}} {{result.ticket?.booking?.user?.lastname}}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-500">Loại vé</span>
+          <span class="font-bold">{{result.ticket?.ticketType?.name}}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-500">Ghế</span>
+          <span class="font-bold">{{result.ticket?.eventSeat?.seatNumber}}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-500">Check-in lúc</span>
+          <span class="font-bold">{{result.ticket?.checkedInAt | date:'HH:mm - dd/MM/yyyy'}}</span>
+        </div>
+      </div>
+
+      <button class="w-full border-2 border-gray-200 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-50 transition"
+              (click)="reset()">
+        Quét vé tiếp theo
+      </button>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="error" class="text-center">
+      <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <span class="text-4xl">❌</span>
+      </div>
+      <h2 class="text-xl font-extrabold text-red-500 mb-1">Check-in thất bại</h2>
+      <p class="text-gray-500 text-sm mb-6">{{error}}</p>
+      <button class="w-full border-2 border-gray-200 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-50 transition"
+              (click)="reset()">
+        Thử lại
+      </button>
+    </div>
+
+  </div>
+</div>

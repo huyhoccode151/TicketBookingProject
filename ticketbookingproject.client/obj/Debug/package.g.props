@@ -13,12 +13,15 @@
     <PackageJsonScriptsStartDefault Condition="$(PackageJsonScriptsStartDefault) == ''">ng serve --ssl --ssl-cert "$HOME/.aspnet/https/${npm_package_name}.pem" --ssl-key "$HOME/.aspnet/https/${npm_package_name}.key" --host=127.0.0.1</PackageJsonScriptsStartDefault>
     <PackageJsonPrivate Condition="$(PackageJsonPrivate) == ''">true</PackageJsonPrivate>
     <PackageJsonPackagemanager Condition="$(PackageJsonPackagemanager) == ''">npm@10.8.2</PackageJsonPackagemanager>
+    <PackageJsonDependenciesAbacrittAngularxSocialLogin Condition="$(PackageJsonDependenciesAbacrittAngularxSocialLogin) == ''">^2.6.0</PackageJsonDependenciesAbacrittAngularxSocialLogin>
     <PackageJsonDependenciesAngularCommon Condition="$(PackageJsonDependenciesAngularCommon) == ''">^21.2.0</PackageJsonDependenciesAngularCommon>
     <PackageJsonDependenciesAngularCompiler Condition="$(PackageJsonDependenciesAngularCompiler) == ''">^21.2.0</PackageJsonDependenciesAngularCompiler>
     <PackageJsonDependenciesAngularCore Condition="$(PackageJsonDependenciesAngularCore) == ''">^21.2.0</PackageJsonDependenciesAngularCore>
     <PackageJsonDependenciesAngularForms Condition="$(PackageJsonDependenciesAngularForms) == ''">^21.2.0</PackageJsonDependenciesAngularForms>
     <PackageJsonDependenciesAngularPlatformBrowser Condition="$(PackageJsonDependenciesAngularPlatformBrowser) == ''">^21.2.0</PackageJsonDependenciesAngularPlatformBrowser>
     <PackageJsonDependenciesAngularRouter Condition="$(PackageJsonDependenciesAngularRouter) == ''">^21.2.0</PackageJsonDependenciesAngularRouter>
+    <PackageJsonDependenciesNgSelectNgSelect Condition="$(PackageJsonDependenciesNgSelectNgSelect) == ''">^21.8.0</PackageJsonDependenciesNgSelectNgSelect>
+    <PackageJsonDependenciesHtml5Qrcode Condition="$(PackageJsonDependenciesHtml5Qrcode) == ''">^2.3.8</PackageJsonDependenciesHtml5Qrcode>
     <PackageJsonDependenciesJestEditorSupport Condition="$(PackageJsonDependenciesJestEditorSupport) == ''">*</PackageJsonDependenciesJestEditorSupport>
     <PackageJsonDependenciesRunScriptOs Condition="$(PackageJsonDependenciesRunScriptOs) == ''">*</PackageJsonDependenciesRunScriptOs>
     <PackageJsonDependenciesRxjs Condition="$(PackageJsonDependenciesRxjs) == ''">~7.8.0</PackageJsonDependenciesRxjs>

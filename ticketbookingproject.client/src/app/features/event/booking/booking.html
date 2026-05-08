@@ -21,15 +21,14 @@
         </div>
       </div>
 
-      <h1 style="margin-bottom: 24px;">Chọn vé tham dự</h1>
-      <div>{{ tickets.length }}</div>
+      <h1 style="margin-bottom: 24px;">Select Tickets</h1>
       @for (ticket of tickets; track ticket.id) {
       <div class="ticket-card" [class.sold-out]="ticket.status === 0 || ticket.availableQuantity === 0">
 
         <div class="ticket-header">
           <div>
             <h3 class="title">{{ ticket.name }}</h3>
-            <small style="color: #79747e;">Mã vé: #{{ ticket.id }}</small>
+            <small style="color: #79747e;">Ticket ID: #{{ ticket.id }}</small>
           </div>
           <span class="status-badge"
                 [class.danger]="ticket.status === 0"
@@ -45,15 +44,15 @@
         <!-- Hiển thị các trường số lượng từ Interface -->
         <div class="stats-grid">
           <div class="stat-item">
-            <span class="label">Tổng phát hành</span>
+            <span class="label">Total Issued</span>
             <span class="value">{{ ticket.quantity }}</span>
           </div>
           <div class="stat-item">
-            <span class="label">Đã bán</span>
+            <span class="label">Sold</span>
             <span class="value">{{ ticket.soldQuantity }}</span>
           </div>
           <div class="stat-item">
-            <span class="label">Còn lại</span>
+            <span class="label">Remaining</span>
             <span class="value" [style.color]="ticket.availableQuantity < 10 ? 'red' : 'inherit'">
               {{ ticket.availableQuantity }}
             </span>
@@ -68,8 +67,8 @@
             <div class="fill" [style.width.%]="getSoldPercent(ticket)"></div>
           </div>
           <div class="progress-text">
-            <span>Đã bán {{ getSoldPercent(ticket) | number:'1.0-0' }}%</span>
-            <span>Giới hạn: {{ ticket.maxPerUser }} vé/khách</span>
+            <span>Sold {{ getSoldPercent(ticket) | number:'1.0-0' }}%</span>
+            <span>Limit: {{ ticket.maxPerUser }} tickets/customer</span>
           </div>
         </div>
 
@@ -92,7 +91,7 @@
             </button>
           </div>
           } @else {
-          <button disabled style="padding: 8px 16px; border-radius: 8px; border: none;">Hết chỗ</button>
+          <button disabled style="padding: 8px 16px; border-radius: 8px; border: none;">Sold Out</button>
           }
         </div>
       </div>
@@ -102,7 +101,7 @@
     <!-- Sidebar Tóm tắt -->
     <aside>
       <div class="sidebar-summary">
-        <h2 style="margin-top: 0;">Chi tiết giữ vé</h2>
+        <h2 style="margin-top: 0;">Booking Details</h2>
 
         <div style="margin: 24px 0;">
           @for (item of selectedTickets; track item.id) {
@@ -115,28 +114,28 @@
           </div>
           } @empty {
           <div style="text-align: center; padding: 20px; color: #999; border: 2px dashed #eee; border-radius: 12px;">
-            Vui lòng chọn loại vé
+            Please select a ticket type
           </div>
           }
         </div>
 
         <div style="border-top: 1px solid #eee; padding-top: 16px;">
           <div style="display: flex; justify-content: space-between; margin-bottom: 8px; color: #666;">
-            <span>Tạm tính</span>
+            <span>Subtotal</span>
             <span>{{ subtotal | number }} VND</span>
           </div>
           <div style="display: flex; justify-content: space-between; align-items: flex-end;">
-            <span style="font-weight: 700;">Tổng cộng</span>
+            <span style="font-weight: 700;">Total</span>
             <div style="text-align: right;">
               <div style="font-size: 1.5rem; font-weight: 800; color: #6750a4;">{{ (subtotal * (1 + serviceFeeRate)) | number }}</div>
-              <small style="font-size: 10px; color: #999;">Đã bao gồm 2% phí dịch vụ</small>
+              <small style="font-size: 10px; color: #999;">Including 2% service fee</small>
             </div>
           </div>
         </div>
 
         <button [disabled]="isSubmitting || selectedTickets.length === 0" (click)="createBooking()"
                 style="width: 100%; margin-top: 24px; padding: 16px; border-radius: 12px; border: none; background: #1c1b1f; color: #fff; font-weight: 700; cursor: pointer;">
-          Tiếp tục thanh toán
+          Proceed to Payment
         </button>
       </div>
     </aside>

@@ -21,12 +21,14 @@ public class PaymentService : IPaymentService
     private readonly ICurrentUserService _currentUser;
     private readonly IBookingService _bookingService;
     public readonly IMapper _mapper;
+    private readonly ILogger<VnpayRefundService> _logger;
     public PaymentService(IConfiguration cfg, 
         IHttpContextAccessor httpContextAccessor, 
         IPaymentRepository paymentRepo, 
         ICurrentUserService currentUser, 
         IBookingService bookingService,
-        IMapper mapper)
+        IMapper mapper,
+        ILogger<VnpayRefundService> logger)
     {
         _cfg = cfg;
         _httpContextAccessor = httpContextAccessor;
@@ -34,20 +36,41 @@ public class PaymentService : IPaymentService
         _currentUser = currentUser;
         _bookingService = bookingService;
         _mapper = mapper;
+        _logger = logger;
     }
 
-    public async Task<PagedResponse<AdminPaymentListItemResponse>> GetListPayment(AdminPaymentListRequest req)
+    public async Task<Result<PagedResponse<AdminPaymentListItemResponse>>> GetListPayment(AdminPaymentListRequest req)
     {
-        var (payments, total) = await _paymentRepo.GetListPayment(req);
+        var currentOrganizerId = _currentUser.UserId;
+
+        var roles = _currentUser.Role ?? new List<string>();
+
+        var actionOfAdmin = roles.Contains("admin");
+
+        var actionOfOrganizer = roles.Contains("organizer");
+
+        var (payments, total) = actionOfAdmin
+            ? await _paymentRepo.GetListPayment(req)
+            : actionOfOrganizer
+                ? await _paymentRepo.GetListPayment(req, currentOrganizerId)
+                : (null, 0);
 
         var pagedPayments = await payments.ProjectTo<AdminPaymentListItemResponse>(_mapper.ConfigurationProvider).ToListAsync();
 
-        return new PagedResponse<AdminPaymentListItemResponse>(
+        if (pagedPayments == null)
+        {
+            return Result<PagedResponse<AdminPaymentListItemResponse>>
+                .Failure("Get List Payment Failed!!!", StatusCodes.Status204NoContent);
+        }
+
+        var result = new PagedResponse<AdminPaymentListItemResponse>(
                 pagedPayments,
                 req.Page,
                 req.PageSize,
                 total
             );
+
+        return Result<PagedResponse<AdminPaymentListItemResponse>>.Success( result ,"Get list payment successfully!!!");
     }
 
     //chưa kết nối được với momo business nên chưa test được
@@ -167,6 +190,71 @@ public class PaymentService : IPaymentService
         };
     }
 
+    public async Task<VnPayRefundResponse?> ExecuteRefundAsync(Payment payment)
+    {
+        var vnp_TmnCode = _cfg["VnPay:TmnCode"]!;
+        var vnp_HashSecret = _cfg["VnPay:HashSecret"]!;
+        var vnp_Api = _cfg["VnPay:RefundUrl"]!; // https://sandbox.vnpayment.vn/merchant_webapi/api/transaction
+
+        // Trích xuất thông tin từ MetaData
+        string vnp_PayDate = VnPayLibrary.GetValueFromMetaData(payment.MetaData, "vnp_PayDate") ?? "";
+        string vnp_TransactionNo = payment.PaymentTransaction ?? "";
+
+        string vnp_RequestId = DateTime.Now.Ticks.ToString();
+        string vnp_CreateDate = DateTime.Now.ToString("yyyyMMddHHmmss");
+        string vnp_IpAddr = "127.0.0.1";
+        string vnp_OrderInfo = $"Order refund {payment.BookingId}";
+        string vnp_Amount = (payment.TotalAmount * 100).ToString();
+
+
+        // RequestId|Version|Command|TmnCode|TransactionType|TxnRef|Amount|TransactionNo|TransactionDate|CreateBy|CreateDate|IpAddr|OrderInfo
+        string rawHash = $"{vnp_RequestId}|2.1.0|refund|{vnp_TmnCode}|02|{payment.BookingId}|{vnp_Amount}|{vnp_TransactionNo}|{vnp_PayDate}|System|{vnp_CreateDate}|{vnp_IpAddr}|{vnp_OrderInfo}";
+
+
+        _logger.LogInformation("vnp_PayDate: '{PayDate}', vnp_TransactionNo: '{TxnNo}', rawHash: '{Hash}'",
+    vnp_PayDate, vnp_TransactionNo, rawHash);
+
+        var vnpay = new VnPayLibrary();
+        string vnp_SecureHash = vnpay.CreateRefundHash(rawHash, vnp_HashSecret);
+
+        var requestBody = new
+        {
+            vnp_RequestId,
+            vnp_Version = "2.1.0",
+            vnp_Command = "refund",
+            vnp_TmnCode,
+            vnp_TransactionType = "02",
+            vnp_TxnRef = payment.BookingId.ToString(),
+            vnp_Amount,
+            vnp_TransactionNo,
+            vnp_TransactionDate = vnp_PayDate,
+            vnp_CreateBy = "System",
+            vnp_CreateDate,
+            vnp_IpAddr,
+            vnp_OrderInfo,
+            vnp_SecureHash
+        };
+
+        using var client = new HttpClient();
+        //var response = await client.PostAsJsonAsync(vnp_Api, requestBody);
+        //return await response.Content.ReadFromJsonAsync<VnPayRefundResponse>();
+        var response = await client.PostAsJsonAsync(vnp_Api, requestBody);
+
+        var rawContent = await response.Content.ReadAsStringAsync();
+        _logger.LogInformation("VNPay Refund Raw Response: {Response}", rawContent);
+
+        if (rawContent.TrimStart().StartsWith('<'))
+        {
+            _logger.LogError("VNPay trả về HTML thay vì JSON: {Body}", rawContent);
+            return null;
+        }
+
+        return JsonSerializer.Deserialize<VnPayRefundResponse>(rawContent, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        });
+    }
+
     public async Task<Payment?> CreatePaymentIntentByVnPayCallback(VnPaymentResponseModel response)
     {
         if (!response.Success) return null;
@@ -194,6 +282,8 @@ public class PaymentService : IPaymentService
         return payment;
     }
 
+
+
     public async Task<bool> DeletePayment(int id)
     {
         var payment = await _paymentRepo.GetPaymentById(id);
@@ -202,5 +292,14 @@ public class PaymentService : IPaymentService
         var deleted = await _paymentRepo.DeletePayment(payment);
 
         return deleted;
+    }
+
+    public async Task<List<TotalVenueReponse>> GetListTotalRevenue(TotalVenueRequest req)
+    {
+        var totalRevenues = await _paymentRepo.GetListTotalRevenue(req);
+
+        var fullTotalRevenues = await totalRevenues.ProjectTo<TotalVenueReponse>(_mapper.ConfigurationProvider).ToListAsync();
+        
+        return fullTotalRevenues;
     }
 }

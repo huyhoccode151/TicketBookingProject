@@ -38,38 +38,10 @@ export class AuditLogService {
       .pipe(catchError(this.handleError));
   }
 
-
-  /**
-   * Delete an audit log entry.
-   */
-  //deleteLog(id: string): Observable<void> {
-  //  return this.http
-  //    .delete<void>(`${this.baseUrl}/${encodeURIComponent(id)}`)
-  //    .pipe(catchError(this.handleError));
-  //}
-
-  /**
-   * Export audit logs as CSV (or other binary format).
-   * The backend should set appropriate Content-Type and disposition headers.
-   */
-  //exportLogs(query?: AuditLogQuery): Observable<Blob> {
-  //  let params = new HttpParams();
-  //  if (query) {
-  //    if (query.from) { params = params.set('from', query.from); }
-  //    if (query.to) { params = params.set('to', query.to); }
-  //    if (query.userId) { params = params.set('userId', query.userId); }
-  //    if (query.action) { params = params.set('action', query.action); }
-  //    if (query.search) { params = params.set('search', query.search); }
-  //    if (query.sort) { params = params.set('sort', query.sort); }
-  //  }
-
-  //  const headers = new HttpHeaders().set('Accept', 'text/csv');
-
-  //  return this.http
-  //    .get(`${this.baseUrl}/export`, { params, headers, responseType: 'blob' })
-  //    .pipe(catchError(this.handleError));
-  //}
-
+  getMyLogs(): Observable<ApiResponse<AuditLog[]>> {
+    return this.http.get<ApiResponse<AuditLog[]>>(`${this.api}/profile`).pipe(catchError(this.handleError));
+  }
+ 
   /**
    * Simple error handler for HTTP requests.
    */

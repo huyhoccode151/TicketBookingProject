@@ -7,15 +7,17 @@ import { FilterSelect } from '../../../shared/ui/filter-select/filter-select';
 import { DataTable } from '../../../shared/ui/data-table/data-table';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Pagination } from '../../../shared/ui/pagination/pagination';
+import { Loader } from '../../../shared/ui/loader/loader';
 
 @Component({
   selector: 'app-index',
   standalone: true,
-  imports: [PageHeader, TableToolbar, FilterSelect, DataTable, DatePipe, Pagination, CommonModule],
+  imports: [PageHeader, TableToolbar, FilterSelect, DataTable, DatePipe, Pagination, CommonModule, Loader],
   templateUrl: './index.html',
   styleUrls: ['./index.scss'],
 })
 export class Index {
+  loading: boolean = true;
   logs: AuditLog[] = [];
   searchTemp = '';
   page = 1;
@@ -27,7 +29,6 @@ export class Index {
   }
 
   actionOptions = [
-    { label: 'All', value: '' },
     { label: 'Create', value: 'create' },
     { label: 'Update', value: 'update' },
     { label: 'Delete', value: 'delete' },
@@ -54,7 +55,10 @@ export class Index {
       this.pageSize = res.data.pageSize;
       this.totalCount = res.data.totalCount;
       this.totalPages = res.data.totalPages;
-      this.cdr.detectChanges();
+      setTimeout(() => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }, 500);
     });
     console.log(this.logs);
   }

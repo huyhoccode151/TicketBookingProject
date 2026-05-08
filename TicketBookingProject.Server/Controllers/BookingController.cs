@@ -1,6 +1,9 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using TicketBookingProject.Server;
+using TicketBookingProject.Server.Common.Extensions;
 using TicketBookingProject.Server.Models;
 
 namespace MyApp.Namespace
@@ -38,12 +41,40 @@ namespace MyApp.Namespace
             return Ok(ApiResponse<BookingTicketDetails?>.Ok(booking, "Get booking successfully!!!"));
         }
 
+        [HttpGet("email-booking/{id}")]
+        public async Task<IActionResult> GetBookingEmailResponseById(int id)
+        {
+            var booking = await _bookingService.GetBookingEmailResponseById(id);
+
+            return Ok(ApiResponse<BookingEmailResponseById?>.Ok(booking, "Get booking successfully!!!"));
+        }
+
+        
         [HttpGet]
+        [Authorize(Roles = "admin,organizer")]
+        [HasPermission("booking:manage")]
         public async Task<IActionResult> GetListBooking([FromQuery] AdminBookingListRequest req)
         {
             var bookings = await _bookingService.GetListBooking(req);
 
-            return Ok(ApiResponse<PagedResponse<AdminBookingListItemResponse>>.Ok(bookings, "Load list bookings successfully!!!"));
+            return bookings.ToActionResult();
+        }
+
+        [HttpGet("recent-booking")]
+        [Authorize(Roles = "admin,organizer")]
+        [HasPermission("booking:manage")]
+        public async Task<IActionResult> GetListRecentBooking([FromQuery] RecentBookingListRequest req)
+        {
+            var bookings = await _bookingService.GetListRecentBooking(req);
+
+            return bookings.ToActionResult();
+        }
+
+        [HttpDelete("{bookingId}")]
+        public async Task<IActionResult> DeleteBooking(int bookingId)
+        {
+            var booking = await _bookingService.DeleteBooking(bookingId);
+            return Ok(ApiResponse<bool>.Ok(booking, "Delete Booking Success!!!"));
         }
     }
 }

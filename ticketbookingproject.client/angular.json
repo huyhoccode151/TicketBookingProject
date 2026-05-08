@@ -38,7 +38,8 @@
             ],
             "styles": [
               "src/styles.css",
-              "src/app/features/auth/login/login.scss"
+              "src/app/features/auth/login/login.scss",
+              "src/app/features/role/index/index.scss"
             ]
           },
           "configurations": {
@@ -77,6 +78,9 @@
           },
           "defaultConfiguration": "development",
           "options": {
+            "headers": {
+              "Cross-Origin-Opener-Policy": "same-origin-allow-popups"
+            },
             "proxyConfig": "src/proxy.conf.js",
             "port": 65211
           }

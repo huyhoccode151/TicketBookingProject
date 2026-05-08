@@ -9,6 +9,7 @@ import { CategoryListItemResponse, Ticket, VenueListItemResponse } from '../mode
 import { TableActions } from '../../../shared/ui/table-actions/table-actions';
 import { ConfirmDialog, ConfirmDialogConfig } from '../../../shared/ui/confirm-dialog/confirm-dialog';
 import { Router } from '@angular/router';
+import { RouteService } from '../../../core/services/route.service';
 
 type ImageItem = {
   file: File;
@@ -33,6 +34,7 @@ export class Create implements OnInit {
   form!: FormGroup;
   ticketFormEdit!: FormGroup;
   ticketFormCreate!: FormGroup;
+  route = inject(RouteService);
 
   steps = [
     { label: 'Details' },
@@ -59,6 +61,7 @@ export class Create implements OnInit {
   dialogEditConfig: ConfirmDialogConfig = { title: '', message: '' }
   dialogCreateConfig: ConfirmDialogConfig = { title: '', message: '' }
   dialogDeleteConfig: ConfirmDialogConfig = { title: '', message: '' }
+  errorMessage = '';
 
   tickets: Ticket[] = [
     {
@@ -98,8 +101,9 @@ export class Create implements OnInit {
         startTime: ['', Validators.required],
         endTime: ['', Validators.required],
         venue: ['', Validators.required],
-        description: [''],
-        category: ['', Validators.required]
+        description: ['', Validators.required],
+        category: ['', Validators.required],
+        images: [[], Validators.required]
       }),
 
       settings: this.fb.group({
@@ -121,16 +125,16 @@ export class Create implements OnInit {
 
     this.ticketFormEdit = this.fb.group({
       name: ['', Validators.required],
-      price: [0, Validators.required],
-      quantity: [0, Validators.required],
-      maxPerUser: [0, Validators.required],
+      price: [2000, [Validators.required, Validators.min(1)]],
+      quantity: [1, [Validators.required, Validators.min(1)]],
+      maxPerUser: [1, [Validators.required, Validators.min(1)]],
     });
 
     this.ticketFormCreate = this.fb.group({
       name: ['', Validators.required],
-      price: [0, Validators.required],
-      quantity: [0, Validators.required],
-      maxPerUser: [0, Validators.required],
+      price: [2000, [Validators.required, Validators.min(1)]],
+      quantity: [1, [Validators.required, Validators.min(1)]],
+      maxPerUser: [1, [Validators.required, Validators.min(1)]],
     });
 
     this.subs.add(
@@ -138,6 +142,7 @@ export class Create implements OnInit {
         if (val.startTime && val.endTime) {
           if (new Date(val.startTime) > new Date(val.endTime)) {
             this.form.get('details.endTime')?.setErrors({ invalidRange: true });
+            this.form.get('details.endTime')?.markAsTouched();
           }
           else {
             this.form.get('details.endTime')?.setErrors(null);
@@ -150,6 +155,7 @@ export class Create implements OnInit {
       this.form.get('settings.startImmediately')!.valueChanges.subscribe(immediate => {
         const group = this.form.get('settings.bookingStart') as FormGroup;
         const dateCtrl = group.get('date');
+        
 
         if (immediate) {
           group.disable({ emitEvent: false });
@@ -180,6 +186,23 @@ export class Create implements OnInit {
         }
 
         dateCtrl?.updateValueAndValidity();
+      })
+    );
+
+    this.subs.add(
+      this.form.get('settings')!.valueChanges.subscribe(settings => {
+        if(settings.bookingStart.date && settings.bookingEnd.date) {
+          const start = new Date(settings.bookingStart.date);
+          const end = new Date(settings.bookingEnd.date);
+          const startTime = settings.bookingStart.time || '00:00';
+          const endTime = settings.bookingEnd.time || '00:00';
+          if (start > end && startTime > endTime) {
+            this.form.get('settings.bookingEnd.date')?.setErrors({ invalidBookingRange: true });
+            this.form.get('settings.bookingEnd.date')?.markAsTouched();
+          } else {
+            this.form.get('settings.bookingEnd.date')?.setErrors(null);
+          }
+        }
       })
     );
   }
@@ -281,13 +304,13 @@ export class Create implements OnInit {
   }
 
   onDeleteConfirmed() {
-    if (!this.ticketId) this.toast.error('Couldnt found ticket type!!!');
-
+    //if (!this.ticketId) this.toast.error('Couldnt found ticket type!!!');
     this.tickets.splice(this.ticketId, 1);
+    this.isDialogDeleteOpen = false;
   }
 
   onDeleteCancelled() {
-    this.isDialogDeleteOpen = false
+    this.isDialogDeleteOpen = false;
   }
 
   viewTicket(eventId: number) {
@@ -346,6 +369,13 @@ export class Create implements OnInit {
       const group = this.form.get('details') as FormGroup;
       if (group.invalid) {
         group.markAllAsTouched();
+        return;
+      }
+    }
+
+    if (this.currentStep == 1) {
+      if (!this.tickets || this.tickets.length === 0) {
+        this.toast.error('You must create at least one ticket!');
         return;
       }
     }
@@ -418,12 +448,37 @@ export class Create implements OnInit {
     this.eventService.createEvent(formData).subscribe({
       next: () => {
         this.form.reset();
-        this.router.navigate(['/events']);
-        this.toast.success('Edited User', 'Edited user successfully!!!');
-      }
-    });
+        console.log(this.route.events());
+        this.router.navigate(this.route.events());
+        this.toast.success('Created Event', 'Event created successfully!!!');
+      },
+      error: (err) => {
+        if (err.status === 400 && err.error.errors || err.status === 400 && err.error?.message) {
+          const serverError = err.error?.errors ?? err.error?.message;
+          console.log(serverError, 'dfsaf');
+          for (const field in serverError) {
 
-    alert('Event created: ' + v.details.name);
+            let controlName = field.toLowerCase();
+
+            const control = this.form.get(controlName);
+
+            if (control) {
+              control.setErrors({ serverError: serverError[field][0] });
+            }
+            console.log(controlName, 'controlName');
+          }
+          for (const key in serverError) {
+            if (Array.isArray(serverError[key])) {
+              serverError[key].forEach(msg => this.toast.error('Validation failed. Please check your input.', msg));
+            }
+          }
+
+        } else {
+          this.errorMessage = err?.error?.message ?? 'An error occured. Please try again.';
+          this.toast.error('Create Event failed!!!');
+        }
+      } 
+    });
   }
 
   //IMAGE
@@ -438,10 +493,27 @@ export class Create implements OnInit {
   readFiles(files: FileList) {
     const remaining = this.MAX_IMAGES - this.images.length;
 
+    if (files.length > remaining) {
+      this.form.get('details.images')?.setErrors({
+        maxImages: 'You can upload up to 10 images only'
+      });
+    }
+
     Array.from(files).slice(0, remaining)
       .forEach(file => {
-        if (!file.type.startsWith('image/')) return;
-        if (file.size > 10 * 1024 * 1024) return;
+        if (!file.type.startsWith('image/')) {
+          this.form.get('details.images')?.setErrors({
+            fileType: 'Only image files are allowed'
+          });
+          return;
+        }
+
+        if (file.size > 10 * 1024 * 1024) {
+          this.form.get('details.images')?.setErrors({
+            fileSize: 'Each image must be less than 10MB'
+          });
+          return;
+        }
 
         const reader = new FileReader();
         reader.onload = () => {
@@ -449,6 +521,12 @@ export class Create implements OnInit {
             file,
             preview: reader.result as string
           });
+
+          this.form.get('details.images')?.setErrors(null);
+
+          this.form.get('details.images')?.setValue(this.images);
+          this.form.get('details.images')?.updateValueAndValidity();
+
           this.cdr.detectChanges();
         };
         reader.readAsDataURL(file);
@@ -486,6 +564,7 @@ export class Create implements OnInit {
 
     if (control.errors['required']) return `${errorField} is required`;
     if (control.errors['minlength']) return 'Minimum 3 characters';
+    if (control.errors['invalidBookingRange']) return 'End time must be greater than start time';
 
     return 'Invalid field';
   }
@@ -499,6 +578,7 @@ export class Create implements OnInit {
 
     if (control.errors['required']) return `${errorField} is required`;
     if (control.errors['minlength']) return 'Minimum 3 characters';
+    if (control.errors['min']) return `${errorField} must be at least 1`;
 
     return 'Invalid field';
   }
@@ -512,8 +592,14 @@ export class Create implements OnInit {
 
     if (control.errors['required']) return `${errorField} is required`;
     if (control.errors['minlength']) return 'Minimum 3 characters';
+    if (control.errors['min']) return `${errorField} must be at least 1`;
 
     return 'Invalid field';
+  }
+
+  isInvalid(controlPath: string): boolean {
+    const control = this.form.get(controlPath);
+    return !!(control && control.invalid && (control.dirty || control.touched));
   }
 
   //this.form.get('settings.startImmediately')!.valueChanges.subscribe(immediate => {

@@ -10,7 +10,7 @@
     <app-page-header title="User Management"
                      subtitle="Manage and monitor all platform participants.">
 
-      <a class="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2" href="/users/create">
+      <button class="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2" *hasPermission="'user:create'" (click)="onAddUser()">
 
         <span class="material-symbols-outlined text-base">
           add
@@ -18,7 +18,7 @@
 
         Add New User
 
-      </a>
+      </button>
 
     </app-page-header>
 
@@ -46,18 +46,18 @@
       <app-table-toolbar (search)="onSearch($event)">
         <app-filter-select label="Role"
                            [options]="roleOptions"
-                           [value]="filter.role"
-                           (valueChange)="filter.role=$event; loadUser()">
+                           [value]="role"
+                           (valueChange)="roleFilterChange($event)">
         </app-filter-select>
         <app-filter-select label="Status"
                            [options]="statusOptions"
-                           [value]="filter.status"
-                           (valueChange)="filter.status=$event; loadUser()">
+                           [value]="status"
+                           (valueChange)="statusFilterChange($event)">
         </app-filter-select>
         <app-filter-select label="LoginType"
                            [options]="loginTypes"
-                           [value]="filter.loginType"
-                           (valueChange)="filter.loginType=$event; loadUser()">
+                           [value]="loginType"
+                           (valueChange)="loginTypeFilterChange($event)">
         </app-filter-select>
 
       </app-table-toolbar>
@@ -77,49 +77,58 @@
         </thead>
 
         <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+          <ng-container *ngIf="users.length === 0">
+            <tr>
+              <td colspan="6" class="px-6 py-4 text-center text-sm text-slate-500 dark:text-slate-400">
+                No users found.
+              </td>
+            </tr>
+          </ng-container>
 
-          <tr *ngFor="let user of users; let i = index"
-              class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-            <td class="px-6 py-4">
-              {{(page - 1) * pageSize + i + 1 }}
-            </td>
-            <td class="px-6 py-4">
-              <div class="flex items-center gap-3">
-                <span class="font-semibold text-sm">
-                  {{user.username}}
+
+          <ng-container *ngIf="users.length > 0">
+            <tr *ngFor="let user of users; let i = index"
+                class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+              <td class="px-6 py-4">
+                {{(page - 1) * pageSize + i + 1 }}
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <span class="font-semibold text-sm">
+                    {{user.username}}
+                  </span>
+                </div>
+              </td>
+
+              <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                {{user.email}}
+              </td>
+
+              <td class="px-6 py-4">
+                <span *ngFor="let role of user.roles" [ngClass]="getRoleClass(role)">
+                  {{ role | titlecase }}
                 </span>
-              </div>
-            </td>
+              </td>
 
-            <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
-              {{user.email}}
-            </td>
+              <td class="px-6 py-4">
+                <span class="flex items-center gap-1.5 text-xs font-bold text-primary">
+                  <span [ngClass]="getStatusClass(user.status)"></span>
+                  {{user.status}}
+                </span>
+              </td>
 
-            <td class="px-6 py-4">
-              <span *ngFor="let role of user.roles" [ngClass]="getRoleClass(role)">
-                {{ role | titlecase }}
-              </span>
-            </td>
+              <td class="px-6 py-4 text-right">
 
-            <td class="px-6 py-4">
-              <span class="flex items-center gap-1.5 text-xs font-bold text-primary">
-                <span [ngClass]="getStatusClass(user.status)"></span>
-                {{user.status}}
-              </span>
-            </td>
+                <app-table-actions [id]="user.id"
+                                   (edit)="editUser($event)"
+                                   (delete)="deleteUser($event)"
+                                   (view)="viewUser($event)">
+                </app-table-actions>
 
-            <td class="px-6 py-4 text-right">
+              </td>
 
-              <app-table-actions [id]="user.id"
-                                 (edit)="editUser($event)"
-                                 (delete)="deleteUser($event)"
-                                 (view)="viewUser($event)">
-              </app-table-actions>
-
-            </td>
-
-          </tr>
-
+            </tr>
+          </ng-container>
         </tbody>
 
       </table>

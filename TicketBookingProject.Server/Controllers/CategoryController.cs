@@ -28,5 +28,13 @@ namespace MyApp.Namespace
             var cate = await _cateService.ListCategory();
             return Ok(ApiResponse<List<CategoryResponse>>.Ok(cate));
         }
+
+        [HttpGet("cate-with-tic")]
+        public async Task<IActionResult> ListCategoryWithTicketType()
+        {
+            var ticketNum = await _cateService.ListCategoryWithTicketType();
+
+            return Ok(ApiResponse<List<TicketWithEventType>>.Ok(ticketNum, "Load ticket num with event type successfully!!!"));
+        }
     }
 }

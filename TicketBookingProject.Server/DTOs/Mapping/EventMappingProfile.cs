@@ -63,7 +63,7 @@ public class EventMappingProfile : Profile
             .ForCtorParam("Status",
                 o => o.MapFrom(s => (byte)s.Status))
             .ForCtorParam("StatusLabel",
-                o => o.MapFrom(s => StatusLabels.GetValueOrDefault(s.Status, s.Status.ToString())))
+                o => o.MapFrom(s => s.Status.ToString()))
             .ForCtorParam("MinPrice",
                 o => o.MapFrom(s => s.TicketTypes.Any() ? s.TicketTypes.Min(t => t.Price) : 0L))
             .ForCtorParam("MaxPrice",
@@ -146,5 +146,9 @@ public class EventMappingProfile : Profile
             .ForMember(d => d.SectionName, o => o.MapFrom(s => s.Name))
             .ForMember(d => d.Seats, o => o.Ignore());  // populated from event_seats in service
 
+        CreateMap<Category, TicketWithEventType>()
+            .ForCtorParam("EventType", o => o.MapFrom(s => s.Name))
+            .ForCtorParam("Stock", o => o.MapFrom(s => s.Events.SelectMany(e => e.TicketTypes).Sum(tt => tt.Quantity)))
+            .ForCtorParam("Sold", o => o.MapFrom(s => s.Events.SelectMany(e => e.TicketTypes).Sum(tt => tt.SoldQuantity)));
     }
 }

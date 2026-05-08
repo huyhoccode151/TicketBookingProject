@@ -20,9 +20,17 @@ public class AuditLogService : IAuditLogService
 
     public void AddLog(string action, string entityType, long? entityId, string description, object? metadata = null, int? userId = null)
     {
+        int? resolvedUserId = userId;
+
+        if (resolvedUserId == null)
+        {
+            try { resolvedUserId = _currentUser.UserId; }
+            catch { resolvedUserId = null; }
+        }
+
         var log = new AuditLog
         {
-            UserId = userId ?? _currentUser.UserId,
+            UserId = resolvedUserId,
             Action = action,
             EntityType = entityType,
             EntityId = entityId,
@@ -32,11 +40,26 @@ public class AuditLogService : IAuditLogService
         };
 
         _context.AuditLogs.Add(log);
+        _context.SaveChanges();
     }
 
     public async Task<PagedResponse<AuditLogDto>> GetListAuditLog(AuditLogRequest req)
     {
         var logs = await _auditLogRepo.GetListAuditLog(req);
         return logs;
+    }
+
+    public async Task<Result<List<AuditLogDto>>> GetListAuditLogsByUserId()
+    {
+        var userId = _currentUser.UserId;
+
+        var logs = await _auditLogRepo.GetListAuditLogsByUserId(userId ?? 0);
+
+        if (logs == null || logs.Count == 0)
+        {
+            return Result<List<AuditLogDto>>.Failure("No audit logs found for the specified user.", StatusCodes.Status404NotFound);
+        }
+
+        return Result<List<AuditLogDto>>.Success(logs, StatusCodes.Status200OK);
     }
 }

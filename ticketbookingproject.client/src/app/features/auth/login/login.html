@@ -2,19 +2,19 @@
   <!-- Header -->
   <header class="header">
     <div class="logo">
-      <div class="logo-icon">B</div>
-      <span class="logo-text">Barren</span>
+      <div class="logo-icon">T</div>
+      <span class="logo-text">Ticket-H</span>
     </div>
     <div class="header-right">
-      <span class="signup-text">New to Barren?</span>
-      <a routerLink="/register" class="signup-link">Sign up</a>
+      <span class="signup-text">New to Ticket-H?</span>
+      <a routerLink="/sign-up" class="signup-link">Sign up</a>
     </div>
   </header>
 
   <!-- Main Form -->
   <main class="login-content">
     <div class="form-container">
-      <h1 class="form-title">Sign in to Barren</h1>
+      <h1 class="form-title">Sign in to Ticket-H</h1>
 
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
 
@@ -30,7 +30,9 @@
                  autocomplete="username" />
           <span class="error-msg" *ngIf="submitted && usernameControl.invalid">
             <ng-container *ngIf="usernameControl.errors?.['required']">Username is required.</ng-container>
-            <ng-container *ngIf="usernameControl.errors?.['username']">Please enter a valid username.</ng-container>
+            <ng-container *ngIf="usernameControl.errors?.['serverError']">
+              {{ usernameControl.errors?.['serverError'] }}
+            </ng-container>
           </span>
         </div>
 
@@ -65,7 +67,9 @@
           </div>
           <span class="error-msg" *ngIf="submitted && passwordControl.invalid">
             <ng-container *ngIf="passwordControl.errors?.['required']">Password is required.</ng-container>
-            <ng-container *ngIf="passwordControl.errors?.['minlength']">Password must be at least 6 characters.</ng-container>
+            <ng-container *ngIf="passwordControl.errors?.['serverError']">
+              {{ passwordControl.errors?.['serverError'] }}
+            </ng-container>
           </span>
         </div>
 
@@ -106,6 +110,7 @@
           </svg>
           Sign in with Google
         </button>
+        <div id="buttonDiv" style="display:none"></div>
 
         <button type="button" class="btn-social" (click)="signInWithFacebook()">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">

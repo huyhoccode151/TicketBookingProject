@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
 using TicketBookingProject.Server.Models;
 
@@ -29,5 +31,12 @@ public class CategoryService : ICategoryService
     {
         var categories = await _cateRepo.ListCategory();
         return _mapper.Map<List<CategoryResponse>>(categories);
+    }
+
+    public async Task<List<TicketWithEventType>> ListCategoryWithTicketType()
+    {
+        var categories = await _cateRepo.ListCategoryWithTicketType();
+
+        return categories;
     }
 }

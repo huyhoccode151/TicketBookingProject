@@ -66,4 +66,47 @@ public class TicketService : ITicketService
                 );
         }
     }
+
+    public async Task<CheckInResult> CheckInAsync(string qrCode)
+    {
+        var ticket = await _ticketRepo.GetByQrCodeAsync(qrCode);
+
+        if (ticket == null)
+            return new CheckInResult(false, "Ticket does not exist.");
+
+        if (ticket.Status == TicketStatus.Used)
+            return new CheckInResult(false, "Ticket was used!", MapToDto(ticket));
+
+        if (ticket.Status == TicketStatus.Cancelled)
+            return new CheckInResult(false, "Ticket was cancelled!", MapToDto(ticket));
+
+        if (ticket.Status == TicketStatus.Expired)
+            return new CheckInResult(false, "Ticket was expired.", MapToDto(ticket));
+
+        ticket.Status = TicketStatus.Used;
+        ticket.CheckedInAt = DateTime.UtcNow;
+        ticket.CheckedInBy = _currentUser.UserId;
+
+        await _ticketRepo.UpdateTicketAsync(ticket);
+
+        var dto = new CheckInTicketDto
+        {
+            Id = ticket.Id,
+            CustomerName = $"{ticket.Booking?.User?.Firstname} {ticket.Booking?.User?.Lastname}",
+            TicketTypeName = ticket.TicketType?.Name,
+            SeatNumber = ticket.EventSeat?.Seat.SeatNumber,
+            CheckedInAt = ticket.CheckedInAt
+        };
+
+        return new CheckInResult(true, "Check-in success", dto);
+    }
+
+    private CheckInTicketDto MapToDto(Ticket ticket) => new()
+    {
+        Id = ticket.Id,
+        CustomerName = $"{ticket.Booking?.User?.Firstname} {ticket.Booking?.User?.Lastname}",
+        TicketTypeName = ticket.TicketType?.Name,
+        SeatNumber = ticket.EventSeat?.Seat.SeatNumber,
+        CheckedInAt = ticket.CheckedInAt
+    };
 }

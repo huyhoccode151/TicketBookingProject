@@ -33,4 +33,27 @@ public class CategoryRepository : BaseRepository<Category>, ICategoryRepository
         var category = await _dbset.ToListAsync();
         return category;
     }
+
+    public async Task<List<TicketWithEventType>>  ListCategoryWithTicketType()
+    {
+        return await _dbset
+        .Select(c => new
+        {
+            EventType = c.Name,
+            Stock = c.Events
+                .SelectMany(e => e.TicketTypes)
+                .Sum(tt => tt.Quantity),
+            Sold = c.Events
+                .SelectMany(e => e.TicketTypes)
+                .Sum(tt => tt.SoldQuantity)
+        })
+        .OrderByDescending(x => x.Stock)
+        .ThenByDescending(x => x.Sold)
+        .Select(x => new TicketWithEventType(
+            x.EventType,
+            x.Stock,
+            x.Sold
+        ))
+        .ToListAsync();
+    }
 }

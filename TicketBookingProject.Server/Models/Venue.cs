@@ -7,15 +7,15 @@ public partial class Venue : IEntities
 {
     public int Id { get; set; }
 
-    public string? Name { get; set; }
+    public string? Name { get; set; } = string.Empty;
 
-    public string? Province { get; set; }
+    public string? Province { get; set; } = string.Empty;
 
-    public string? AddressDetail { get; set; }
+    public string? AddressDetail { get; set; } = string.Empty;
 
-    public decimal? Latitude { get; set; }
+    public decimal? Latitude { get; set; } = decimal.Zero;
 
-    public decimal? Longitude { get; set; }
+    public decimal? Longitude { get; set; } = decimal.Zero;
 
     public int Capacity { get; set; }
 

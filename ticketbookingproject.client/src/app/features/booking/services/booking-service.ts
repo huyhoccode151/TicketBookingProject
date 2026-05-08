@@ -30,4 +30,8 @@ export class BookingService {
 
     return this.http.get<ApiResponse<PagedResult<AdminBookingListItemResponse>>>(this.api, { params });
   }
+
+  deleteBooking(bookingId: number) {
+    return this.http.delete<ApiResponse<boolean>>(this.api + '/' + bookingId);
+  }
 }

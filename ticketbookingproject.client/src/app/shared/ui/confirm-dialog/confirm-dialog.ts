@@ -70,7 +70,7 @@ export class ConfirmDialog implements OnChanges {
 
   onConfirm(): void {
     this.confirmed.emit();
-    this.closeWithAnimation();
+    //this.closeWithAnimation();
   }
 
   onCancel(): void {

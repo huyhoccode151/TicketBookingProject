@@ -15,7 +15,7 @@ namespace MyApp.Namespace
             _ticketService = ticketService;
         }
 
-        [HttpGet("{bookingId}")]
+        [HttpGet("booking/{bookingId}")]
         public async Task<IActionResult> GetTicketByBookingId(int bookingId)
         {
             var tickets = await _ticketService.GetTicketsByBookingId(bookingId);
@@ -31,5 +31,16 @@ namespace MyApp.Namespace
 
             return Ok(ApiResponse<PagedResponse<BookingTicketListItemResponse>>.Ok(tickets, "Load tickets successfully!!!"));
         }
+
+        [HttpPost("checkin")]
+        [Authorize]
+        public async Task<IActionResult> CheckIn([FromBody] CheckInRequest request)
+        {
+            var result = await _ticketService.CheckInAsync(request.QrCode);
+            if (!result.Success) return BadRequest(result.Message);
+            return Ok(result);
+        }
+
+        public record CheckInRequest(string QrCode);
     }
 }

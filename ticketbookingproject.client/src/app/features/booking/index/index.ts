@@ -57,7 +57,6 @@ export class Index {
     { label: 'Pending', value: 'pending' },
     { label: 'Confirmed', value: 'confirmed' },
     { label: 'Cancelled', value: 'cancelled' },
-    { label: 'Completed', value: 'completed' },
   ];
 
   private toast = inject(ToastService);
@@ -70,7 +69,7 @@ export class Index {
   }
 
   loadBookings() {
-    this.loading = true;
+    //this.loading = true;
     this.bookingService.getListBooking(this.filters).subscribe({
       next: (res) => {
         if (res.success) {
@@ -84,9 +83,9 @@ export class Index {
           this.cdr.detectChanges();
         }, 500);
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
-        this.toast.error("Loading Bookings failed!!!");
+        this.toast.error("Loading Bookings failed!!!", err?.error?.errors || 'Unknown error');
       }
     });
   }
@@ -113,7 +112,7 @@ export class Index {
   }
 
   viewBooking(id: number) {
-    this.router.navigate(['/admin/bookings', id]);
+    //this.router.navigate(['/admin/bookings', id]);
   }
 
   deleteBooking(id: number) {
@@ -130,19 +129,20 @@ export class Index {
   }
 
   onConfirmed(): void {
-    //this.isDialogOpen = false;
-    //this.bookingService.deleteBooking(this.deleteBookingId).subscribe({
-    //  next: (res) => {
-    //    if (res.success) {
-    //      this.toast.success('Delete Booking', 'Deleted Booking Successfully!!!');
-    //      this.loadBookings();
-    //    }
-    //  },
-    //  error: (err) => {
-    //    console.error('Delete error:', err);
-    //    this.toast.error('Delete Booking', 'Delete Failed!!!');
-    //  }
-    //});
+    this.isDialogOpen = false;
+    this.bookingService.deleteBooking(this.deleteBookingId).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.toast.success('Delete Booking', 'Deleted Booking Successfully!!!');
+          this.filters.page = 1;
+          this.loadBookings();
+        }
+      },
+      error: (err) => {
+        console.error('Delete error:', err);
+        this.toast.error('Delete Booking', 'Delete Failed!!!');
+      }
+    });
   }
 
   onCancelled(): void {

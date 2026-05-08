@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TicketBookingProject.Server;
+using TicketBookingProject.Server.Common.Extensions;
 using TicketBookingProject.Server.Models;
 using static TicketBookingProject.Server.PaymentMappingProfile;
 
@@ -12,10 +14,14 @@ namespace MyApp.Namespace
     {
         private readonly IPaymentService _paymentService;
         private readonly ITicketService _ticketService;
-        public PaymentController(IPaymentService paymentService, ITicketService ticektService)
+        private readonly IBookingService _bookingService;
+        private readonly IEmailService _emailService;
+        public PaymentController(IPaymentService paymentService, ITicketService ticektService, IBookingService bookingService, IEmailService emailService)
         {
             _paymentService = paymentService;
             _ticketService = ticektService;
+            _bookingService = bookingService;
+            _emailService = emailService;
         }
 
         [HttpPost("create-momo-payment")]
@@ -47,7 +53,9 @@ namespace MyApp.Namespace
 
             if (response.VnPayResponseCode != "00")
             {
-                return BadRequest(new { message = "Thanh toán thất bại", data = response });
+                var updateBookingStatus = await _bookingService.UpdateBookingStatus(int.Parse(response.OrderId), BookingStatus.Cancelled);
+                await _bookingService.RegainQuantityTicketType(int.Parse(response.OrderId));
+                return BadRequest(new { message = "Payment failed", data = response });
             }
 
             var payment = await _paymentService.CreatePaymentIntentByVnPayCallback(response);
@@ -55,10 +63,30 @@ namespace MyApp.Namespace
             if (payment != null)
             {
                 var bookingId = payment.BookingId;
+                var updateBookingStatus = await _bookingService.UpdateBookingStatus(bookingId, BookingStatus.Confirmed);
+                var booking = await _bookingService.GetBookingEmailResponseById(bookingId);
                 var tickets = await _ticketService.CreateTickets(bookingId);
+                if (tickets != null && tickets.Any())
+                {
+                    _ = Task.Run(async () => {
+                        try
+                        {
+                            await _emailService.SendTicketEmailAsync(
+                                booking != null ? booking.UserEmail : "tieukhuynhtu@gmail.com",
+                                booking != null ? booking.CustomerName : "MaiHuy",
+                                booking != null ? booking.Id.ToString() : "BK_056D",
+                                tickets
+                            );
+                        }
+                        catch (Exception ex)
+                        {
+                            //_logger.LogError($"Lỗi gửi mail: {ex.Message}");
+                        }
+                    });
+                }
             }
 
-            return Ok(new { message = "Thanh toán thành công", data = response });
+            return Ok(new { message = "Retrived payment successful", data = response });
         }
 
         [HttpGet("vnpay-return")]
@@ -69,7 +97,7 @@ namespace MyApp.Namespace
             var response = (new VnPayReturnResponseDto
             {
                 Success = true,
-                Message = "Thanh toán thành công",
+                Message = "Retrived payment successful",
                 OrderId = result.OrderId,
                 Amount = result.TotalAmount,
                 TransactionId = result.TransactionId
@@ -83,19 +111,20 @@ namespace MyApp.Namespace
                 return Ok(new
                 {
                     success = false,
-                    message = "Thanh toán thất bại hoặc chữ ký không hợp lệ",
+                    message = "Payment failed or signmark does not valid",
                     data = result
                 });
             }
         }
 
-        //admin
         [HttpGet]
+        [Authorize(Roles = "admin,organizer")]
+        [HasPermission("payment:manage")]
         public async Task<IActionResult> GetListPayment([FromQuery] AdminPaymentListRequest req)
         {
             var payments = await _paymentService.GetListPayment(req);
 
-            return Ok(ApiResponse<PagedResponse<AdminPaymentListItemResponse>>.Ok(payments, "Load tickets successfully!!!"));
+            return payments.ToActionResult();
         }
 
         [HttpDelete("{id}")]
@@ -104,6 +133,14 @@ namespace MyApp.Namespace
             var payments = await _paymentService.DeletePayment(id);
 
             return Ok(ApiResponse<bool>.Ok(payments, "Delete payment successfully!!!"));
+        }
+
+        [HttpGet("total-revenue")]
+        public async Task<IActionResult> GetTotalRevenue([FromQuery] TotalVenueRequest req)
+        {
+            var totalRevenues = await _paymentService.GetListTotalRevenue(req);
+
+            return Ok(ApiResponse<List<TotalVenueReponse>>.Ok(totalRevenues, "Load totalRevenues successfully!!!"));
         }
     }
 }

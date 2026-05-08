@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.Reflection.Metadata.Ecma335;
+using TicketBookingProject.Server.Common.Extensions;
 using static System.Net.WebRequestMethods;
 
 namespace TicketBookingProject.Server.Controllers
@@ -14,15 +16,26 @@ namespace TicketBookingProject.Server.Controllers
         public EventController(IEventService eventService) => _eventService = eventService;
 
 
-        [HttpGet]
+        [HttpGet("manager")]
+        [Authorize(Roles = "admin, organizer")]
+        [HasPermission("event:manage")]
         public async Task<IActionResult> ListAllEvents([FromQuery] EventListRequest req)
         {
             var pagedEvents = await _eventService.ListEventAsync(req);
-            if (pagedEvents == null) return NotFound(ApiResponse<PagedResponse<EventListItemResponse>>.Fail("Could found any events!!!"));
-            return Ok(ApiResponse<PagedResponse<EventListItemResponse>>.Ok(pagedEvents, "List Users Successfully!!!"));
+
+            return pagedEvents.ToActionResult();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetListEvents([FromQuery] EventListRequest req) { 
+            var pagedEvents = await _eventService.ListEventAsync(req);
+
+            return pagedEvents.ToActionResult();
         }
 
         [HttpPost]
+        [Authorize(Roles = "admin,organizer")]
+        [HasPermission("event:create")]
         public async Task<IActionResult> CreateEventAsync([FromForm] CreateEventRequest request)
         {
             var eventCreated = await _eventService.CreateEventAsync(request);
@@ -33,6 +46,7 @@ namespace TicketBookingProject.Server.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "admin,organizer,customer")]
         public async Task<IActionResult> GetEventByIdAsync(int id)
         {
             var eventDetail = await _eventService.GetEventByIdAsync(id);
@@ -57,6 +71,8 @@ namespace TicketBookingProject.Server.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "admin,organizer")]
+        [HasPermission("event:update")]
         public async Task<IActionResult> UpdateEventAsync(int id, [FromForm] UpdateEventRequest request)
         {
             var eventUpdated = await _eventService.UpdateEventAsync(id, request);
@@ -65,6 +81,8 @@ namespace TicketBookingProject.Server.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "admin,organizer")]
+        [HasPermission("event:delete")]
         public async Task<IActionResult> DeleteEventAsync(int id)
         {
             var isDeleted = await _eventService.DeleteEventAsync(id);
@@ -73,6 +91,8 @@ namespace TicketBookingProject.Server.Controllers
         }
 
         [HttpPost("upload")]
+        [Authorize(Roles = "admin,organizer")]
+        [HasPermission("event:create")]
         public async Task<IActionResult> Upload([FromForm] List<IFormFile> files)
         {
             if (files == null || files.Count == 0) return BadRequest("No files uploaded");
@@ -92,12 +112,11 @@ namespace TicketBookingProject.Server.Controllers
                 if (file.Length == 0) continue;
 
                 if (file.Length > maxFileSize)
-                    return BadRequest($"File {file.FileName} vượt quá 10MB");
+                    return BadRequest($"File {file.FileName} over 10MB");
 
                 var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
 
-                if (!allowedExtensions.Contains(ext)) return BadRequest($"File {file.FileName} không hợp lệ");
-
+                if (!allowedExtensions.Contains(ext)) return BadRequest($"File {file.FileName} is not valid");
                 var fileName = $"{Guid.NewGuid()}{ext}";
                 var filePath = Path.Combine(folder, fileName);
 
@@ -118,11 +137,38 @@ namespace TicketBookingProject.Server.Controllers
         }
 
         [HttpPost("hold")]
+        [Authorize]
         public async Task<IActionResult> HoldTickets([FromBody] HoldTicketsRequest request)
         {
             var result = await _eventService.HoldTicketsAsync(request);
             if (result == null) return BadRequest(ApiResponse<bool>.Fail("Could not hold tickets!!!"));
             return Ok(ApiResponse<bool>.Ok(true, "Hold tickets successfully!!!"));
+        }
+
+        [HttpGet("event-trending")]
+        public async Task<IActionResult> GetEventTrending()
+        {
+            var events = await _eventService.GetEventTrending();
+
+            return Ok(ApiResponse<List<EventTrendingResponse>>.Ok(events, "Load event trending successfully!!!"));
+        }
+
+        [HttpGet("event-name")]
+        public async Task<IActionResult> GetEventName([FromQuery] string? req)
+        {
+            var events = await _eventService.GetEventName(req);
+
+            return Ok(ApiResponse<List<string>>.Ok(events, "Load events name successfully!!!"));
+        }
+
+        [HttpPatch("{id}/status")]
+        [Authorize(Roles = "admin,organizer")]
+        [HasPermission("event:update-status")]
+        public async Task<IActionResult> UpdateEventStatusAsync(int id, [FromBody] UpdateEventStatusRequest request)
+        {
+            var eventUpdated = await _eventService.UpdateEventStatusAsync(id, request);
+
+            return eventUpdated.ToActionResult();
         }
     }
 }

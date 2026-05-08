@@ -1,4 +1,6 @@
-﻿namespace TicketBookingProject.Server;
+﻿using TicketBookingProject.Server.DTOs.Mapping;
+
+namespace TicketBookingProject.Server;
 
 public static class MappingServiceExtension
 {
@@ -12,7 +14,8 @@ public static class MappingServiceExtension
             typeof(BookingMappingProfile),
             typeof(TicketMappingProfile),
             typeof(PaymentMappingProfile),
-            typeof(RefundMappingProfile)
+            typeof(RefundMappingProfile),
+            typeof(UiActionMappingProfile)
         );
 
         return services;

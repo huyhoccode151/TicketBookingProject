@@ -14,7 +14,7 @@ public record CategoryResponse(
 public record EventListRequest : PagedRequest
 {
     public string? Search { get; init; }
-    public string? Category { get; init; }
+    public List<string>? Category { get; init; }
     public string? Venue { get; init; }
     public EventStatus? Status { get; init; }
     public DatePreset? DatePreset { get; init; }
@@ -84,78 +84,141 @@ public record EventOrganizerResponse(
 // EVENT — CREATE / UPDATE
 // ─────────────────────────────────────────────
 
-public record CreateEventRequest
+public record CreateEventRequest : IValidatableObject
 {
-    [Required, StringLength(512, MinimumLength = 5)]
+    [Required(ErrorMessage = "Event name is required.")]
+    [StringLength(512, MinimumLength = 5, ErrorMessage = "Event name must be between 5 and 512 characters.")]
     public string Name { get; init; } = default!;
 
-    [Required]
+    [Required(ErrorMessage = "Description is required.")]
     public string Description { get; init; } = default!;
 
-    [Required]
+    [Required(ErrorMessage = "Venue is required.")]
     public int VenueId { get; init; }
 
-    [Required]
+    [Required(ErrorMessage = "Category is required.")]
     public int CategoryId { get; init; }
 
-    [Required]
+    [Required(ErrorMessage = "Active date is required.")]
     public DateTime ActiveAt { get; init; }
 
-    [Required]
+    [Required(ErrorMessage = "End date is required.")]
     public DateTime EndAt { get; init; }
 
-    [Required]
+    [Required(ErrorMessage = "Sale start date is required.")]
     public DateTime SaleStartAt { get; init; }
 
-    [Required]
+    [Required(ErrorMessage = "Sale end date is required.")]
     public DateTime SaleEndAt { get; init; }
 
-    [Range(1, 100)]
+    [Range(1, 100, ErrorMessage = "Max tickets per booking must be between 1 and 100.")]
     public int MaxTicketsPerBooking { get; init; } = 10;
 
-    [Required, MinLength(1)]
+    [Required(ErrorMessage = "At least one ticket type is required.")]
+    [MinLength(1, ErrorMessage = "At least one ticket type must be provided.")]
     public List<CreateTicketTypeRequest> TicketTypes { get; init; } = [];
 
-    [Required, MinLength(1)]
+    [Required(ErrorMessage = "At least one poster is required.")]
+    [MinLength(1, ErrorMessage = "You must upload at least one poster.")]
     public List<IFormFile> Posters { get; init; } = [];
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (EndAt <= ActiveAt)
+        {
+            yield return new ValidationResult(
+                "End date must be after active date.",
+                new[] { nameof(EndAt) }
+            );
+        }
+
+        if (SaleEndAt <= SaleStartAt)
+        {
+            yield return new ValidationResult(
+                "Sale end date must be after sale start date.",
+                new[] { nameof(SaleEndAt) }
+            );
+        }
+
+        if (SaleStartAt > ActiveAt)
+        {
+            yield return new ValidationResult(
+                "Sale start date must be before event start date.",
+                new[] { nameof(SaleStartAt) }
+            );
+        }
+    }
 }
 
-public record UpdateEventRequest
+public record UpdateEventRequest : IValidatableObject
 {
-    [Required, StringLength(512, MinimumLength = 5)]
+    [Required(ErrorMessage = "Event name is required.")]
+    [StringLength(512, MinimumLength = 5, ErrorMessage = "Event name must be between 5 and 512 characters.")]
     public string Name { get; init; } = default!;
 
-    [Required]
+    [Required(ErrorMessage = "Description is required.")]
     public string Description { get; init; } = default!;
 
-    [Required]
+    [Required(ErrorMessage = "Venue is required.")]
     public int VenueId { get; init; }
 
-    [Required]
+    [Required(ErrorMessage = "Category is required.")]
     public int CategoryId { get; init; }
 
-    [Required]
+    [Required(ErrorMessage = "Active date is required.")]
     public DateTime ActiveAt { get; init; }
 
-    [Required]
+    [Required(ErrorMessage = "End date is required.")]
     public DateTime EndAt { get; init; }
 
-    [Required]
+    [Required(ErrorMessage = "Sale start date is required.")]
     public DateTime SaleStartAt { get; init; }
 
-    [Required]
+    [Required(ErrorMessage = "Sale end date is required.")]
     public DateTime SaleEndAt { get; init; }
 
-    [Range(1, 100)]
+    [Range(1, 100, ErrorMessage = "Max tickets per booking must be between 1 and 100.")]
     public int MaxTicketsPerBooking { get; init; } = 10;
 
-    [Required, MinLength(1)]
+    [Required(ErrorMessage = "At least one ticket type is required.")]
+    [MinLength(1, ErrorMessage = "At least one ticket type must be provided.")]
     public List<CreateTicketTypeRequest> TicketTypes { get; init; } = [];
 
     public List<IFormFile>? Posters { get; init; } = [];
-
-    [Required]
+    [Required(ErrorMessage = "Poster metadata is required.")]
     public string PosterMeta { get; init; } = default!;
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (EndAt <= ActiveAt)
+        {
+            yield return new ValidationResult(
+                "End date must be after active date.",
+                new[] { nameof(EndAt) }
+            );
+        }
+
+        if (SaleEndAt <= SaleStartAt)
+        {
+            yield return new ValidationResult(
+                "Sale end date must be after sale start date.",
+                new[] { nameof(SaleEndAt) }
+            );
+        }
+
+        if (SaleStartAt > ActiveAt)
+        {
+            yield return new ValidationResult(
+                "Sale start date must be before event start date.",
+                new[] { nameof(SaleStartAt) }
+            );
+        }
+
+        //if (PosterMeta.Select(p => p.Is))
+        //{
+
+        //}
+    }
 }
 
 public class PosterMetaDto
@@ -166,8 +229,11 @@ public class PosterMetaDto
 
 public record UpdateEventStatusRequest
 {
-    [Required, Range(0, 4)]
-    public byte Status { get; init; }
+    [Required(ErrorMessage = "Status is required.")]
+    [EnumDataType(typeof(EventStatus), ErrorMessage = "Invalid event status.")]
+    public EventStatus Status { get; init; }
+    [StringLength(512, ErrorMessage = "Cancel reason must be ")]
+    public string? CancelReason { get; set; }
 }
 
 // ─────────────────────────────────────────────
@@ -284,3 +350,15 @@ public record HoldTicketsRequest
     
     public int EventSeatIds { get; init; }
 }
+public record TicketWithEventType(
+    string EventType,
+    int Stock,
+    int Sold
+    );
+
+public record EventTrendingResponse(
+    string ImageUrl,
+    string EventName,
+    int Sold,
+    int Stock
+    );

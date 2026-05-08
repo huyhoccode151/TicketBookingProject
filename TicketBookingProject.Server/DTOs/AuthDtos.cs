@@ -1,23 +1,34 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace TicketBookingProject.Server;
 
 public record RegisterRequest
 {
-    [Required, StringLength(100, MinimumLength = 3)]
+    [Required(ErrorMessage = "User Name is required")]
+    [StringLength(100, MinimumLength = 3, ErrorMessage = "User Name length must be at least 3 characters")]
     public string Username { get; init; } = default!;
 
-    [Required, EmailAddress, StringLength(255)]
+    [Required(ErrorMessage = "Email is required")]
+    [RegularExpression(@"^[a-zA-Z0-9._%+-]+@gmail\.com$", ErrorMessage = "Only Gmail address is allowed")]
+    [StringLength(255, ErrorMessage = "Email is too long")]
     public string Email { get; init; } = default!;
 
-    [Required, StringLength(100, MinimumLength = 1)]
+    [Required(ErrorMessage = "First Name is required")]
+    [StringLength(100, MinimumLength = 1, ErrorMessage = "First Name is not valid")]
     public string Firstname { get; init; } = default!;
 
-    [Required, StringLength(100, MinimumLength = 1)]
+    [Required(ErrorMessage = "Last Name is required")]
+    [StringLength(100, MinimumLength = 1, ErrorMessage = "Last Name is not valid")]
     public string Lastname { get; init; } = default!;
 
-    [Required, StringLength(100, MinimumLength = 8)]
+    [Required(ErrorMessage = "Password is required")]
+    [StringLength(100, MinimumLength = 8, ErrorMessage = "Password length must be at least 8 characters")]
     public string Password { get; init; } = default!;
+
+    [Required(ErrorMessage = "Confirm password is required")]
+    [Compare("Password", ErrorMessage = "Pass word do not match")]
+    public string ConfirmPassword { get; init; } = default!;
 }
 
 public record RegisterResponse(
@@ -33,13 +44,18 @@ public record RegisterResponse(
 
 public record LoginRequest
 {
-    [Required]
+    [Required(ErrorMessage = "User name is required!!! Please enter username or email.")]
     public string UsernameOrEmail { get; init; } = default!;
 
-    [Required]
+    [Required(ErrorMessage = "Password is required!!! Please enter password.")]
     public string Password { get; init; } = default!;
 
     public string? DeviceInfo { get; init; }
+}
+
+public class GoogleLoginRequest
+{
+    public string IdToken { get; set; } = default!;
 }
 
 public record LoginResponse(
@@ -81,13 +97,14 @@ public record LogoutRequest
 
 public record ChangePasswordRequest
 {
-    [Required]
+    [Required(ErrorMessage = "Current password is required")]
     public string CurrentPassword { get; init; } = default!;
 
-    [Required, StringLength(100, MinimumLength = 8)]
+    [Required(ErrorMessage = "New password is required"), StringLength(100, MinimumLength = 8, ErrorMessage = "New password length must be at least 8 characters")]
     public string NewPassword { get; init; } = default!;
 
-    [Required, Compare(nameof(NewPassword))]
+    [Required(ErrorMessage = "Confirm password is required")]
+    [Compare("NewPassword", ErrorMessage = "Password do not match")]
     public string ConfirmPassword { get; init; } = default!;
 }
 
@@ -139,7 +156,7 @@ public record UserAuthDto(
     string Email,
     string Firstname,
     string Lastname,
-    byte Status,
+    UserStatus Status,
     List<string> Roles,
     List<string> Permissions);
 

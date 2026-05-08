@@ -55,7 +55,7 @@ export class ToastService {
   }
 
   error(title: string, message?: string, opts?: Partial<Toast>): string {
-    return this.show({ type: 'error', title, message, duration: 0, ...opts });
+    return this.show({ type: 'error', title, message, ...opts });
   }
 
   warning(title: string, message?: string, opts?: Partial<Toast>): string {

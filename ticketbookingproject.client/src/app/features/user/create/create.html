@@ -2,7 +2,7 @@
   <div class="w-full p-8">
     <!-- Breadcrumbs -->
     <nav class="mb-4 flex items-center gap-2 text-sm text-slate-500">
-      <a class="hover:text-primary" href="#">Users</a>
+      <span class="hover:text-primary" (click)="onNavigateToUsers()">Users</span>
       <span class="material-symbols-outlined text-xs">chevron_right</span>
       <span class="font-medium text-slate-900 dark:text-white">Create New User</span>
     </nav>
@@ -17,21 +17,26 @@
           <!-- Full Name -->
           <div class="flex flex-col gap-1.5">
             <label class="text-sm font-medium" for="full_name">First Name</label>
-            <input
-              class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
-              formControlName="firstname" placeholder="John" type="text" />
-            @if(isInvalid('firstname')){
-            <p class="text-xs text-red-500">First name is required</p>
-            }
+            <input class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
+                   formControlName="firstname" placeholder="John" type="text" />
+            <span class="error-msg" *ngIf="isInvalid('firstname')">
+              <ng-container *ngIf="form.get('firstname')?.errors?.['required']">First Name is required.</ng-container>
+              <ng-container *ngIf="form.get('firstname')?.errors?.['serverError']">
+                {{ form.get('firstname')?.errors?.['serverError'] }}
+              </ng-container>
+            </span>
           </div>
           <div class="flex flex-col gap-1.5">
             <label class="text-sm font-medium" for="full_name">Last Name</label>
             <input
               class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
               formControlName="lastname" placeholder="Doe" type="text" />
-            @if(isInvalid('lastname')){
-            <p class="text-xs text-red-500">Last name is required</p>
-            }
+            <span class="error-msg" *ngIf="isInvalid('lastname')">
+              <ng-container *ngIf="form.get('lastname')?.errors?.['required']">Last Name Name is required.</ng-container>
+              <ng-container *ngIf="form.get('lastname')?.errors?.['serverError']">
+                {{ form.get('lastname')?.errors?.['serverError'] }}
+              </ng-container>
+            </span>
           </div>
           <!-- Username -->
           <div class="flex flex-col gap-1.5">
@@ -39,9 +44,12 @@
             <input
               class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
               formControlName="username" placeholder="johncom12**2" type="text" />
-            @if(isInvalid('username')){
-            <p class="text-xs text-red-500">User name is required</p>
-            }
+            <span class="error-msg" *ngIf="isInvalid('username')">
+              <ng-container *ngIf="form.get('username')?.errors?.['required']">Last Name Name is required.</ng-container>
+              <ng-container *ngIf="form.get('username')?.errors?.['serverError']">
+                {{ form.get('username')?.errors?.['serverError'] }}
+              </ng-container>
+            </span>
           </div>
           <!-- Email -->
           <div class="flex flex-col gap-1.5">
@@ -49,9 +57,12 @@
             <input
               class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
               formControlName="email" placeholder="john@example.com" type="email" />
-            @if(isInvalid('email')){
-            <p class="text-xs text-red-500">Email must be type of email</p>
-            }
+            <span class="error-msg" *ngIf="isInvalid('email')">
+              <ng-container *ngIf="form.get('email')?.errors?.['required']">Email is required.</ng-container>
+              <ng-container *ngIf="form.get('email')?.errors?.['serverError']">
+                {{ form.get('email')?.errors?.['serverError'] }}
+              </ng-container>
+            </span>
           </div>
         </div>
       </app-card>
@@ -61,35 +72,45 @@
           <!-- Role Selection -->
           <div class="col-span-full flex flex-col gap-1.5">
             <label class="text-sm font-medium" for="role">User Role</label>
-            <select
-              class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
-              formControlName="role">
+            <select class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
+                    formControlName="role">
               <option value="customer">Customer</option>
               <option value="staff">Staff</option>
               <option value="organizer">Organizer</option>
-              <option value="admin">Administrator</option>
+              <ng-container *hasPermission="'permission:manage'">
+                <option value="admin">Administrator</option>
+              </ng-container>
             </select>
-
+            <span class="error-msg" *ngIf="isInvalid('role')">
+              <ng-container *ngIf="form.get('role')?.errors?.['required']">Role is required.</ng-container>
+              <ng-container *ngIf="form.get('role')?.errors?.['serverError']">
+                {{ form.get('role')?.errors?.['serverError'] }}
+              </ng-container>
+            </span>
           </div>
           <!-- Password -->
           <div class="flex flex-col gap-1.5">
             <label class="text-sm font-medium" for="password">Password</label>
-            <input
-              class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
-              formControlName="password" placeholder="••••••••" type="password" />
-            @if(isInvalid('password')){
-            <p class="text-xs text-red-500">Password is required</p>
-            }
+            <input class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
+                   formControlName="password" placeholder="••••••••" type="password" />
+            <span class="error-msg" *ngIf="isInvalid('password')">
+              <ng-container *ngIf="form.get('password')?.errors?.['required']">Password is required.</ng-container>
+              <ng-container *ngIf="form.get('password')?.errors?.['serverError']">
+                {{ form.get('password')?.errors?.['serverError'] }}
+              </ng-container>
+            </span>
           </div>
           <!-- Confirm Password -->
           <div class="flex flex-col gap-1.5">
-            <label class="text-sm font-medium" for="confirm_password">Confirm Password</label>
-            <input
-              class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
-              formControlName="confirm_password" placeholder="••••••••" type="password" />
-            @if(isInvalid('confirm_password')){
-            <p class="text-xs text-red-500">Password even be not confirmed yet!!!</p>
-            }
+            <label class="text-sm font-medium" for="confirmpassword">Confirm Password</label>
+            <input class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
+                   formControlName="confirmpassword" placeholder="••••••••" type="password" />
+            <span class="error-msg" *ngIf="isInvalid('confirmpassword')">
+              <ng-container *ngIf="form.get('confirmpassword')?.errors?.['required']">Confirm Password is required.</ng-container>
+              <ng-container *ngIf="form.get('confirmpassword')?.errors?.['serverError']">
+                {{ form.get('confirmpassword')?.errors?.['serverError'] }}
+              </ng-container>
+            </span>
           </div>
           <!-- Status Toggle -->
           <div class="col-span-full flex items-center justify-between py-2">
@@ -100,18 +121,20 @@
             <label class="relative inline-flex cursor-pointer items-center">
               <!--<input type="hidden" formControlName="status" value="inactive" />-->
               <input formControlName="status" id="status" class="peer sr-only" type="checkbox" />
-              <div
-                class="peer h-6 w-11 rounded-full bg-slate-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none dark:bg-slate-700">
+              <div class="peer h-6 w-11 rounded-full bg-slate-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none dark:bg-slate-700">
               </div>
               <span class="ml-3 text-sm font-medium text-slate-900 dark:text-slate-300">Active</span>
             </label>
           </div>
         </div>
+        <div class="alert alert-error" *ngIf="errorMessage">
+          {{ errorMessage }}
+        </div>
       </app-card>
       <div
         class="flex flex-col sm:flex-row justify-end gap-3 pt-6 pb-12 border-t border-slate-200 dark:border-slate-800">
         <button
-          class="px-8 py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">
+          class="px-8 py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-all" (click)="onNavigateToUsers()">
           Cancel Changes
         </button>
         <button

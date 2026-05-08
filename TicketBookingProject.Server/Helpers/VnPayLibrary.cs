@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using Newtonsoft.Json;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -75,6 +76,22 @@ namespace TicketBookingProject.Server.Helpers
                 foreach (var theByte in hashValue) hash.Append(theByte.ToString("x2"));
             }
             return hash.ToString();
+        }
+
+        public string CreateRefundHash(string rawData, string secretKey)
+        {
+            return HmacSHA512(secretKey, rawData);
+        }
+
+        public static string? GetValueFromMetaData(string? metaDataJson, string key)
+        {
+            if (string.IsNullOrEmpty(metaDataJson)) return null;
+            try
+            {
+                var data = JsonConvert.DeserializeObject<List<VnPayMetaDataItem>>(metaDataJson);
+                return data?.FirstOrDefault(x => x.Key == key)?.Value?.FirstOrDefault();
+            }
+            catch { return null; }
         }
     }
 

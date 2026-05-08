@@ -51,3 +51,10 @@ export interface TicketListRequest {
   page: number;
   pageSize: number;
 }
+
+export interface TicketSuccessListRequest {
+  searchTemp: string;
+  sortDesc: boolean;
+  page: number;
+  pageSize: number;
+}

@@ -11,6 +11,7 @@ public class TicketRepository : BaseRepository<Ticket>, ITicketRepository
     {
     }
 
+    //init tickets
     public async Task<List<Ticket>> CreateTickets (BookingTicketDetails booking)
     {
         var now = DateTime.UtcNow;
@@ -31,7 +32,18 @@ public class TicketRepository : BaseRepository<Ticket>, ITicketRepository
         return tickets;
     }
 
-    //test cast với dto, nếu không được thì quay về query trực tiếp ở đây
+    //cancel tickets
+    public async Task<bool> CancelTicket(List<int> bookingIds)
+    {
+        var tickets = _dbset.Where(t => bookingIds.Contains(t.BookingId)).ToList();
+
+        if (tickets.Count() == 0) return false;
+
+        tickets.ForEach(t => t.Status = TicketStatus.Cancelled);
+
+        return true;
+    }
+
     public async Task<List<Ticket>> GetTicketsByBookingId(int bookingId)
     {
         var tickets = await _dbset.Where(t => t.BookingId == bookingId)
@@ -75,5 +87,21 @@ public class TicketRepository : BaseRepository<Ticket>, ITicketRepository
             .Take(req.PageSize);
 
         return (bookings, totalCount);
+    }
+
+    public async Task<Ticket?> GetByQrCodeAsync(string qrCode)
+    {
+        return await _dbset
+            .Include(t => t.EventSeat)
+            .Include(t => t.TicketType)
+            .Include(t => t.Booking)
+                .ThenInclude(b => b.User)
+            .FirstOrDefaultAsync(t => t.QrCode == qrCode);
+    }
+
+    public async Task<bool> UpdateTicketAsync(Ticket ticket)
+    {
+        _dbset.Update(ticket);
+        return await _db.SaveChangesAsync() > 0;
     }
 }

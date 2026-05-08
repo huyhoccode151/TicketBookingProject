@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environments';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { BookingTicketListItemResponse, Ticket, TicketListRequest } from '../models/ticket';
+import { BookingTicketListItemResponse, Ticket, TicketListRequest, TicketSuccessListRequest } from '../models/ticket';
 import { ApiResponse, PagedResult } from '../../user/models/paged-result';
 import { Observable, of } from 'rxjs';
 
@@ -15,7 +15,7 @@ export class TicketService {
   private http = inject(HttpClient);
 
   getTicketsByBookingId(bookingId: number) {
-    return this.http.get<ApiResponse<Ticket[]>>(`${this.api}/${bookingId}`);
+    return this.http.get<ApiResponse<Ticket[]>>(`${this.api}/booking/${bookingId}`);
   }
 
   private mockBookings: BookingTicketListItemResponse[] = [
@@ -121,37 +121,19 @@ export class TicketService {
       .set('Status', req.status);
 
     return this.http.get<ApiResponse<PagedResult<BookingTicketListItemResponse>>>(this.api + '/my-bookings', { params });
+  }
 
-    //let bookings = [...this.mockBookings];
+  getTicketsSuccessByUserId(req: TicketSuccessListRequest): Observable<ApiResponse<PagedResult<BookingTicketListItemResponse>>> {
+    const params = new HttpParams()
+      .set('Page', req.page)
+      .set('PageSize', req.pageSize)
+      .set('Search', req.searchTemp)
+      .set('Status', 'Confirmed');
 
-    //// Filter by Event Name
-    //if (req.eventName) {
-    //  const search = req.eventName.toLowerCase();
-    //  bookings = bookings.filter(b => b.eventName.toLowerCase().includes(search));
-    //}
+    return this.http.get<ApiResponse<PagedResult<BookingTicketListItemResponse>>>(this.api + '/my-bookings', { params });
+  }
 
-    //// Filter by Status
-    //if (req.status !== undefined && req.status !== null) {
-    //  bookings = bookings.filter(b => b.status === req.status);
-    //}
-
-    //// Filter by Venue Name
-    //if (req.venueName) {
-    //  const search = req.venueName.toLowerCase();
-    //  bookings = bookings.filter(b => b.venueName.toLowerCase().includes(search));
-    //}
-
-    //// Sort
-    //if (req.sortDesc) {
-    //  bookings.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    //} else {
-    //  bookings.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-    //}
-
-    //// Pagination
-    //const startIndex = (req.page - 1) * req.pageSize;
-    //const paginatedBookings = bookings.slice(startIndex, startIndex + req.pageSize);
-
-    //return of(paginatedBookings);
+  scanTicket(qrCode: string) {
+    return this.http.post<any>(this.api + '/checkin', { qrCode });
   }
 }

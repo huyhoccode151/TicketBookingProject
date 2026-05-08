@@ -1,0 +1,124 @@
+<main class="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark">
+
+  <div *ngIf="loading">
+    <app-loader />
+  </div>
+
+  <div *ngIf="!loading" class="w-full p-8">
+
+    <!-- Header -->
+    <app-page-header title="Venue Management"
+                     subtitle="Manage and monitor all event venues on the platform.">
+
+      <button class="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2"
+              *hasPermission="'venue:create'"
+              (click)="onAddVenue()">
+        <span class="material-symbols-outlined text-base">add</span>
+        Add New Venue
+      </button>
+
+    </app-page-header>
+
+    <!-- Table -->
+    <app-data-table>
+
+      <!-- Toolbar -->
+      <app-table-toolbar (search)="onSearch($event)">
+        <app-filter-select label="Province"
+                           [options]="provinceOptions"
+                           [value]="province"
+                           (valueChange)="provinceFilterChange($event)">
+        </app-filter-select>
+      </app-table-toolbar>
+
+      <!-- Table -->
+      <table class="w-full text-left border-collapse">
+
+        <thead>
+          <tr class="bg-slate-50 dark:bg-slate-800/50">
+            <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">#</th>
+            <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">Name</th>
+            <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">Province</th>
+            <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">Address</th>
+            <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">Capacity</th>
+            <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">Sections</th>
+            <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500 text-right">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+
+          <ng-container *ngIf="venues.length === 0">
+            <tr>
+              <td colspan="7" class="px-6 py-4 text-center text-sm text-slate-500 dark:text-slate-400">
+                No venues found.
+              </td>
+            </tr>
+          </ng-container>
+
+          <ng-container *ngIf="venues.length > 0">
+            <tr *ngFor="let venue of venues; let i = index"
+                class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+
+              <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                {{ (page - 1) * pageSize + i + 1 }}
+              </td>
+
+              <td class="px-6 py-4">
+                <span class="font-semibold text-sm">{{ venue.name }}</span>
+              </td>
+
+              <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                {{ venue.province }}
+              </td>
+
+              <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 max-w-xs truncate"
+                  [title]="venue.addressDetail">
+                {{ venue.addressDetail }}
+              </td>
+
+              <td class="px-6 py-4">
+                <span class="flex items-center gap-1.5 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  <span class="material-symbols-outlined text-base text-slate-400">chair</span>
+                  {{ venue.capacity | number }}
+                </span>
+              </td>
+
+              <td class="px-6 py-4">
+                <span class="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                  {{ venue.sectionCount }} sections
+                </span>
+              </td>
+
+              <td class="px-6 py-4 text-right">
+                <app-table-actions [id]="venue.id"
+                                   (edit)="editVenue($event)"
+                                   (delete)="deleteVenue($event)"
+                                   (view)="viewVenue($event)">
+                </app-table-actions>
+              </td>
+
+            </tr>
+          </ng-container>
+
+        </tbody>
+
+      </table>
+
+      <!-- Pagination -->
+      <app-pagination [page]="page"
+                      [pageSize]="pageSize"
+                      [totalPages]="totalPages"
+                      [totalCount]="totalCount"
+                      (pageChange)="onPageChange($event)">
+      </app-pagination>
+
+    </app-data-table>
+
+    <app-confirm-dialog [isOpen]="isDialogOpen"
+                        [config]="dialogConfig"
+                        (confirmed)="onConfirmed()"
+                        (cancelled)="onCancelled()" />
+
+  </div>
+</main>

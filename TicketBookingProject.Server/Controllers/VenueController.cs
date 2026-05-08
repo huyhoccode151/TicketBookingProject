@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TicketBookingProject.Server;
+using TicketBookingProject.Server.Common.Extensions;
 using TicketBookingProject.Server.Models;
 
 namespace MyApp.Namespace
@@ -28,5 +30,45 @@ namespace MyApp.Namespace
             var venues = await _venueService.ListVenue();
             return Ok(ApiResponse<List<VenueListItemResponse>>.Ok(venues));
         }
+
+        [HttpGet("list-venue")]
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> GetListVenue([FromQuery] VenueListRequest request)
+        {
+            var venues = await _venueService.ListVenueAsync(request);
+            return venues.ToActionResult();
+        }
+
+        [HttpDelete("{id}")]
+        //[Authorize(Roles = "admin")]
+        public async Task<IActionResult> DeleteVenue(int id)
+        {
+            var result = await _venueService.DeleteVenueAsync(id);
+            return result.ToActionResult();
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetVenueById(int id)
+        {
+            var result = await _venueService.GetVenueByIdAsync(id);
+
+            return result.ToActionResult();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateVenue([FromBody] CreateVenueRequest request)
+        {
+            var result = await _venueService.CreateVenueAsync(request);
+            return result.ToActionResult();
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateVenue(int id, [FromBody] UpdateVenueRequest request)
+        {
+            var result = await _venueService.UpdateVenueAsync(id, request);
+            return result.ToActionResult();
+        }
+
+
     }
 }

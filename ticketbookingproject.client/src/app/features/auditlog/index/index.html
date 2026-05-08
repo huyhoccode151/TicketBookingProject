@@ -1,4 +1,8 @@
-<div class="p-8 max-w-7xl">
+<div *ngIf="loading">
+  <app-loader />
+</div>
+<div class="p-8 max-w-7xl" *ngIf="!loading">
+
   <app-page-header title="AuditLog Management"
                    subtitle="Manage and monitor all platform participants.">
 
@@ -32,10 +36,9 @@
           <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">#</th>
           <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">Action</th>
           <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">Entity</th>
-          <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">User</th>
+          <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">Actor</th>
           <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">Description</th>
           <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">Time</th>
-          <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500 text-right">Actions</th>
         </tr>
       </thead>
 
@@ -74,14 +77,6 @@
           <!-- Time -->
           <td class="px-6 py-4 text-sm text-slate-500">
             {{ log.createdAt | date:'dd/MM/yyyy HH:mm' }}
-          </td>
-
-          <!-- Actions -->
-          <td class="px-6 py-4 text-right">
-            <button class="text-blue-500 hover:underline text-sm"
-                    (click)="viewDetail(log)">
-              View
-            </button>
           </td>
 
         </tr>

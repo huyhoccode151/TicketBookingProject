@@ -79,5 +79,8 @@ public class PaymentMappingProfile : Profile
             .ForCtorParam("StatusLabel", o => o.MapFrom(s => s.Status.ToString()))
             .ForCtorParam("CreatedAt", o => o.MapFrom(s => s.CreatedAt));
 
+        CreateMap<Payment, TotalVenueReponse>()
+            .ForCtorParam("Revenue", o => o.MapFrom(p => p.TotalAmount))
+            .ForCtorParam("Date", o => o.MapFrom(p => p.CreatedAt));
     }
 }

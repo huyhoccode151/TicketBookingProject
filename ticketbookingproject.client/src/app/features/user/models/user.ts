@@ -4,12 +4,27 @@ export interface User {
   email?: string,
   firstname: string,
   lastname: string,
+  gender: string,
   status: string,
   logintype: string,
-  isVerified: boolean,
+  isEmailVerified: boolean,
   roles: string,
   createdAt?: Date, 
 }
+
+export interface UpdateUserProfile {
+  firstname?: string;
+  lastname?: string;
+  gender?: Gender;
+}
+
+export interface AuthUser {
+  userId: string,
+  username: string,
+  roles: string[],
+  permissions: string[],
+}
+
 export interface UserCreate {
   firstname: string,
   lastname: string,
@@ -29,6 +44,12 @@ export enum LoginType {
   Local = 0,
   Google = 1,
   Facebook = 2,
+}
+
+export enum Gender {
+  Male = 0,
+  Female = 1,
+  Other = 2
 }
 
 export interface Permission {
@@ -57,4 +78,10 @@ export interface StatItem {
 export interface UserStats {
   totalUsers: StatItem;
   newUsers: StatItem;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
 }

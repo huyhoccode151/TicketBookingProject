@@ -9,7 +9,20 @@ const PROXY_CONFIG = [
       "/weatherforecast",
     ],
     target,
-    secure: false
+    secure: false,
+    onProxyRes: function (proxyRes) {
+      proxyRes.headers['cross-origin-opener-policy'] = 'same-origin-allow-popups';
+    }
+
+  },
+    {
+      context:
+        ["/api"],
+      "target": "http://localhost:5220",
+      "secure": false,
+      "headers": {
+        "Cross-Origin-Opener-Policy": "same-origin-allow-popups"
+      }
   }
 ]
 

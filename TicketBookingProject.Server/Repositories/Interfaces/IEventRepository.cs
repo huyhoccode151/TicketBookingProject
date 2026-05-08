@@ -4,7 +4,7 @@ namespace TicketBookingProject.Server;
 
 public interface IEventRepository : IBaseRepository<Event>
 {
-    Task<PagedResponse<Event>> GetEventsAsync(EventListRequest request);
+    Task<(IQueryable<Event>, int TotalCount)> GetEventsAsync(EventListRequest req, bool published = false, int? organizerId = null);
     Task<Event> CreateEventAsync(Event evt);
     Task AddEventWithPosters(Event evt, List<UploadPosterRequest> posters);
     Task AddTicketTypeWithPoster(Event evt, List<TicketType> ticketTypes);
@@ -15,4 +15,7 @@ public interface IEventRepository : IBaseRepository<Event>
     Task<List<EventPoster>> GetEventPosterByIdAsync(int id);
     Task<List<SeatHold>> HoldTicketsAsync(HoldTicketsRequest request, int userId);
     Task UpdateHoldStatusAsync(List<SeatHold> sh, BookingResponse booking);
+    Task<List<EventTrendingResponse>> GetEventTrending();
+    Task<List<string>> GetEventName(string? req);
+    Task<List<(Event Event, string oStatus, string nStatus)>> UpdateEventStatusAuto();
 }

@@ -28,7 +28,7 @@ export class BookingPayments {
   }
 
   verifyVnPayPayment(params: any) {
-    return this.http.get<ApiResponse<{ success: boolean, message?: string, totalAmount: number, orderId: number, transactionId: string, vnPayResponseCode: string }>>(this.baseUrl + '/Payment/vnpay-return', { params });
+    return this.http.get<ApiResponse<{ success: boolean, message?: string, amount: number, orderId: number, transactionId: string, vnPayResponseCode: string }>>(this.baseUrl + '/Payment/vnpay-return', { params });
   }
 
   getListPayment(req: AdminPaymentListRequest) {

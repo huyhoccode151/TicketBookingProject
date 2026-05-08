@@ -44,4 +44,31 @@ public class AuditLogRepository : BaseRepository<AuditLog>, IAuditLogRepository
             req.PageSize,
             totalCount);
     }
+
+
+    public async Task<List<AuditLogDto>> GetListAuditLogsByUserId(int userId)
+    {
+        var query = _db.AuditLogs.Include(a => a.User).Where(a => a.UserId == userId).AsQueryable();
+        var items = await query.OrderByDescending(x => x.CreatedAt)
+                               .Take(5)
+                               .Select(x => new AuditLogDto
+                               {
+                                   Id = x.Id,
+                                   Action = x.Action,
+                                   EntityType = x.EntityType,
+                                   EntityId = x.EntityId,
+                                   Description = x.Description,
+                                   CreatedAt = x.CreatedAt,
+
+                                   User = x.User != null
+                                        ? new AuditUserDto
+                                        {
+                                            Username = x.User.Username,
+                                            Email = x.User.Email
+                                        }
+                                        : null
+                               })
+                               .ToListAsync();
+        return items;
+    }
 }

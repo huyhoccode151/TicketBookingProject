@@ -133,7 +133,6 @@ public class TicketMappingProfile : Profile
             .ForCtorParam("Status", o => o.MapFrom(s => s.Status))
             .ForCtorParam("StatusLabel", o => o.MapFrom(s => s.Status.ToString()))
             .ForCtorParam("CreatedAt", o => o.MapFrom(s => s.CreatedAt));
-
     }
 
 }

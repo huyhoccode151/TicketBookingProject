@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace TicketBookingProject.Server.Models;
 
-public partial class Refund
+public partial class Refund : IEntities
 {
     public int Id { get; set; }
 

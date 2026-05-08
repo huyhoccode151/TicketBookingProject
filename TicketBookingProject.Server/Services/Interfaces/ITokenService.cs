@@ -5,6 +5,6 @@ namespace TicketBookingProject.Server;
 
 public interface ITokenService
 {
-    string CreateAccessToken(User user, List<string> permissions);
+    string CreateAccessToken(User user, List<string> permissions, List<string> roles);
     ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
 }

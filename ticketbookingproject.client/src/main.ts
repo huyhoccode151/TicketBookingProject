@@ -5,26 +5,27 @@ import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptors, withInterceptor
 import { App } from './app/app';
 import { APP_ROUTES } from './app/app.routes';
 import { TOAST_CONFIG } from './app/shared/ui/toast/toast.service';
-import { AuthInterceptor, authInterceptor } from './app/core/interceptors/authInterceptor';
-import { inject, provideAppInitializer } from '@angular/core';
+import { AuthInterceptor } from './app/core/interceptors/authInterceptor';
+import { importProvidersFrom, inject, provideAppInitializer } from '@angular/core';
 import { PermissionService } from './app/core/services/permission-service';
+import { environment } from './environments/environments';
+
 
 bootstrapApplication(App, {
   providers: [
-    provideHttpClient(withInterceptors([
-      authInterceptor
-    ])),
     provideRouter(APP_ROUTES),
     provideAppInitializer(() => {
-      inject(PermissionService).load();
+      const permission = inject(PermissionService);
+      permission.load();
+      return;
     }),
+
     provideHttpClient(withInterceptorsFromDi()),
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
       multi: true
     },
-    provideHttpClient(),
     {
       provide: TOAST_CONFIG,
       useValue: {
@@ -32,6 +33,6 @@ bootstrapApplication(App, {
         defaultPosition: 'top-right',
         maxToasts: 5,
       },
-    },
+    }
   ]
 });

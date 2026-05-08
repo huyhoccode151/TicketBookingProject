@@ -6,10 +6,6 @@
         <button class="back-btn"><span class="material-symbols-outlined">arrow_back</span></button>
         <h1>LUXE EVENTS</h1>
       </div>
-      <div class="nav-info">
-        <span class="step-label">Checkout</span>
-        <span class="material-symbols-outlined timer-icon">timer</span>
-      </div>
     </div>
   </header>
 
@@ -18,16 +14,11 @@
 
       <!-- Cột trái: Thông tin sự kiện -->
       <div class="content-left">
-        <div class="timer-banner">
-          <span class="material-symbols-outlined">alarm</span>
-          <p>Time remaining to pay: <strong>{{ formatTime(timeLeft) }}</strong></p>
-        </div>
-
         <section class="event-card">
           <div class="banner-img">
-            <img src="https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&q=80&w=1200" alt="Event">
+            <img src="{{ images[0]?.imageUrl }}" alt="Event">
             <div class="banner-overlay">
-              <h2>The Nocturnal Symphony</h2>
+              <h2>{{ eventName }}</h2>
             </div>
           </div>
           <div class="event-info">

@@ -1,6 +1,7 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic.FileIO;
+using System;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
 
 namespace TicketBookingProject.Server.Models;
 
@@ -55,6 +56,8 @@ public partial class TicketBookingProjectContext : DbContext
     public virtual DbSet<Venue> Venues { get; set; }
 
     public virtual DbSet<VenueSection> VenueSections { get; set; }
+
+    public virtual DbSet<UiAction> UiActions { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -173,6 +176,7 @@ public partial class TicketBookingProjectContext : DbContext
             entity.HasIndex(e => new { e.Status, e.DeletedAt }, "IDX_events_status_deleted");
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.CancelReason).HasColumnName("cancel_reason");
             entity.Property(e => e.ActiveAt)
                 .HasPrecision(0)
                 .HasColumnName("active_at");
@@ -699,7 +703,6 @@ public partial class TicketBookingProjectContext : DbContext
         });
 
 
-        modelBuilder.Entity<User>().HasQueryFilter(u => u.DeletedAt == null);
         modelBuilder.Entity<User>(entity =>
         {
             entity.ToTable("users");
@@ -851,6 +854,21 @@ public partial class TicketBookingProjectContext : DbContext
             entity.HasIndex(x => x.UserId);
             entity.HasIndex(x => x.Action);
             entity.HasIndex(x => x.CreatedAt);
+        });
+
+        modelBuilder.Entity<UiAction>(entity =>
+        {
+            entity.HasIndex(e => e.ActionKey).IsUnique();
+
+            entity.Property(e => e.ActionType).HasDefaultValue("nav");
+            entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETDATE()");
+
+            entity.HasOne(e => e.Parent)
+                  .WithMany(e => e.Children)
+                  .HasForeignKey(e => e.ParentId)
+                  .OnDelete(DeleteBehavior.Restrict);
         });
 
         OnModelCreatingPartial(modelBuilder);

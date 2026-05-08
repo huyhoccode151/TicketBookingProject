@@ -7,4 +7,7 @@ public interface ITicketRepository : IBaseRepository<Ticket>
     Task<List<Ticket>> CreateTickets(BookingTicketDetails booking);
     Task<List<Ticket>> GetTicketsByBookingId(int bookingId);
     Task<(IQueryable<Booking>, int TotalCount)> GetTicketsByUserId(int userId, TicketListRequest req);
+    Task<Ticket?> GetByQrCodeAsync(string qrCode);
+    Task<bool> UpdateTicketAsync(Ticket ticket);
+    Task<bool> CancelTicket(List<int> bookingIds);
 }

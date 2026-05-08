@@ -42,6 +42,7 @@ public class BookingRepository : BaseRepository<Booking>, IBookingRepository
                 UserId = userId,
                 EventId = eventId,
                 Status = BookingStatus.Pending,
+                ExpiresAt = holdResult.First().ExpiresAt?.AddHours(2),
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 BookingDetails = holdResult.Select(h =>
@@ -122,9 +123,11 @@ public class BookingRepository : BaseRepository<Booking>, IBookingRepository
         .FirstOrDefaultAsync();
     }
 
-    public async Task<(IQueryable<Booking>, int TotalCount)> GetListBooking(AdminBookingListRequest req)
+    public async Task<(IQueryable<Booking>, int TotalCount)> GetListBooking(AdminBookingListRequest req, int? organizerId = null)
     {
         var bookings = _dbset.AsQueryable();
+
+        if (organizerId != null) bookings = bookings.Where(b => b.Event.OrganizerId == organizerId);
 
         if (!string.IsNullOrWhiteSpace(req.Search))
         {
@@ -151,4 +154,102 @@ public class BookingRepository : BaseRepository<Booking>, IBookingRepository
         return (bookings, total);
     }
 
+    public IQueryable<Booking> GetListRecentBooking(RecentBookingListRequest req)
+    {
+        var bookings = _dbset.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(req.UserName)) bookings = bookings.Where(b => b.Event.Organizer.Username == req.UserName);
+
+        if (!string.IsNullOrWhiteSpace(req.EventName)) bookings = bookings.Where(b => b.Event.Name == req.EventName);
+
+        if (req.DateFrom != null && req.DateTo != null) bookings = bookings.Where(p => p.CreatedAt > req.DateFrom && p.CreatedAt < req.DateTo);
+
+        return bookings.OrderByDescending(b => b.CreatedAt).Take(5);
+    }
+
+    public BookingEmailResponseById? GetBookingEmailResponseById(int id)
+    {
+        var booking = _dbset.Where(b => b.Id == id).Select(e => new BookingEmailResponseById
+        {
+            Id = e.Id,
+            UserEmail = e.User.Email ?? "tieukhuynhtu@gmail.com",
+            CustomerName = e.User.Firstname + e.User.Lastname
+        }).FirstOrDefault();
+
+        return booking ?? new BookingEmailResponseById();
+    }
+
+    public Booking GetBooking(int id) { 
+        var booking = _dbset.Where(b => b.Id == id).Select(b => new Booking
+        {
+            Id = b.Id,
+            Status = b.Status,
+            TotalAmount = b.TotalAmount,
+        }).FirstOrDefault();
+
+        return booking ?? new Booking();
+    }
+
+    public async Task<bool> UpdateBookingStatus(int id, BookingStatus status)
+    {
+        var booking = await _db.Bookings.FindAsync(id);
+        if (booking == null) return false;
+
+        booking.Status = status;
+
+        return await _db.SaveChangesAsync() > 0;
+    }
+
+    public async Task<bool> RegainQuantityTicketType(int id)
+    {
+        var booking = await _dbset.FindAsync(id);
+
+        if (booking == null) return false;
+
+        if (booking.Status == BookingStatus.Cancelled)
+        {
+            foreach (var seatHold in booking.SeatHolds)
+            {
+                if (seatHold.TicketType != null)
+                {
+                    seatHold.TicketType.SoldQuantity -= seatHold.Quantity;
+                    seatHold.TicketType.Quantity += seatHold.Quantity;
+                }
+            }
+
+            await _db.SaveChangesAsync();
+            return true;
+        }
+
+        return false;
+    }
+
+    public async Task<bool> DeleteBooking(int id)
+    {
+        var booking = _dbset.FirstOrDefault(b => b.Id == id);
+        if (booking == null) return false;
+        _dbset.Remove(booking);
+        await _db.SaveChangesAsync();
+        return true;
+    }
+
+    //dictionary for booking id and payment id 1 by 1
+    public async Task<List<RequestRefundRequest>> CancelBooking(int id, string reason)
+    {
+        var booking = await _dbset.Include(b => b.Payments).Where(b => b.Event.Id == id && b.Status == BookingStatus.Confirmed).ToListAsync();
+
+        if (!booking.Any()) return new List<RequestRefundRequest>();
+
+        booking.ForEach(b => b.Status = BookingStatus.Cancelled);
+
+        var refunds = booking.Select(b => new RequestRefundRequest
+        {
+            BookingId = b.Id,
+            PaymentId = b.Payments.Where(p => p.Status == PaymentStatus.Success).Select(p => p.Id).FirstOrDefault(),
+            Reason = reason,
+            Amount = b.TotalAmount
+        }).ToList();
+
+        return refunds;
+    }
 }

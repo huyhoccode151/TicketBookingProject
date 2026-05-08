@@ -1,0 +1,233 @@
+<!--<div *ngIf="loading">
+  <app-loader />
+</div>
+<div class="p-8 min-h-screen" *ngIf="!loading">
+  <div class="max-w-6xl mx-auto bg-white  p-6">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">Quản lý Quyền hạn</h1>-->
+<!-- Bộ lọc và Thêm mới -->
+<!--<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 p-4 bg-blue-50 rounded-lg">
+  <input [(ngModel)]="newPerm.resource" placeholder="Resource (VD: event)" class="border p-2 rounded shadow-sm">
+  <input [(ngModel)]="newPerm.action" placeholder="Action (VD: create)" class="border p-2 rounded shadow-sm">
+  <input [(ngModel)]="newPerm.description" placeholder="Mô tả" class="border p-2 rounded shadow-sm">
+  <button (click)="createPermission()" class="bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition">
+    + Tạo Permission
+  </button>
+</div>-->
+<!-- Filter Tool -->
+<!--<div class="flex gap-4 mb-4 items-center text-sm">
+  <span>Lọc theo:</span>
+  <input [(ngModel)]="filterResource" (input)="loadPermissions()" placeholder="Resource..." class="border p-1 rounded">
+  <input [(ngModel)]="filterAction" (input)="loadPermissions()" placeholder="Action..." class="border p-1 rounded">
+</div>-->
+<!-- Bảng Permission -->
+<!--<div class="overflow-x-auto border rounded-lg">
+  <table class="w-full text-left border-collapse">
+    <thead>
+      <tr class="bg-gray-100 border-b">
+        <th class="p-4 font-semibold text-gray-700">Permission Name</th>
+        <th class="p-4 text-center font-semibold text-red-600">Admin</th>
+        <th class="p-4 text-center font-semibold text-orange-600">Organizer</th>
+        <th class="p-4 text-center font-semibold text-green-600">Customer</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let perm of permissions" class="border-b hover:bg-gray-50 transition relative">
+        <td class="p-4">
+          <div class="font-medium text-gray-900">{{perm.name}}</div>
+          <div class="text-xs text-gray-500">{{perm.description}}</div>
+          <div *ngIf="perm.isUpdating" class="text-[10px] text-blue-500 animate-pulse">Đang cập nhật...</div>
+        </td>-->
+<!-- Checkbox Admin -->
+<!--<td class="p-4 text-center">
+  <input type="checkbox" [(ngModel)]="perm.isAdmin"
+         (change)="onToggle(perm, 'ADMIN')"
+         class="w-5 h-5 cursor-pointer accent-red-600">
+</td>-->
+<!-- Checkbox Organizer -->
+<!--<td class="p-4 text-center">
+  <input type="checkbox" [(ngModel)]="perm.isOrganizer"
+         (change)="onToggle(perm, 'ORGANIZER')"
+         class="w-5 h-5 cursor-pointer accent-orange-600">
+</td>-->
+<!-- Checkbox Customer -->
+<!--<td class="p-4 text-center">
+              <input type="checkbox" [(ngModel)]="perm.isCustomer"
+                     (change)="onToggle(perm, 'CUSTOMER')"
+                     class="w-5 h-5 cursor-pointer accent-green-600">
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <app-pagination [page]="page"
+                  [pageSize]="pageSize"
+                  [totalPages]="totalPages"
+                  [totalCount]="totalCount"
+                  (pageChange)="onPageChange($event)">
+  </app-pagination>
+</div>-->
+<div *ngIf="loading">
+  <app-loader />
+</div>
+
+<div class="perm-page" *ngIf="!loading">
+
+  <!-- Header -->
+  <div class="perm-header">
+    <div class="perm-header__inner">
+      <div class="perm-header__title">
+        <div class="perm-header__icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
+        </div>
+        <div>
+          <h1>Permission Management</h1>
+          <p>{{ totalCount }} permissions &middot; {{ roles.length }} roles</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="perm-body">
+
+    <!-- Create + Filter card -->
+    <div class="perm-card perm-card--toolbar">
+
+      <!-- Create permission -->
+      <div class="toolbar-section">
+        <span class="toolbar-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          Create permission
+        </span>
+        <form class="toolbar-inputs" [formGroup]="permForm" (ngSubmit)="createPermission()">
+          <div class="input-wrapper">
+            <input formControlName="resource"
+                   placeholder="Resource (VD: event)"
+                   class="perm-input"
+                   [class.is-invalid]="getError('resource')" />
+            <span class="error-msg" *ngIf="getError('resource')">{{ getError('resource') }}</span>
+          </div>
+
+          <div class="input-wrapper">
+            <input formControlName="action"
+                   placeholder="Action (VD: create)"
+                   class="perm-input"
+                   [class.is-invalid]="getError('action')" />
+            <span class="error-msg" *ngIf="getError('action')">{{ getError('action') }}</span>
+          </div>
+
+          <div class="input-wrapper">
+            <input formControlName="description"
+                   placeholder="Description"
+                   class="perm-input perm-input--wide" />
+          </div>
+
+          <button type="submit" class="btn-create" [disabled]="permForm.invalid || loading">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Create
+          </button>
+        </form>
+      </div>
+
+      <!-- Divider -->
+      <div class="toolbar-divider"></div>
+
+      <!-- Filter -->
+      <div class="toolbar-section">
+        <span class="toolbar-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" /></svg>
+          Filter permissions
+        </span>
+        <div class="toolbar-inputs">
+          <div class="perm-input-wrap">
+            <svg class="perm-input-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+            <input [(ngModel)]="filterResource"
+                   (input)="loadPermissions()"
+                   placeholder="Resource..."
+                   class="perm-input perm-input--icon" />
+          </div>
+          <div class="perm-input-wrap">
+            <svg class="perm-input-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+            <input [(ngModel)]="filterAction"
+                   (input)="loadPermissions()"
+                   placeholder="Action..."
+                   class="perm-input perm-input--icon" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table card -->
+    <div class="perm-card perm-card--table">
+      <div class="table-wrap">
+        <table class="perm-table">
+          <thead>
+            <tr>
+              <th class="col-name">Permission</th>
+              <th *ngFor="let role of roles"
+                  class="col-role"
+                  [style.--role-color]="getRoleAccentColor(role.name)">
+                <div class="role-head">
+                  <span class="role-dot" [style.background]="getRoleAccentColor(role.name)"></span>
+                  <span class="role-name">{{ role.name }}</span>
+                  <span class="role-count">{{ role.permissionCount }}</span>
+                </div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let perm of permissions" class="perm-row" [class.perm-row--updating]="perm.isUpdating">
+
+              <!-- Permission name -->
+              <td class="col-name">
+                <div class="perm-name">{{ perm.name }}</div>
+                <div class="perm-desc" *ngIf="perm.description">{{ perm.description }}</div>
+                <div class="perm-updating" *ngIf="perm.isUpdating">
+                  <span class="dot-pulse"></span>
+                  Updating...
+                </div>
+              </td>
+
+              <!-- Checkboxes động -->
+              <td *ngFor="let role of roles"
+                  class="col-role"
+                  [style.--role-color]="getRoleAccentColor(role.name)">
+                <label class="toggle-wrap" [class.toggle-wrap--disabled]="perm.isUpdating">
+                  <input type="checkbox"
+                         class="toggle-input"
+                         [checked]="isRoleSelected(perm, role.id)"
+                         [disabled]="perm.isUpdating"
+                         (change)="onToggle(perm, role, $event)" />
+                  <span class="toggle-track">
+                    <span class="toggle-thumb"></span>
+                  </span>
+                </label>
+              </td>
+
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="perm-pagination">
+      <app-pagination [page]="page"
+                      [pageSize]="pageSize"
+                      [totalPages]="totalPages"
+                      [totalCount]="totalCount"
+                      (pageChange)="onPageChange($event)">
+      </app-pagination>
+    </div>
+
+  </div>
+</div>

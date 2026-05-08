@@ -16,7 +16,7 @@ public class RefreshTokenRepository : BaseRepository<RefreshToken>, IRefreshToke
     }
     public async Task<RefreshToken?> CheckToken(string hashedRfToken)
     {
-        var storedToken = _db.RefreshTokens.FirstOrDefault(rt => rt.Token == hashedRfToken && rt.IsActive);
+        var storedToken = _db.RefreshTokens.FirstOrDefault(rt => rt.Token == hashedRfToken && rt.Status == RefreshTokenStatus.Active && rt.ExpiresAt > DateTime.UtcNow);
         return storedToken;
     }
 }

@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { CreateBooking, EventPoster, TicketType, TicketVM } from '../models/event';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { EventService } from '../services/event';
 import { ToastService } from '../../../shared/ui/toast/toast.service';
 import { environment } from '../../../../environments/environments';
@@ -27,6 +27,7 @@ export class Booking implements OnInit {
   currentIndex = 0;
 
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private eventService = inject(EventService);
   private toast = inject(ToastService);
   private cdr = inject(ChangeDetectorRef);

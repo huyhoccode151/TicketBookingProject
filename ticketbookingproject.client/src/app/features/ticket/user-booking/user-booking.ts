@@ -13,6 +13,7 @@ import { FilterSelect } from '../../../shared/ui/filter-select/filter-select';
 import { CategoryListItemResponse, VenueListItemResponse } from '../../event/models/event';
 import { Pagination } from '../../../shared/ui/pagination/pagination';
 import { Loader } from '../../../shared/ui/loader/loader';
+import { environment } from '../../../../environments/environments';
 
 @Component({
   selector: 'app-user-booking',
@@ -102,5 +103,19 @@ export class UserBooking {
   onPageChange(p: number) {
     this.filters.page = p;
     this.loadBookings();
+  }
+
+  baseUrl = environment.api;
+
+  getThumbnail(url?: string): string {
+    if (!url) return '';
+
+    // Nếu là link ngoài (http, https)
+    if (url.startsWith('http')) {
+      return url;
+    }
+
+    // Nếu là link local (/uploads/...)
+    return this.baseUrl + url;
   }
 }

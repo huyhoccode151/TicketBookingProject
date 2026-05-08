@@ -18,6 +18,7 @@ public partial class Event : IEntities
     public string? Description { get; set; }
 
     public EventStatus Status { get; set; }
+    public string? CancelReason { get; set; }
 
     public DateTime? ActiveAt { get; set; }
 

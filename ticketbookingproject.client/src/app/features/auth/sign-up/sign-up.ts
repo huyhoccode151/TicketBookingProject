@@ -48,7 +48,7 @@ export class SignUp implements OnInit, OnDestroy {
   }
 
   get confirmPasswordControl(): AbstractControl {
-    return this.signUpForm.get('confirm_password')!;
+    return this.signUpForm.get('confirmpassword')!;
   }
 
   get emailControl(): AbstractControl {
@@ -70,7 +70,7 @@ export class SignUp implements OnInit, OnDestroy {
       username: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      confirm_password: ['', Validators.required],
+      confirmpassword: ['', Validators.required],
     },
       {
         validators: passwordMatchValidator
@@ -83,16 +83,13 @@ export class SignUp implements OnInit, OnDestroy {
 
   onSubmit(): void {
     this.submitted = true;
-    if (this.signUpForm.invalid) {
-      return;
-    }
     console.log(this.signUpForm.value);
     this.isLoading = true;
     this.errorMessage = '';
 
-    const { firstname, lastname, username, email, password } = this.signUpForm.value;
+    const { firstname, lastname, username, email, password, confirmpassword } = this.signUpForm.value;
     this.authService
-      .signup(username, email, password, firstname, lastname)
+      .signup(username, email, password, firstname, lastname, confirmpassword)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
@@ -103,8 +100,26 @@ export class SignUp implements OnInit, OnDestroy {
         },
         error: (err) => {
           this.isLoading = false;
-          this.toast.error('SignUp failed!!!');
-          this.errorMessage = err?.error?.message ?? 'An error occurred during login. Please try again.';
+
+          if (err.status === 400 && err.error.errors || err.status === 400 && err.error?.message) {
+            const serverError = err.error?.errors ?? err.error?.message;
+            console.log(serverError, 'dfsaf');
+            for (const field in serverError) {
+
+              let controlName = field.toLowerCase();
+
+              const control = this.signUpForm.get(controlName);
+
+              if (control) {
+                control.setErrors({ serverError: serverError[field][0] });
+              }
+            }
+
+            this.toast.error('Validation failed. Please check your input.');
+          } else {
+            this.errorMessage = err?.error?.message ?? 'An error occured. Please try again.';
+            this.toast.error('SignUp failed!!!');
+          }
         }
       });
   }

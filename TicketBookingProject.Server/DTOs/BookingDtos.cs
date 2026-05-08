@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.Identity.Client;
+using System.ComponentModel.DataAnnotations;
 using TicketBookingProject.Server.Models;
 
 namespace TicketBookingProject.Server;
@@ -47,6 +48,14 @@ public record BookingListRequest : PagedRequest
 {
     public byte? Status { get; init; }
     public int? EventId { get; init; }
+    public DateTime? DateFrom { get; init; }
+    public DateTime? DateTo { get; init; }
+}
+
+public record RecentBookingListRequest
+{
+    public string? UserName { get; init; }
+    public string? EventName { get; init; }
     public DateTime? DateFrom { get; init; }
     public DateTime? DateTo { get; init; }
 }
@@ -212,3 +221,10 @@ public class QuickPayResquest
 public class MomoResponse { public string? payUrl { get; set; } }
 
 public class VnPayResponse { public string? payUrl { get; set; } }
+
+public class BookingEmailResponseById
+{
+    public int Id { get; set; }
+    public string UserEmail { get; set; } = string.Empty;
+    public string CustomerName { get; set; } = string.Empty;
+}

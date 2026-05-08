@@ -9,10 +9,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="src\app\features\booking\services\" />
+    <Folder Include="src\app\features\dashboard\services\" />
     <Folder Include="src\app\features\event\models\" />
     <Folder Include="src\app\features\event\services\" />
     <Folder Include="src\app\features\payment\services\" />
+    <Folder Include="src\app\features\permission\services\" />
+    <Folder Include="src\app\features\role\services\" />
     <Folder Include="src\app\features\ticket\services\" />
+    <Folder Include="src\app\features\venue\services\" />
     <Folder Include="src\app\shared\data-access\" />
     <Folder Include="src\app\shared\directives\" />
     <Folder Include="src\app\shared\styles\" />

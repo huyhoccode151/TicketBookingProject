@@ -234,6 +234,10 @@ namespace TicketBookingProject.Server.Migrations
                         .HasColumnType("datetime2(0)")
                         .HasColumnName("active_at");
 
+                    b.Property<string>("CancelReason")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("cancel_reason");
+
                     b.Property<int>("CategoryId")
                         .HasColumnType("int")
                         .HasColumnName("category_id");
@@ -1142,6 +1146,68 @@ namespace TicketBookingProject.Server.Migrations
                     b.ToTable("venue_sections", (string)null);
                 });
 
+            modelBuilder.Entity("TicketBookingProject.Server.UiAction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ActionKey")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ActionType")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("nav");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<int>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<string>("Icon")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PermissionRequired")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RoutePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActionKey")
+                        .IsUnique();
+
+                    b.HasIndex("ParentId");
+
+                    b.ToTable("UiActions");
+                });
+
             modelBuilder.Entity("TicketBookingProject.Server.UserPermission", b =>
                 {
                     b.Property<int>("Id")
@@ -1529,6 +1595,16 @@ namespace TicketBookingProject.Server.Migrations
                     b.Navigation("Venue");
                 });
 
+            modelBuilder.Entity("TicketBookingProject.Server.UiAction", b =>
+                {
+                    b.HasOne("TicketBookingProject.Server.UiAction", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Parent");
+                });
+
             modelBuilder.Entity("TicketBookingProject.Server.UserPermission", b =>
                 {
                     b.HasOne("TicketBookingProject.Server.Models.Permission", "Permission")
@@ -1666,6 +1742,11 @@ namespace TicketBookingProject.Server.Migrations
             modelBuilder.Entity("TicketBookingProject.Server.Models.VenueSection", b =>
                 {
                     b.Navigation("Seats");
+                });
+
+            modelBuilder.Entity("TicketBookingProject.Server.UiAction", b =>
+                {
+                    b.Navigation("Children");
                 });
 #pragma warning restore 612, 618
         }

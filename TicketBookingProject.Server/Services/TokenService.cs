@@ -11,13 +11,16 @@ public class TokenService : ITokenService
     private readonly IConfiguration _cfg;
     public TokenService(IConfiguration cfg) => _cfg = cfg;
 
-    public string CreateAccessToken(User user, List<string> permissions)
+    public string CreateAccessToken(User user, List<string> permissions, List<string> roles)
     {
         var claims = new List<Claim>
         {
             new Claim("userId", user.Id.ToString()),
-            new Claim(ClaimTypes.Name, user.Username),
+            new Claim(ClaimTypes.Name, user.Username)
         };
+
+        foreach (var r in roles)
+            claims.Add(new Claim(ClaimTypes.Role, r));
 
         foreach (var p in permissions)
             claims.Add(new Claim("permission", p));

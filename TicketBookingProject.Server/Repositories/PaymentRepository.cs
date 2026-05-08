@@ -29,9 +29,11 @@ public class PaymentRepository : BaseRepository<Payment>, IPaymentRepository
         return payment;
     }
 
-    public async Task<(IQueryable<Payment>, int TotalCount)> GetListPayment(AdminPaymentListRequest req)
+    public async Task<(IQueryable<Payment>, int TotalCount)> GetListPayment(AdminPaymentListRequest req, int? organizerId = null)
     {
         var payments = _dbset.AsQueryable();
+
+        if (organizerId != null) payments = payments.Where(p => p.Booking.Event.OrganizerId == organizerId);
 
         if (!string.IsNullOrWhiteSpace(req.Search))
         {
@@ -71,5 +73,14 @@ public class PaymentRepository : BaseRepository<Payment>, IPaymentRepository
         var payment = _dbset.FirstOrDefault(x => x.Id == id);
 
         return payment ?? new Payment();
+    }
+
+    public async Task<IQueryable<Payment>> GetListTotalRevenue(TotalVenueRequest req)
+    {
+        var payments = _dbset.Where(p => p.Status == PaymentStatus.Success).AsQueryable();
+
+        if (req.DateFrom != null && req.DateTo != null) payments = payments.Where(p => p.CreatedAt < req.DateTo && p.CreatedAt > req.DateFrom);
+
+        return payments;
     }
 }

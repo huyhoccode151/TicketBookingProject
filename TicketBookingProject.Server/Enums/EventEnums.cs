@@ -7,6 +7,7 @@ public enum EventStatus : byte
     Ongoing = 2,
     Completed = 3,
     Cancelled = 4,
+    Confirm = 5,
 }
 
 public enum ImageType : byte

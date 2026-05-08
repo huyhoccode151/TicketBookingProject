@@ -13,6 +13,7 @@ public enum UserStatus : byte
     Inactive = 0,
     Active = 1,
     Banned = 2,
+    SuperAdmin = 200
 }
 
 public enum LoginType : byte

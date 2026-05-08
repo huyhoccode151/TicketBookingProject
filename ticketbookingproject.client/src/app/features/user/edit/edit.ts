@@ -10,11 +10,13 @@ import { Permission, RolePermissionGroup, User } from '../models/user';
 import { disabled } from '@angular/forms/signals';
 import { ConfirmDialog, ConfirmDialogConfig } from '../../../shared/ui/confirm-dialog/confirm-dialog';
 import { CommonModule } from '@angular/common';
+import { HasPermissionDirective } from '../../../shared/directives/has-permission-directive';
+import { RouteService } from '../../../core/services/route.service';
 
 @Component({
   selector: 'app-edit',
   standalone: true,
-  imports: [PageHeader, Card, ReactiveFormsModule, ConfirmDialog, CommonModule],
+  imports: [PageHeader, Card, ReactiveFormsModule, ConfirmDialog, CommonModule, HasPermissionDirective],
   templateUrl: './edit.html',
   styleUrl: './edit.scss',
 })
@@ -23,6 +25,7 @@ export class Edit implements OnInit {
   submitted = false;
   userId!: string;
   email!: string;
+  errorMessage: string = '';
 
   isDialogOpen = false;
   dialogConfig: ConfirmDialogConfig = { title: '', message: '' };
@@ -34,6 +37,7 @@ export class Edit implements OnInit {
   permissionDialogConfig: ConfirmDialogConfig = { title: 'Permissions', message: 'Permission management is not implemented yet.' };
 
 
+  routeNavigate = inject(RouteService);
   private cdr = inject(ChangeDetectorRef);
   constructor(
     private fb: FormBuilder,
@@ -76,7 +80,7 @@ export class Edit implements OnInit {
       },
       error: () => {
         this.toast.error('Error', 'Cannot load user');
-        this.router.navigate(['/users']);
+        this.router.navigate(this.routeNavigate.users());
       }
     });
 
@@ -116,13 +120,28 @@ export class Edit implements OnInit {
       next: () => {
         this.form.reset();
         this.submitted = false;
-        this.router.navigate(['/users']);
+        this.router.navigate(this.routeNavigate.users());
         this.toast.success('Edited User', 'Edited user successfully!!!');
       },
       error: (err) => {
-        console.log('FULL_ERRORS', err);
-        console.log('VALIDATION:', err.error?.errors);
-        this.toast.error('Edited User', 'Edited user failed!!!');
+        if (err.status === 400 && err.error.errors) {
+          const serverError = err.error?.errors;
+          console.log(serverError, 'dfsaf');
+          for (const field in serverError) {
+
+            let controlName = field.toLowerCase();
+
+            const control = this.form.get(controlName);
+
+            if (control) {
+              control.setErrors({ serverError: serverError[field][0] });
+            }
+          }
+
+          this.toast.error('Validation failed. Please check your input.');
+        } else {
+          this.toast.error('Edit failed!!!');
+        }
       }
     });
   }
@@ -133,9 +152,9 @@ export class Edit implements OnInit {
 
   openDelete(): void {
     this.dialogConfig = {
-      title: 'Xóa người dùng',
-      message: 'Bạn có chắc muốn xóa người dùng này không?',
-      detail: `Tài khoản: ${this.email}`,
+      title: 'Delete User',
+      message: 'Are you surely delete this user?',
+      detail: `Account: ${this.email}`,
       confirmText: 'Delete',
       cancelText: 'Cancel',
       variant: 'danger',
@@ -163,9 +182,9 @@ export class Edit implements OnInit {
 
   openPermissions() {
     this.permissionDialogConfig = {
-      title: 'Thay đổi quyền người dùng',
-      message: 'Thay đổi quyền người dùng!!!',
-      detail: `Tài khoản: ${this.email}`,
+      title: 'Change user permission',
+      message: 'Change user permission!!!',
+      detail: `Account: ${this.email}`,
       confirmText: 'Submit',
       cancelText: 'Cancel',
       variant: 'warning',
@@ -221,5 +240,9 @@ export class Edit implements OnInit {
 
   onPermissionCancelled(): void {
     this.isPermissionDialogOpen = false;
+  }
+
+  onNavigateToUsers() {
+    this.router.navigate(this.routeNavigate.users());
   }
 }

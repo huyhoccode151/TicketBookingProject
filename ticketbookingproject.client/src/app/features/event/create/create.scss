@@ -60,6 +60,10 @@ $color-primary-dim: #2a5e00;
 $color-on-surface-variant: #586064;
 $color-on-error: #fff7f6;
 $color-surface-container-highest: #dbe4e7;
+:host {
+  --color-error: #ef4444;
+}
+
 
 // ── Typography ──────────────────────────────────────────────
 $font-headline: 'Manrope', sans-serif;
@@ -109,6 +113,17 @@ $ease: 0.28s ease;
   padding: 0 1rem 3rem;
   font-family: 'Segoe UI', system-ui, sans-serif;
   color: $text;
+}
+
+.create-container {
+  min-width: 1500px;
+  padding: 2rem;
+}
+
+
+.edit-container {
+  min-width: 1500px;
+  padding: 2rem;
 }
 
 .form-title {

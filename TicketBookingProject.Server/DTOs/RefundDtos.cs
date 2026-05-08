@@ -7,9 +7,12 @@ public record RequestRefundRequest
 {
     [Required]
     public int BookingId { get; init; }
+    [Required]
+    public int PaymentId { get; init; }
 
     [Required, StringLength(255, MinimumLength = 5)]
     public string Reason { get; init; } = default!;
+    public long Amount { get; init; }
 }
 
 public record RefundResponse(

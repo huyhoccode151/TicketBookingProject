@@ -1,0 +1,176 @@
+<main class="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark">
+  <div class="w-full p-8">
+
+    <!-- Breadcrumbs -->
+    <nav class="flex flex-wrap items-center gap-2 mb-4">
+      <span class="text-slate-500 hover:text-primary text-sm font-medium transition-colors flex items-center gap-1 cursor-pointer"
+            (click)="onNavigateToVenues()">
+        <span class="material-symbols-outlined text-sm">stadium</span> Venues
+      </span>
+      <span class="text-slate-400 text-sm material-symbols-outlined">chevron_right</span>
+      <span class="text-slate-900 dark:text-slate-100 text-sm font-semibold">Edit Venue</span>
+    </nav>
+
+    <!-- Header -->
+    <app-page-header [title]="'Edit Venue: ' + venueName"
+                     subtitle="Update venue details, location, and capacity settings.">
+    </app-page-header>
+
+    <!-- Form -->
+    <form [formGroup]="form" (ngSubmit)="submit()">
+
+      <!-- Section: Venue Information -->
+      <app-card icon="stadium" title="Venue Information">
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+
+          <!-- Name -->
+          <div class="col-span-full flex flex-col gap-1.5">
+            <label class="text-sm font-medium">Venue Name</label>
+            <input class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
+                   formControlName="name"
+                   placeholder="e.g. National Convention Center"
+                   type="text" />
+            <span class="error-msg" *ngIf="isInvalid('name')">
+              <ng-container *ngIf="form.get('name')?.errors?.['required']">Venue name is required.</ng-container>
+              <ng-container *ngIf="form.get('name')?.errors?.['minlength']">Name must be at least 2 characters.</ng-container>
+              <ng-container *ngIf="form.get('name')?.errors?.['serverError']">{{ form.get('name')?.errors?.['serverError'] }}</ng-container>
+            </span>
+          </div>
+
+          <!-- Province -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium">Province / City</label>
+            <select class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
+                    formControlName="province">
+              <option value="" disabled>Select province...</option>
+              <option value="Hà Nội">Hà Nội</option>
+              <option value="Hồ Chí Minh">Hồ Chí Minh</option>
+              <option value="Đà Nẵng">Đà Nẵng</option>
+              <option value="Hải Phòng">Hải Phòng</option>
+              <option value="Cần Thơ">Cần Thơ</option>
+              <option value="Bình Dương">Bình Dương</option>
+              <option value="Đồng Nai">Đồng Nai</option>
+              <option value="Khánh Hòa">Khánh Hòa</option>
+              <option value="Quảng Ninh">Quảng Ninh</option>
+              <option value="Thừa Thiên Huế">Thừa Thiên Huế</option>
+            </select>
+            <span class="error-msg" *ngIf="isInvalid('province')">
+              <ng-container *ngIf="form.get('province')?.errors?.['required']">Province is required.</ng-container>
+              <ng-container *ngIf="form.get('province')?.errors?.['serverError']">{{ form.get('province')?.errors?.['serverError'] }}</ng-container>
+            </span>
+          </div>
+
+          <!-- Capacity -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium">Total Capacity</label>
+            <input class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
+                   formControlName="capacity"
+                   placeholder="e.g. 5000"
+                   type="number"
+                   min="0" />
+            <span class="error-msg" *ngIf="isInvalid('capacity')">
+              <ng-container *ngIf="form.get('capacity')?.errors?.['required']">Capacity is required.</ng-container>
+              <ng-container *ngIf="form.get('capacity')?.errors?.['min']">Capacity must be 0 or greater.</ng-container>
+              <ng-container *ngIf="form.get('capacity')?.errors?.['serverError']">{{ form.get('capacity')?.errors?.['serverError'] }}</ng-container>
+            </span>
+          </div>
+
+          <!-- Address Detail -->
+          <div class="col-span-full flex flex-col gap-1.5">
+            <label class="text-sm font-medium">Address Detail</label>
+            <textarea class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800 resize-none"
+                      formControlName="addressDetail"
+                      placeholder="e.g. 57 Đường Láng, Đống Đa, Hà Nội"
+                      rows="3"></textarea>
+            <span class="error-msg" *ngIf="isInvalid('addressDetail')">
+              <ng-container *ngIf="form.get('addressDetail')?.errors?.['required']">Address detail is required.</ng-container>
+              <ng-container *ngIf="form.get('addressDetail')?.errors?.['serverError']">{{ form.get('addressDetail')?.errors?.['serverError'] }}</ng-container>
+            </span>
+          </div>
+
+        </div>
+      </app-card>
+
+      <!-- Section: GPS Coordinates -->
+      <app-card icon="location_on" title="GPS Coordinates">
+        <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">
+          Optional — used for map display. Leave blank if not available.
+        </p>
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+
+          <!-- Latitude -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium">Latitude</label>
+            <input class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
+                   formControlName="latitude"
+                   placeholder="e.g. 21.0285"
+                   type="number"
+                   step="any" />
+            <span class="error-msg" *ngIf="isInvalid('latitude')">
+              <ng-container *ngIf="form.get('latitude')?.errors?.['min'] || form.get('latitude')?.errors?.['max']">Latitude must be between -90 and 90.</ng-container>
+              <ng-container *ngIf="form.get('latitude')?.errors?.['serverError']">{{ form.get('latitude')?.errors?.['serverError'] }}</ng-container>
+            </span>
+          </div>
+
+          <!-- Longitude -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium">Longitude</label>
+            <input class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
+                   formControlName="longitude"
+                   placeholder="e.g. 105.8542"
+                   type="number"
+                   step="any" />
+            <span class="error-msg" *ngIf="isInvalid('longitude')">
+              <ng-container *ngIf="form.get('longitude')?.errors?.['min'] || form.get('longitude')?.errors?.['max']">Longitude must be between -180 and 180.</ng-container>
+              <ng-container *ngIf="form.get('longitude')?.errors?.['serverError']">{{ form.get('longitude')?.errors?.['serverError'] }}</ng-container>
+            </span>
+          </div>
+
+        </div>
+
+        <!-- Global error -->
+        <div class="alert alert-error mt-4" *ngIf="errorMessage">
+          {{ errorMessage }}
+        </div>
+      </app-card>
+
+      <!-- Actions -->
+      <div class="flex flex-col sm:flex-row justify-end gap-3 pt-6 pb-12 border-t border-slate-200 dark:border-slate-800">
+        <button type="button"
+                class="px-8 py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
+                (click)="onNavigateToVenues()">
+          Cancel Changes
+        </button>
+        <button type="submit"
+                class="px-8 py-3 bg-primary text-white rounded-lg text-sm font-bold hover:bg-primary/90 transition-all shadow-md shadow-primary/20">
+          Save Venue
+        </button>
+      </div>
+
+    </form>
+
+    <!-- Danger Zone -->
+    <section class="bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-100 dark:border-red-900/30 overflow-hidden">
+      <div class="p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h2 class="text-red-800 dark:text-red-400 text-lg font-bold">Danger Zone</h2>
+          <p class="text-red-700/70 dark:text-red-400/60 text-sm">
+            Once you delete a venue, there is no going back. Venues with associated events cannot be deleted.
+          </p>
+        </div>
+        <button type="button"
+                class="flex items-center gap-2 px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-bold transition-all shadow-sm"
+                (click)="openDelete()">
+          <span class="material-symbols-outlined text-[18px]">delete</span>
+          Delete Venue
+        </button>
+      </div>
+    </section>
+
+    <app-confirm-dialog [isOpen]="isDialogOpen"
+                        [config]="dialogConfig"
+                        (confirmed)="onConfirmed()"
+                        (cancelled)="onCancelled()" />
+
+  </div>
+</main>

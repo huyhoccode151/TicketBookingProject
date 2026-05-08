@@ -4,6 +4,7 @@ import { BookingPayments } from '../services/booking-payments';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { ChangeDetectorRef } from '@angular/core';
 import { ToastService } from '../../../shared/ui/toast/toast.service';
+import { RouteService } from '../../../core/services/route.service';
 
 @Component({
   selector: 'app-vnpay-return',
@@ -29,6 +30,7 @@ export class VnpayReturn implements OnInit {
   private router = inject(Router);
   private toast = inject(ToastService);
   private cdr = inject(ChangeDetectorRef);
+  routeNavigate = inject(RouteService);
 
 
   ngOnInit(): void {
@@ -50,7 +52,7 @@ export class VnpayReturn implements OnInit {
         console.log(res);
 
         this.responseCode = data.vnPayResponseCode;
-        this.amount = data.totalAmount;
+        this.amount = data.amount;
         this.orderId = data.orderId;
         this.transactionId = data.transactionId;
 
@@ -58,7 +60,7 @@ export class VnpayReturn implements OnInit {
           this.isSuccess = true;
           this.status = 'Payment successful! Thank you for your purchase.';
 
-          setTimeout(() => this.router.navigate([`/ticket-booked/${this.orderId}`]), 5000);
+          setTimeout(() => this.router.navigate(this.routeNavigate.ticketBooked(this.orderId)), 5000);
         } else {
           this.isSuccess = false;
           this.status = 'Payment failed: ' + (res.message || 'Unknown error');
@@ -71,7 +73,7 @@ export class VnpayReturn implements OnInit {
         this.isSuccess = false;
         this.status = 'Payment failed: An error occurred while processing your payment.';
         this.getBookingId(this.orderId);
-        setTimeout(() => this.router.navigate([`/events/${this.eventId}/bookings/${this.orderId}`]), 5000);
+        setTimeout(() => this.router.navigate(this.routeNavigate.eventBookingPayment(this.eventId, this.orderId)), 5000);
       }
     });
   }
@@ -84,8 +86,8 @@ export class VnpayReturn implements OnInit {
 
         const expiresAt = new Date(this.bookingExpires);
         if (this.bookingExpires < expiresAt) {
-          this.toast.error("Đơn hàng đã hết hạn thanh toán, vui lòng đặt đơn mới!!!");
-          setTimeout(() => this.router.navigate([`/events/${this.orderId}`]), 5000);
+          this.toast.error("Order has been expired, please create new order!!!");
+          setTimeout(() => this.router.navigate(this.routeNavigate.customerEvents()), 5000);
         }
       },
       error: () => {
@@ -96,10 +98,10 @@ export class VnpayReturn implements OnInit {
 
   getErrorMessage(code: string) {
     switch (code) {
-      case '24': return 'Bạn đã hủy giao dịch.';
-      case '51': return 'Tài khoản không đủ số dư.';
-      case '00': return 'Thành công.';
-      default: return 'Giao dịch không thành công. Vui lòng kiểm tra lại thông tin hoặc thử phương thức thanh toán khác.';
+      case '24': return 'You cancelled the trans.';
+      case '51': return 'Account does not have enough credit.';
+      case '00': return 'Success.';
+      default: return 'Transact failed. Please check or replace by another method.';
     }
   }
 }

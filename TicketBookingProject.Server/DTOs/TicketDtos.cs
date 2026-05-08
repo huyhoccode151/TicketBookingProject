@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using TicketBookingProject.Server.Models;
 using static Azure.Core.HttpHeader;
 
 namespace TicketBookingProject.Server;
@@ -136,3 +137,14 @@ public record AdminTicketListRequest : PagedRequest
     public DateTime? DateFrom { get; init; }
     public DateTime? DateTo { get; init; }
 }
+
+public class CheckInTicketDto
+{
+    public int Id { get; set; }
+    public string? CustomerName { get; set; }
+    public string? TicketTypeName { get; set; }
+    public string? SeatNumber { get; set; }
+    public DateTime? CheckedInAt { get; set; }
+}
+
+public record CheckInResult(bool Success, string Message, CheckInTicketDto? Ticket = null);

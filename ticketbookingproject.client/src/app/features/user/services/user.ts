@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { AbstractControl, ValidationErrors } from '@angular/forms';
 import { Observable } from 'rxjs';
-import { StatUsers, User } from '../models/user';
+import { AuthUser, ChangePasswordRequest, StatUsers, UpdateUserProfile, User } from '../models/user';
 import { ApiResponse, PagedResult } from '../models/paged-result';
 import { environment } from '../../../../environments/environments';
 
@@ -10,6 +10,7 @@ import { environment } from '../../../../environments/environments';
   providedIn: 'root',
 })
 export class UserService {
+  private baseUrl = environment.apiUrl;
   private api = environment.apiUrl + '/User';
   constructor(private http: HttpClient) { }
 
@@ -33,7 +34,7 @@ export class UserService {
     return this.http.get<ApiResponse<User>>(`${this.api}/${id}`);
   }
 
-  editUser(id: string,request: any) {
+  editUser(id: string, request: any) {
     return this.http.patch<ApiResponse<User>>(`${this.api}/${id}`, request);
   }
 
@@ -56,7 +57,20 @@ export class UserService {
   getStatUsers() {
     return this.http.get<ApiResponse<StatUsers>>(`${this.api}/stats`);
   }
+
+  getUserAuth() {
+    return this.http.get<AuthUser>(`${this.baseUrl}/auth/me`);
+  }
+
+  changePassword(request: ChangePasswordRequest) {
+    return this.http.patch(`${this.api}/change-password`, request);
+  }
+
+  updateProfile(request: UpdateUserProfile) {
+    return this.http.patch<ApiResponse<User>>(`${this.api}/profile`, request);
+  }
 }
+
 export function passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
   const password = control.get('password')?.value;
   const confirm = control.get('confirm_password')?.value;

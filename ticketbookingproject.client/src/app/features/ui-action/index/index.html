@@ -1,0 +1,254 @@
+<main class="w-[80vw] overflow-y-auto bg-background-light dark:bg-background-dark">
+  <div *ngIf="loading">
+    <app-loader />
+  </div>
+
+  <div *ngIf="!loading" class="w-full p-8">
+    <app-page-header title="UI Action Management"
+                     subtitle="Manage navigation items and their required permissions.">
+
+      <button class="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2"
+              *hasPermission="'user:manage'"
+              (click)="openCreate()">
+        <span class="material-symbols-outlined text-base">add</span>
+        Add New UI Action
+      </button>
+
+    </app-page-header>
+
+    <app-data-table>
+      <app-table-toolbar (search)="onSearch($event)">
+        <!-- Filter by Action Type -->
+        <!--<ng-select [items]="actionTypeOptions"
+                   bindLabel="label"
+                   bindValue="value"
+                   [(ngModel)]="selectedActionType"
+                   placeholder="Filter by type..."
+                   (change)="onActionTypeChange($event)"
+                   [closeOnSelect]="false">-->
+          <!--(change)="onActionTypeChange($event)"-->
+
+        <!--</ng-select>-->
+        <app-filter-select label="Action Type"
+                           [options]="actionTypeOptions"
+                           [value]="actionType"
+                           (valueChange)="onActionTypeChange($event)">
+        </app-filter-select>
+      </app-table-toolbar>
+
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-slate-50 dark:bg-slate-800/50">
+            <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">#</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500">Action Key</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500">Label</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500">Icon</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500">Route</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500">Permission</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 text-center">Type</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 text-center">Order</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 text-center">Active</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 text-right">Action</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+          <tr *ngFor="let item of uiActions; let i = index"
+              class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+
+            <td class="px-6 py-4 text-sm">
+              {{ (filters.page - 1) * filters.pageSize + i + 1 }}
+            </td>
+
+            <td class="px-6 py-4">
+              <span class="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-slate-700 dark:text-slate-300">
+                {{ item.actionKey }}
+              </span>
+            </td>
+
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-2">
+                <span *ngIf="item.icon" class="material-symbols-outlined text-base text-slate-500">{{ item.icon }}</span>
+                <span class="font-semibold text-sm text-slate-900 dark:text-slate-100">{{ item.label }}</span>
+              </div>
+            </td>
+
+            <td class="px-6 py-4 text-sm text-slate-500">
+              <span *ngIf="item.icon; else noIcon">{{ item.icon }}</span>
+              <ng-template #noIcon>
+                <span class="italic text-slate-300 dark:text-slate-600">—</span>
+              </ng-template>
+            </td>
+
+            <td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">
+              <span *ngIf="item.routePath; else noRoute">{{ item.routePath }}</span>
+              <ng-template #noRoute>
+                <span class="italic text-slate-300 dark:text-slate-600">—</span>
+              </ng-template>
+            </td>
+
+            <td class="px-6 py-4">
+              <span *ngIf="item.permissionRequired; else noPermission"
+                    class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
+                {{ item.permissionRequired }}
+              </span>
+              <ng-template #noPermission>
+                <span class="italic text-slate-300 dark:text-slate-600 text-xs">public</span>
+              </ng-template>
+            </td>
+
+            <td class="px-6 py-4 text-center">
+              <span [ngClass]="{
+                'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400': item.actionType === 'nav',
+                'bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400': item.actionType === 'button',
+                'bg-purple-50 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400': item.actionType === 'menu'
+              }" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold">
+                {{ item.actionType }}
+              </span>
+            </td>
+
+            <td class="px-6 py-4 text-sm text-center text-slate-500">
+              {{ item.displayOrder }}
+            </td>
+
+            <td class="px-6 py-4 text-center">
+              <span [ngClass]="item.isActive
+                ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'
+                : 'bg-red-50 text-red-500 dark:bg-red-900/30 dark:text-red-400'"
+                    class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold">
+                {{ item.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+
+            <td class="px-6 py-4 text-right">
+              <app-table-actions [id]="item.id"
+                                 (edit)="openEdit($event)"
+                                 (delete)="openDelete($event)"
+                                 (view)="openEdit($event)">
+              </app-table-actions>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </app-data-table>
+
+    <app-pagination [page]="filters.page"
+                    [pageSize]="filters.pageSize"
+                    [totalPages]="totalPages"
+                    [totalCount]="totalCount"
+                    (pageChange)="onPageChange($event)">
+    </app-pagination>
+  </div>
+
+  <!-- Delete Dialog -->
+  <app-confirm-dialog [isOpen]="isDialogOpen"
+                      [config]="dialogConfig"
+                      (confirmed)="onConfirmed()"
+                      (cancelled)="onCancelled()" />
+
+  <!-- Create Dialog -->
+  <app-confirm-dialog [isOpen]="isCreateDialogOpen"
+                      [config]="createDialogConfig"
+                      (confirmed)="onCreateConfirmed()"
+                      (cancelled)="onCreateCancelled()">
+    <div *ngIf="isCreateDialogOpen" class="w-[60vw] px-8 py-6 space-y-6" [formGroup]="createForm">
+      <ng-container *ngTemplateOutlet="actionForm; context: { form: createForm, mode: 'create' }"></ng-container>
+    </div>
+  </app-confirm-dialog>
+
+  <!-- Edit Dialog -->
+  <app-confirm-dialog [isOpen]="isEditDialogOpen"
+                      [config]="editDialogConfig"
+                      (confirmed)="onEditConfirmed()"
+                      (cancelled)="onEditCancelled()">
+    <div *ngIf="isEditDialogOpen" class="w-[60vw] px-8 py-6 space-y-6" [formGroup]="editForm">
+      <ng-container *ngTemplateOutlet="actionForm; context: { form: editForm, mode: 'edit' }"></ng-container>
+    </div>
+  </app-confirm-dialog>
+</main>
+
+<!-- ── Shared Form Template ──────────────────────────────── -->
+<ng-template #actionForm let-form="form" let-mode="mode">
+  <section class="space-y-4">
+    <div class="flex items-center gap-2 text-primary">
+      <span class="material-symbols-outlined text-sm">info</span>
+      <h3 class="font-label-md text-label-md uppercase tracking-wider">Basic Information</h3>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4" [formGroup]="form">
+
+      <!-- Action Key -->
+      <div class="flex flex-col gap-2">
+        <label class="font-label-md text-label-md text-on-surface-variant">Action Key</label>
+        <input formControlName="actionKey"
+               class="border border-outline-variant rounded-lg px-4 py-3 font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-outline-variant font-mono text-sm"
+               placeholder="e.g. nav.payments" type="text" />
+        <span class="error-msg" *ngIf="isInvalid(form, 'actionKey')">Action key is required.</span>
+      </div>
+
+      <!-- Label -->
+      <div class="flex flex-col gap-2">
+        <label class="font-label-md text-label-md text-on-surface-variant">Label</label>
+        <input formControlName="label"
+               class="border border-outline-variant rounded-lg px-4 py-3 font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-outline-variant"
+               placeholder="e.g. Payments" type="text" />
+        <span class="error-msg" *ngIf="isInvalid(form, 'label')">Label is required.</span>
+      </div>
+
+      <!-- Icon -->
+      <div class="flex flex-col gap-2">
+        <label class="font-label-md text-label-md text-on-surface-variant">Icon (Material Symbol)</label>
+        <input formControlName="icon"
+               class="border border-outline-variant rounded-lg px-4 py-3 font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-outline-variant"
+               placeholder="e.g. payments" type="text" />
+      </div>
+
+      <!-- Route Path -->
+      <div class="flex flex-col gap-2">
+        <label class="font-label-md text-label-md text-on-surface-variant">Route Path</label>
+        <input formControlName="routePath"
+               class="border border-outline-variant rounded-lg px-4 py-3 font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-outline-variant"
+               placeholder="e.g. /payments" type="text" />
+      </div>
+
+      <!-- Permission Required -->
+      <div class="flex flex-col gap-2">
+        <label class="font-label-md text-label-md text-on-surface-variant">Permission Required</label>
+        <input formControlName="permissionRequired"
+               class="border border-outline-variant rounded-lg px-4 py-3 font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-outline-variant"
+               placeholder="e.g. payment:manage" type="text" />
+      </div>
+
+      <!-- Action Type -->
+      <div class="flex flex-col gap-2">
+        <label class="font-label-md text-label-md text-on-surface-variant">Action Type</label>
+        <ng-select formControlName="actionType"
+                   [items]="actionTypeOptions"
+                   bindLabel="label"
+                   bindValue="value"
+                   placeholder="Select type..."
+                   [clearable]="false">
+        </ng-select>
+        <span class="error-msg" *ngIf="isInvalid(form, 'actionType')">Action type is required.</span>
+      </div>
+
+      <!-- Display Order -->
+      <div class="flex flex-col gap-2">
+        <label class="font-label-md text-label-md text-on-surface-variant">Display Order</label>
+        <input formControlName="displayOrder"
+               class="border border-outline-variant rounded-lg px-4 py-3 font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+               type="number" min="0" />
+      </div>
+
+      <!-- Is Active -->
+      <div class="flex flex-col gap-2 justify-center">
+        <label class="flex items-center gap-3 cursor-pointer mt-6">
+          <input formControlName="isActive" type="checkbox"
+                 class="h-5 w-5 rounded border-outline-variant text-primary focus:ring-primary" />
+          <span class="font-body-md text-on-surface-variant">Active</span>
+        </label>
+      </div>
+
+    </div>
+  </section>
+</ng-template>

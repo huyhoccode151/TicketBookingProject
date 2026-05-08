@@ -14,6 +14,9 @@ import { ConfirmDialog, ConfirmDialogConfig } from '../../../shared/ui/confirm-d
 import { ToastService } from '../../../shared/ui/toast/toast.service';
 import { map, Observable, tap } from 'rxjs';
 import { Loader } from '../../../shared/ui/loader/loader';
+import { HasPermissionDirective } from '../../../shared/directives/has-permission-directive';
+import { PermissionService } from '../../../core/services/permission-service';
+import { RouteService } from '../../../core/services/route.service';
 
 @Component({
   selector: 'app-index',
@@ -29,7 +32,8 @@ import { Loader } from '../../../shared/ui/loader/loader';
     CommonModule,
     RouterModule,
     Loader,
-    ConfirmDialog
+    ConfirmDialog,
+    HasPermissionDirective
   ],
   templateUrl: './index.html',
   styleUrl: './index.scss',
@@ -46,14 +50,15 @@ export class Index implements OnInit {
   pageSize = 10;
   totalCount = 0;
   totalPages = 1;
-  filter = {
-    role: '',
-    status: '',
-    loginType: '',
-  };
+  //filter = {
+  role: string = '';
+  status: string = '';
+  loginType: string = '';
+  //};
   userId!: string;
   isDialogOpen = false;
   dialogConfig: ConfirmDialogConfig = { title: '', message: '' };
+  hasManagePermission: boolean = false;
 
   //Bagde style
   getRoleClass(role: string): string {
@@ -76,8 +81,9 @@ export class Index implements OnInit {
 
   //filter-options
   roleOptions = [
-    { label: 'Admin', value: 'admin' },
-    { label: 'Customer', value: 'customer' },
+    { label: 'Organizer', value: 'organizer' },
+    { label: 'Staff', value: 'staff' },
+    { label: 'Customer', value: 'customer' }
   ];
 
   statusOptions = [
@@ -91,23 +97,29 @@ export class Index implements OnInit {
     { label: 'Google', value: 'google' }
   ];
 
+  routeNavigate = inject(RouteService);
   private toast = inject(ToastService);
   private userService = inject(UserService);
   private cdr = inject(ChangeDetectorRef);
   private router = inject(Router);
+  private permissionService = inject(PermissionService);
 
   ngOnInit() {
+    this.hasManagePermission = this.permissionService.has('permission:manage');
+    if (this.hasManagePermission) this.roleOptions.push({ label: 'Admin', value: 'admin' });
     this.getStatUsers();
     this.loadUser();
   }
 
   loadUser() {
-    this.userService.getUser(this.page, this.pageSize, this.searchTemp, this.filter.role, this.filter.status, this.filter.loginType)
+    this.userService.getUser(this.page, this.pageSize, this.searchTemp, this.role, this.status, this.loginType)
       .subscribe(res => {
-        this.users = res.data.items;
-        this.pageSize = res.data.pageSize;
-        this.totalCount = res.data.totalCount;
-        this.totalPages = res.data.totalPages;
+        console.log('API trả về:', res);
+        this.users = res ? res.data.items : [];
+        this.pageSize = res ? res.data.pageSize : 10;
+        this.totalCount = res ? res.data.totalCount : 0;
+        this.totalPages = res ? res.data.totalPages : 1;
+    
         setTimeout(() => {
           this.loading = false;
           this.cdr.detectChanges();
@@ -124,6 +136,21 @@ export class Index implements OnInit {
   onPageChange(p: number) {
     this.page = p;
     this.loadUser();
+  }
+
+  roleFilterChange(role: string) {
+    this.role = role; this.page = 1; this.loadUser();
+    this.cdr.detectChanges();
+  }
+
+  statusFilterChange(status: string) {
+    this.status = status; this.page = 1; this.loadUser();
+    this.cdr.detectChanges();
+  }
+
+  loginTypeFilterChange(loginType: string) {
+    this.loginType = loginType; this.page = 1; this.loadUser();
+    this.cdr.detectChanges();
   }
 
   getStatUsers() {
@@ -157,15 +184,15 @@ export class Index implements OnInit {
 
   editUser(userId: number) {
     console.log('Edit user:', userId);
-    this.router.navigate(['/users/edit', userId]);
+    this.router.navigate(this.routeNavigate.usersEdit(userId));
   }
 
   deleteUser(userId: number) {
     this.userId = userId.toString();
     this.dialogConfig = {
-      title: 'Xóa người dùng',
-      message: 'Bạn có chắc muốn xóa người dùng này không?',
-      detail: `Tài khoản: ${userId}`,
+      title: 'Delete User',
+      message: 'Are you surely to delete this user?',
+      detail: `Account: ${userId}`,
       confirmText: 'Delete',
       cancelText: 'Cancel',
       variant: 'danger',
@@ -178,6 +205,7 @@ export class Index implements OnInit {
     this.userService.deleteUser(this.userId).subscribe({
       next: (res) => {
         this.toast.success('Delete User', 'Deleted User Successfully!!!');
+        this.page = 1;
         this.loadUser();
       },
       error: (err) => {
@@ -194,5 +222,9 @@ export class Index implements OnInit {
 
   viewUser(userId: number) {
     console.log('View user:', userId);
+  }
+
+  onAddUser() {
+    this.router.navigate(this.routeNavigate.usersCreate());
   }
 }

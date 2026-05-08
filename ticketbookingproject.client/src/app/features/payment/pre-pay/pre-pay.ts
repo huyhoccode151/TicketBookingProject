@@ -73,6 +73,7 @@ export class PrePay implements OnInit, OnDestroy {
     this.eventService.getEventById(this.eventId).subscribe({
       next: (res) => {
         const data = res.data;
+        console.log(data);
         this.images = data.posters?.length ? data.posters.map((p: any) => ({
           id: p.id,
           imageUrl: p.imageUrl,

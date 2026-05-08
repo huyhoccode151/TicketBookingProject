@@ -125,43 +125,55 @@ public record AssignRolesRequest
 // ─────────────────────────────────────────────
 public record CreateUserRequest
 {
-    [Required, StringLength(100, MinimumLength = 3)]
+    [Required(ErrorMessage = "User Name is required")]
+    [StringLength(100, MinimumLength = 3, ErrorMessage = "User Name length must be at least 3 characters")]
     public string Username { get; init; } = default!;
 
-    [EmailAddress]
+    [Required(ErrorMessage = "Email is required")]
+    [RegularExpression(@"^[a-zA-Z0-9._%+-]+@gmail\.com$", ErrorMessage = "Only Gmail address is allowed")]
+    [StringLength(255, ErrorMessage = "Email is too long")]
     public string? Email { get; init; }
 
-    [Required, StringLength(100, MinimumLength = 6)]
+    [Required(ErrorMessage = "Password is required")]
+    [StringLength(100, MinimumLength = 8, ErrorMessage = "Password length must be at least 8 characters")]
     public string Password { get; init; } = default!;
 
-    [StringLength(100)]
+    [Required(ErrorMessage = "Confirm password is required")]
+    [Compare("Password", ErrorMessage = "Pass word do not match")]
+    public string ConfirmPassword { get; init; } = default!;
+
+    [Required(ErrorMessage = "First Name is required")]
+    [StringLength(100, MinimumLength = 1, ErrorMessage = "First Name is not valid")]
     public string Firstname { get; init; } = default!;
 
-    [StringLength(100)]
+    [Required(ErrorMessage = "Last Name is required")]
+    [StringLength(100, MinimumLength = 1, ErrorMessage = "Last Name is not valid")]
     public string Lastname { get; init; } = default!;
-
     public Gender? Gender { get; init; }
     public UserStatus Status { get; init; }
     public LoginType LoginType { get; init; }
     public bool IsEmailVerified { get; init; } = false;
 
-    [MinLength(1)]
+    [MinLength(1, ErrorMessage = "Select 1 role")]
     public List<string> Roles { get; init; } = [];
 }
 
 public record UpdateUserRequest
 {
-    [EmailAddress]
+    [RegularExpression(@"^[a-zA-Z0-9._%+-]+@gmail\.com$", ErrorMessage = "Only Gmail address is allowed")]
     public string? Email { get; init; }
 
-    [StringLength(100, MinimumLength = 6)]
-    public string? Password { get; init; }
+    [StringLength(100, MinimumLength = 8, ErrorMessage = "Password length must be at least 8 characters")]
+    public string? Password { get; init; } = default!;
 
-    [StringLength(100)]
-    public string? Firstname { get; init; }
+    [Compare("Password", ErrorMessage = "Pass word do not match")]
+    public string? ConfirmPassword { get; init; } = default!;
 
-    [StringLength(100)]
-    public string? Lastname { get; init; }
+    [StringLength(100, MinimumLength = 1, ErrorMessage = "First Name is not valid")]
+    public string? Firstname { get; init; } = default!;
+
+    [StringLength(100, MinimumLength = 1, ErrorMessage = "Last Name is not valid")]
+    public string? Lastname { get; init; } = default!;
 
     public Gender? Gender { get; init; }
 
@@ -185,4 +197,15 @@ public class UserStatsDto
 
     public int NewUsersThisWeek { get; set; }
     public int NewUsersLastWeek { get; set; }
+}
+
+public record UpdateUserProfile
+{
+    [StringLength(100, MinimumLength = 1, ErrorMessage = "First Name is not valid")]
+    public string? Firstname { get; init; } = default!;
+
+    [StringLength(100, MinimumLength = 1, ErrorMessage = "Last Name is not valid")]
+    public string? Lastname { get; init; } = default!;
+
+    public Gender? Gender { get; init; }
 }

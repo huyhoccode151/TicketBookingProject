@@ -36,7 +36,34 @@ public class UserRepository : BaseRepository<User>, IUserRepository
         => await _db.Users.Include(u => u.Roles).ThenInclude(r => r.Permissions).FirstOrDefaultAsync(u => u.Id == id, ct);
 
     public async Task<User?> GetByUserNameAsync(string username, CancellationToken ct = default)
-    => await _db.Users.Where(u => u.Username == username).FirstOrDefaultAsync(ct);
+    //=> await _db.Users.Where(u => u.Username == username).FirstOrDefaultAsync(ct);
+    {
+        return await _dbset.Where(u => u.Username == username).Select(u => new User
+        {
+            Id = u.Id,
+            Username = u.Username,
+            Email = u.Email,
+            Firstname = u.Firstname,
+            Lastname = u.Lastname,
+            Password = u.Password,
+            AccessFailedCount = u.AccessFailedCount,
+            Gender = u.Gender,
+            Status = u.Status,
+            LoginType = u.LoginType,
+            EmailVerifiedAt = u.EmailVerifiedAt,
+            LockoutEnd = u.LockoutEnd,
+            CreatedAt = u.CreatedAt,
+            UpdatedAt = u.UpdatedAt,
+            DeletedAt = u.DeletedAt,
+        }).FirstOrDefaultAsync(ct);
+    }
+
+    public async Task<List<string>> GetUserRolesAsync(int userId, CancellationToken ct = default)
+    {
+        var roleName = await _dbset.Where(u => u.Id == userId).SelectMany(u => u.Roles.Select(r => r.Name)).ToListAsync(ct);
+
+        return roleName;
+    }
 
     public string? GetJwtConfig(string key) => _cfg.GetSection("Jwt")[key];
     public async Task<User?> UpdateAsync(User user, CancellationToken ct = default)
@@ -46,55 +73,59 @@ public class UserRepository : BaseRepository<User>, IUserRepository
     }
     public async Task<User> CreateAsync(User user, CancellationToken ct = default)
     {
+        user.CreatedAt = DateTime.UtcNow;
         _db.Users.Add(user);
         await _db.SaveChangesAsync(ct);
         return user;
     }
-    public async Task<PagedResponse<User>> GetAllUsers(UserListRequest req)
+    public async Task<(IQueryable<User>, int TotalCount)> GetAllUsers(UserListRequest req, bool IsSuperAdmin = false)
     {
-        var query = _db.Users.Include(u => u.Roles).AsQueryable();
+        var users = _db.Users.Include(u => u.Roles).ThenInclude(r => r.Permissions).AsQueryable();
+
+        if (!IsSuperAdmin) users = users.Where(u => !u.Roles.Any(r => r.Name == "admin"));
+
+        users = users.Where(u => u.Status != UserStatus.SuperAdmin);
 
         if (!string.IsNullOrWhiteSpace(req.Search))
         {
-            query = query.Where(x =>
+            users = users.Where(x =>
             x.Username.Contains(req.Search) ||
             x.Email!.Contains(req.Search));
         }
 
         if (req.Status != null)
         {
-            query = query.Where(x => x.Status == req.Status);
+            users = users.Where(x => x.Status == req.Status);
         }
 
         if (req.Role != null)
         {
-            query = query.Where(r => r.Roles.Any(n => n.Name == req.Role));
+            users = users.Where(r => r.Roles.Any(n => n.Name == req.Role));
         }
 
         if (req.LoginType != null)
         {
-            query = query.Where(l => l.LoginType == req.LoginType);
+            users = users.Where(l => l.LoginType == req.LoginType);
         }    
 
-        if (!string.IsNullOrWhiteSpace(req.SortBy))
-        {
-            if (req.SortDesc) query = query.OrderBy($"{req.SortBy} descending");
-            else query = query.OrderBy(req.SortBy);
-        }
-        else
-        {
-            if (req.SortDesc) query = query.OrderByDescending(x => x.CreatedAt);
-            else query = query.OrderBy(x => x.CreatedAt);
-        }
+        //if (!string.IsNullOrWhiteSpace(req.SortBy))
+        //{
+        //    if (req.SortDesc) users = users.OrderBy($"{req.SortBy} descending");
+        //    else users = users.OrderBy(req.SortBy);
+        //}
+        //else
+        //{
+        //    if (req.SortDesc) users = users.OrderByDescending(x => x.CreatedAt);
+        //    else users = users.OrderBy(x => x.CreatedAt);
+        //}
 
-        var total = await query.CountAsync();
+        var total = await users.CountAsync();
 
-        var users = await query.OrderByDescending(x => x.CreatedAt) //note: hien dang trung orderby, sau sua lai
+        users = users.OrderByDescending(x => x.CreatedAt)
             .Skip((req.Page - 1) * req.PageSize)
-            .Take(req.PageSize)
-            .ToListAsync();
+            .Take(req.PageSize);
 
-        return new PagedResponse<User>(users, req.Page, req.PageSize, total);
+        return (users, total);
     }
     public async Task<bool> SoftDeleteUser(User user, CancellationToken ct = default)
     {
@@ -124,11 +155,6 @@ public class UserRepository : BaseRepository<User>, IUserRepository
         return count;
     }
 
-    public Task<List<string>> GetUserRolesAsync(int userId, CancellationToken ct = default)
-    {
-        throw new NotImplementedException();
-    }
-
     public Task<List<string>> GetRolePermissions(int userId, CancellationToken ct = default)
     {
         var rolePermissions = _db.Users.Where(u => u.Id == userId)
@@ -153,5 +179,34 @@ public class UserRepository : BaseRepository<User>, IUserRepository
             NewUsersThisWeek = await _dbset.CountAsync(u => u.CreatedAt >= thisMonday),
             NewUsersLastWeek = await _dbset.CountAsync(u => u.CreatedAt < thisMonday && u.CreatedAt >= lastMonday),
         };
+    }
+
+    public async Task<List<string>> GetUserName(string? req)
+    {
+        if (!string.IsNullOrWhiteSpace(req)) return await _dbset.Where(u => EF.Functions.Like(u.Username ?? "", $"%{req}%")).Take(10).Select(u => u.Username).ToListAsync();
+        
+        return await _dbset.Select(u => u.Username).ToListAsync();
+    }
+
+    public async Task<User?> GetUserByEmail(string email)
+    {
+        return await _dbset.Where(u => u.Email == email).FirstOrDefaultAsync();
+    }
+
+    public async Task<UserAuthDto> VerifyEmail(User user)
+    {
+        user.EmailVerifiedAt = DateTime.UtcNow;
+        await _db.SaveChangesAsync();
+        return new UserAuthDto
+        (
+            user.Id,
+            user.Username,
+            user.Email!,
+            user.Firstname,
+            user.Lastname,
+            user.Status,
+            user.Roles.Select(r => r.Name).ToList(),
+            user.UserPermissions.Where(u => u.UserId == user.Id).Select(up => up.Permission.Name).ToList()
+        );
     }
 }

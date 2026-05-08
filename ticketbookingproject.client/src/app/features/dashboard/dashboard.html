@@ -1,128 +1,459 @@
-<div class="page-header">
-  <div class="page-title">
-    <h1>System Administrator Dashboard</h1>
-    <p>Real-time platform performance and management overview.</p>
+<main class="dash-main-content">
+  <div *ngIf="loading">
+    <app-loader />
   </div>
-  <div class="page-actions">
-    <button class="btn secondary">
-      <span class="material-symbols-outlined">download</span>
-      Export Report
-    </button>
-    <button class="btn primary">
-      <span class="material-symbols-outlined">add</span>
-      New Announcement
-    </button>
-  </div>
-</div>
+  <div class="dashboard-container" *ngIf="!loading">
+    <div class="page-header">
+      <h1>Admin Dashboard Overview</h1>
+      <p>Welcome back, Curator. Here is your ticketing performance for today.</p>
+    </div>
+    <div class="chart-grid-wrapper">
+      <div class="card lg-col-span-2">
+        <div class="card-header">
+          <div>
+            <h3 class="card-title">Revenue Over Time</h3>
+            <p class="card-subtitle">Daily gross revenue comparison</p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span class="dot" style="background-color: var(--primary);"></span>
+            <span style="font-size: 0.75rem; font-weight: 500; color: #475569;">April 2026</span>
+          </div>
+        </div>
 
-<div class="stats-grid">
-  <div class="stat-card">
-    <div class="stat-header">
-      <div class="stat-icon primary-bg"><span class="material-symbols-outlined">payments</span></div>
-      <span class="trend positive"><span class="material-symbols-outlined">trending_up</span> +12.5%</span>
-    </div>
-    <p class="stat-label">Total Platform Revenue</p>
-    <p class="stat-value">$452,890.00</p>
-  </div>
-  <div class="stat-card">
-    <div class="stat-header">
-      <div class="stat-icon blue-bg"><span class="material-symbols-outlined">event_available</span></div>
-      <span class="trend positive"><span class="material-symbols-outlined">trending_up</span> +5.2%</span>
-    </div>
-    <p class="stat-label">Active Events</p>
-    <p class="stat-value">1,284</p>
-  </div>
-  <div class="stat-card">
-    <div class="stat-header">
-      <div class="stat-icon purple-bg"><span class="material-symbols-outlined">person_add</span></div>
-      <span class="trend positive"><span class="material-symbols-outlined">trending_up</span> +8.1%</span>
-    </div>
-    <p class="stat-label">Total Users</p>
-    <p class="stat-value">42,500</p>
-  </div>
-  <div class="stat-card">
-    <div class="stat-header">
-      <div class="stat-icon orange-bg"><span class="material-symbols-outlined">pending_actions</span></div>
-      <span class="trend negative"><span class="material-symbols-outlined">trending_down</span> -2.3%</span>
-    </div>
-    <p class="stat-label">Pending Approvals</p>
-    <p class="stat-value">18</p>
-  </div>
-</div>
+        <div class="chart-container" style="position: relative; height: 200px;">
+          <div class="chart-grid-bg"></div>
 
-<div class="chart-card">
-  <div class="chart-header">
-    <div class="chart-title">
-      <h3>Platform Growth</h3>
-      <p>User signups & Event creations over the last 6 months</p>
-    </div>
-    <div class="chart-legend">
-      <div class="legend-item"><span class="dot primary-dot"></span> Signups</div>
-      <div class="legend-item"><span class="dot gray-dot"></span> Events</div>
-    </div>
-  </div>
-  <div class="chart-container">
-    <svg preserveAspectRatio="none" viewBox="0 0 1000 250">
-      <defs>
-        <linearGradient id="gradient-chart" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stop-color="#2aa74d" stop-opacity="0.3"></stop>
-          <stop offset="100%" stop-color="#2aa74d" stop-opacity="0"></stop>
-        </linearGradient>
-      </defs>
-      <path d="M0,180 Q100,160 200,190 Q300,220 400,140 Q500,60 600,100 Q700,140 800,80 Q900,20 1000,40 L1000,250 L0,250 Z" fill="url(#gradient-chart)"></path>
-      <path d="M0,180 Q100,160 200,190 Q300,220 400,140 Q500,60 600,100 Q700,140 800,80 Q900,20 1000,40" fill="none" stroke="#2aa74d" stroke-linecap="round" stroke-width="3"></path>
-      <path d="M0,220 Q100,210 200,230 Q300,200 400,210 Q500,180 600,190 Q700,170 800,185 Q900,150 1000,160" fill="none" stroke="#cbd5e1" stroke-dasharray="8,4" stroke-width="2"></path>
-    </svg>
-    <div class="chart-labels">
-      <span>January</span>
-      <span>February</span>
-      <span>March</span>
-      <span>April</span>
-      <span>May</span>
-      <span>June</span>
-    </div>
-  </div>
-</div>
+          <svg preserveAspectRatio="none" style="width: 100%; height: 100%; position: absolute; inset: 0;"
+               viewBox="0 0 100 100">
+            <!-- Vùng đổ màu (Gradient Area) -->
+            <path [attr.d]="areaPath" fill="url(#revGradient)" opacity="0.2"></path>
 
-<div class="activity-card">
-  <div class="activity-header">
-    <h3>Latest Activity</h3>
-    <button class="text-link">View All Activity</button>
-  </div>
-  <div class="table-container">
-    <table>
-      <thead>
-        <tr>
-          <th>Action</th>
-          <th>User / Organizer</th>
-          <th>Subject</th>
-          <th>Status</th>
-          <th>Timestamp</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let activity of activities">
-          <td>
-            <div class="action-cell">
-              <span class="material-symbols-outlined" [style.color]="activity.iconColor">{{activity.icon}}</span>
-              <span class="action-text">{{activity.action}}</span>
+            <!-- Đường kẻ chính (Line) -->
+            <path [attr.d]="linePath" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linejoin="round"></path>
+
+            <defs>
+              <linearGradient id="revGradient" x1="0%" x2="0%" y1="0%" y2="100%">
+                <stop offset="0%" stop-color="var(--primary)"></stop>
+                <stop offset="100%" stop-color="var(--primary)" stop-opacity="0"></stop>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+
+        <!-- Hiển thị nhãn ngày tháng động -->
+        <div class="chart-labels" style="display: flex; justify-content: space-between; margin-top: 10px;">
+          <span *ngFor="let label of labels" style="font-size: 0.75rem; color: #64748b;">
+            {{ label }}
+          </span>
+        </div>
+      </div>
+      <!-- Donut Chart -->
+      <div class="card">
+        <h3 class="card-title" style="margin-bottom: 1.5rem;">Tickets by Event Type</h3>
+
+        <div class="donut-wrapper">
+          <!-- Khu vực biểu đồ -->
+          <div class="donut-svg-container">
+            <svg class="donut-svg" style="width: 100%; height: 100%;" viewBox="0 0 36 36">
+              <!-- Vòng nền xám (Background circle) -->
+              <circle cx="18" cy="18" fill="none" r="15.915" stroke="#e0e3e5" stroke-width="4.5"></circle>
+
+              <!-- Các phân đoạn động -->
+              <circle *ngFor="let s of segments"
+                      cx="18" cy="18" fill="none" r="15.915"
+                      [attr.stroke]="s.color"
+                      stroke-width="4.5"
+                      [attr.stroke-dasharray]="s.dashArray"
+                      [attr.stroke-dashoffset]="s.dashOffset"
+                      style="transition: stroke-dashoffset 0.3s ease;">
+              </circle>
+            </svg>
+
+            <!-- Text ở giữa -->
+            <div class="donut-center-text">
+              <span class="value">{{ totalSold | number }}</span>
+              <span class="label">Total Sold</span>
             </div>
-          </td>
-          <td>
-            <div class="user-cell">
-              <div class="user-avatar">{{activity.userInitials}}</div>
-              <span class="user-name-text">{{activity.user}}</span>
+          </div>
+
+          <!-- Khu vực Chú thích (Legend) -->
+          <div class="legend-grid">
+            <div *ngFor="let s of segments" class="legend-item">
+              <span class="dot" [style.background-color]="s.color"></span>
+              {{ s.label }} ({{ s.percentage }}%)
             </div>
-          </td>
-          <td><span class="subject-text">{{activity.subject}}</span></td>
-          <td><span class="status-badge" [ngClass]="activity.statusClass">{{activity.status}}</span></td>
-          <td><span class="timestamp-text">{{activity.time}}</span></td>
-          <td class="actions-cell">
-            <button class="material-symbols-outlined">more_vert</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Top Performing Events -->
+    <div class="card" style="margin-bottom: 2.5rem;">
+      <div class="card-header">
+        <h3 class="card-title">Top Performing Events</h3>
+        <a href="/events" style="font-size: 0.75rem; font-weight: 600; color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 0.25rem;">
+          View Analytics <span class="material-symbols-outlined" style="font-size: 0.75rem;">open_in_new</span>
+        </a>
+      </div>
+
+      <div class="events-grid">
+        <div *ngFor="let event of events; let i = index" class="event-card">
+
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+            <!-- Thay Icon bằng Ảnh -->
+            <div class="event-image-box" style="width: 48px; height: 48px; border-radius: 12px; overflow: hidden; border: 1px solid #f1f5f9;">
+              <img [src]="event.imageUrl"
+                   [alt]="event.eventName"
+                   style="width: 100%; height: 100%; object-fit: cover;"
+                   onerror="this.src='https://placehold.co/48x48?text=Event'">
+            </div>
+
+            <span class="trending-badge" *ngIf="i === 0">Trending</span>
+          </div>
+
+          <h4 [title]="event.eventName"
+              style="font-weight: 700; font-size: 0.875rem; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            {{ event.eventName }}
+          </h4>
+
+          <div style="display: flex; justify-content: space-between; font-size: 11px;">
+            <span style="color: var(--on-surface-variant);">{{ event.sold | number }} Sold</span>
+            <span style="font-weight: 700;" [style.color]="getEventStyles(i).color">
+              {{ getCapacity(event) }}% Cap.
+            </span>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="progress-bar" style="height: 6px; background-color: #f1f5f9; border-radius: 3px; margin-top: 0.5rem; overflow: hidden;">
+            <div [style.width.%]="getCapacity(event)"
+                 [style.background-color]="getEventStyles(i).color"
+                 style="height: 100%; transition: width 0.5s ease-in-out;">
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <!--<div class="filter-bar">
+    <div class="filter-group">
+      <label class="filter-label">Organizer</label>
+      <div style="position: relative;">
+        <span class="material-symbols-outlined"
+              style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); font-size: 1.125rem; color: #94a3b8;">search</span>
+        <input class="filter-control" style="padding-left: 2.5rem;" type="text"
+               value="Glow Events Co." />
+        <span class="material-symbols-outlined"
+              style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); font-size: 1.125rem; color: #94a3b8;">expand_more</span>
+      </div>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">Event</label>
+      <select class="filter-control">
+        <option>All Active Events</option>
+        <option>Neon Nights Music Fest</option>
+        <option>Corporate Summit 2024</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">Date Range</label>
+      <div style="position: relative;">
+        <span class="material-symbols-outlined"
+              style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); font-size: 1rem; color: #94a3b8;">calendar_month</span>
+        <input class="filter-control" readonly="" style="padding-left: 2.25rem;" type="text"
+               value="Oct 01 - Oct 31, 2024" />
+      </div>
+    </div>
+    <button class="btn-apply">
+      Apply Filters
+      <span class="material-symbols-outlined" style="font-size: 1rem;">filter_list</span>
+    </button>
+  </div>-->
+    <div class="filter-bar">
+      <!-- 1. Filter Organizer -->
+      <div class="filter-group">
+        <label class="filter-label">Organizer</label>
+        <div style="position: relative;">
+          <span class="material-symbols-outlined"
+                style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); font-size: 1.125rem; color: #94a3b8; pointer-events: none; z-index: 1;">
+            person
+          </span>
+          <select class="filter-control"
+                  style="padding-left: 2.5rem; appearance: none;"
+                  [(ngModel)]="filterCriteria.userName">
+            <option value="">All Organizers</option>
+            <option *ngFor="let name of userNames" [value]="name">{{ name }}</option>
+          </select>
+          <span class="material-symbols-outlined"
+                style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); font-size: 1.125rem; color: #94a3b8; pointer-events: none;">
+            expand_more
+          </span>
+        </div>
+      </div>
+
+      <!-- 2. Filter Event -->
+      <div class="filter-group">
+        <label class="filter-label">Event</label>
+        <div style="position: relative;">
+          <select class="filter-control" [(ngModel)]="filterCriteria.eventName" style="appearance: none;">
+            <option value="">All Events</option>
+            <option *ngFor="let event of eventNames" [value]="event">{{ event }}</option>
+          </select>
+          <span class="material-symbols-outlined"
+                style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); font-size: 1.125rem; color: #94a3b8; pointer-events: none;">
+            expand_more
+          </span>
+        </div>
+      </div>
+
+      <!-- 3. Date From -->
+      <div class="filter-group">
+        <label class="filter-label">From</label>
+        <div style="position: relative;">
+          <span class="material-symbols-outlined"
+                style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); font-size: 1.125rem; color: #94a3b8; pointer-events: none;">
+            calendar_today
+          </span>
+          <input class="filter-control"
+                 style="padding-left: 2.5rem;"
+                 type="date"
+                 [(ngModel)]="filterCriteria.dateFrom" />
+        </div>
+      </div>
+
+      <!-- 4. Date To -->
+      <div class="filter-group">
+        <label class="filter-label">To</label>
+        <div style="position: relative;">
+          <span class="material-symbols-outlined"
+                style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); font-size: 1.125rem; color: #94a3b8; pointer-events: none;">
+            event
+          </span>
+          <input class="filter-control"
+                 style="padding-left: 2.5rem;"
+                 type="date"
+                 [(ngModel)]="filterCriteria.dateTo" />
+        </div>
+      </div>
+
+      <!-- 5. Button Apply -->
+      <button class="btn-apply" (click)="onApplyFilters()" style="align-self: flex-end; margin-bottom: 2px;">
+        Apply
+        <span class="material-symbols-outlined" style="font-size: 1rem;">filter_alt</span>
+      </button>
+    </div>
+    <!-- Recent Orders Table -->
+    <!--<div class="table-card">
+    <div class="table-header">
+      <h2 style="font-size: 1.125rem; font-weight: 700;">Recent Orders</h2>
+      <a href="#"
+         style="color: var(--primary); font-size: 0.875rem; font-weight: 600; text-decoration: none;">
+        View
+        All Records
+      </a>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Customer Name</th>
+            <th>Event</th>
+            <th>Tickets</th>
+            <th>Amount</th>
+            <th style="text-align: center;">Status</th>
+            <th style="text-align: right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="tr-hover">
+            <td style="color: var(--primary); font-weight: 500;">#ORD-9421</td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 2rem; height: 2rem; background-color: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #64748b;">
+                  JD
+                </div>
+                <span style="font-weight: 500;">Julianne Doe</span>
+              </div>
+            </td>
+            <td style="color: var(--on-surface-variant);">Neon Nights Music Fest</td>
+            <td>3</td>
+            <td style="font-weight: 700;">$240.00</td>
+            <td style="text-align: center;"><span class="status-pill status-paid">Paid</span></td>
+            <td style="text-align: right;">
+              <span class="material-symbols-outlined"
+                    style="color: #94a3b8; cursor: pointer;">more_vert</span>
+            </td>
+          </tr>
+          <tr class="tr-hover">
+            <td style="color: var(--primary); font-weight: 500;">#ORD-9420</td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 2rem; height: 2rem; background-color: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #64748b;">
+                  MK
+                </div>
+                <span style="font-weight: 500;">Marcus Kane</span>
+              </div>
+            </td>
+            <td style="color: var(--on-surface-variant);">Corporate Summit 2024</td>
+            <td>1</td>
+            <td style="font-weight: 700;">$1,200.00</td>
+            <td style="text-align: center;">
+              <span class="status-pill status-pending">Pending</span>
+            </td>
+            <td style="text-align: right;">
+              <span class="material-symbols-outlined"
+                    style="color: #94a3b8; cursor: pointer;">more_vert</span>
+            </td>
+          </tr>
+          <tr class="tr-hover">
+            <td style="color: var(--primary); font-weight: 500;">#ORD-9419</td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 2rem; height: 2rem; background-color: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #64748b;">
+                  SL
+                </div>
+                <span style="font-weight: 500;">Sarah Lopez</span>
+              </div>
+            </td>
+            <td style="color: var(--on-surface-variant);">The Artisan Expo</td>
+            <td>2</td>
+            <td style="font-weight: 700;">$45.00</td>
+            <td style="text-align: center;">
+              <span class="status-pill status-cancelled">Cancelled</span>
+            </td>
+            <td style="text-align: right;">
+              <span class="material-symbols-outlined"
+                    style="color: #94a3b8; cursor: pointer;">more_vert</span>
+            </td>
+          </tr>
+          <tr class="tr-hover">
+            <td style="color: var(--primary); font-weight: 500;">#ORD-9418</td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 2rem; height: 2rem; background-color: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #64748b;">
+                  TH
+                </div>
+                <span style="font-weight: 500;">Thomas Hill</span>
+              </div>
+            </td>
+            <td style="color: var(--on-surface-variant);">Neon Nights Music Fest</td>
+            <td>4</td>
+            <td style="font-weight: 700;">$320.00</td>
+            <td style="text-align: center;"><span class="status-pill status-paid">Paid</span></td>
+            <td style="text-align: right;">
+              <span class="material-symbols-outlined"
+                    style="color: #94a3b8; cursor: pointer;">more_vert</span>
+            </td>
+          </tr>
+          <tr class="tr-hover" style="border-left: 4px solid var(--primary);">
+            <td style="color: var(--primary); font-weight: 500;">#ORD-9417</td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 2rem; height: 2rem; background-color: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #64748b;">
+                  EL
+                </div>
+                <span style="font-weight: 500;">Elena Vance</span>
+              </div>
+            </td>
+            <td style="color: var(--on-surface-variant);">Underground Jazz Club</td>
+            <td>2</td>
+            <td style="font-weight: 700;">$110.00</td>
+            <td style="text-align: center;"><span class="status-pill status-paid">Paid</span></td>
+            <td style="text-align: right;">
+              <span class="material-symbols-outlined"
+                    style="color: #94a3b8; cursor: pointer;">more_vert</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="padding: 1rem 2rem; background-color: rgba(242, 244, 246, 0.2); display: flex; justify-content: space-between; align-items: center;">
+      <span style="font-size: 11px; font-weight: 500; color: #64748b;">Showing 5 of 1,249 orders</span>
+      <div style="display: flex; gap: 0.5rem;">
+        <span class="material-symbols-outlined"
+              style="color: #94a3b8; cursor: pointer;">chevron_left</span>
+        <span class="material-symbols-outlined"
+              style="color: #334155; cursor: pointer;">chevron_right</span>
+      </div>
+    </div>
+  </div>-->
+    <div class="table-card">
+      <div class="table-header">
+        <h2 style="font-size: 1.125rem; font-weight: 700;">Recent Bookings</h2>
+        <a href="/bookings"
+           style="color: var(--primary); font-size: 0.875rem; font-weight: 600; text-decoration: none;">
+          View All Records
+        </a>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Event</th>
+              <th>Tickets</th>
+              <th>Amount</th>
+              <th style="text-align: center;">Status</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Loop qua danh sách bookings từ API -->
+            <tr *ngFor="let b of bookings" class="tr-hover">
+              <td style="color: var(--primary); font-weight: 500;">#ORD-{{ b.id }}</td>
+              <td>
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                  <!-- Avatar với chữ cái đầu -->
+                  <div style="width: 2rem; height: 2rem; background-color: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #64748b;"
+                       [title]="b.userEmail">
+                    {{ getInitials(b.userFullName) }}
+                  </div>
+                  <div>
+                    <div style="font-weight: 500; line-height: 1;">{{ b.userFullName }}</div>
+                    <div style="font-size: 10px; color: #94a3b8;">{{ b.createdAt | date:'dd/MM/yyyy HH:mm' }}</div>
+                  </div>
+                </div>
+              </td>
+              <td style="color: var(--on-surface-variant);">{{ b.eventName }}</td>
+              <td>{{ b.seatCount }}</td>
+              <td style="font-weight: 700;">{{ b.totalAmount | currency:'VND':'symbol':'1.0-0' }}</td>
+              <td style="text-align: center;">
+                <!-- Gán class động dựa trên status -->
+                <span class="status-pill" [ngClass]="getStatusClass(b.status)">
+                  {{ b.statusLabel }}
+                </span>
+              </td>
+              <td style="text-align: right;">
+                <span class="material-symbols-outlined"
+                      style="color: #94a3b8; cursor: pointer;">more_vert</span>
+              </td>
+            </tr>
+
+            <!-- Hiển thị khi không có dữ liệu -->
+            <tr *ngIf="bookings?.length === 0">
+              <td colspan="7" style="text-align: center; padding: 2rem; color: #94a3b8;">
+                No records found.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Phân trang động -->
+      <div style="padding: 1rem 2rem; background-color: rgba(242, 244, 246, 0.2); display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 11px; font-weight: 500; color: #64748b;">
+          Showing {{ bookings?.length || 0 }} records
+        </span>
+        <div style="display: flex; gap: 0.5rem;">
+          <span class="material-symbols-outlined"
+                style="color: #94a3b8; cursor: pointer;">chevron_left</span>
+          <span class="material-symbols-outlined"
+                style="color: #334155; cursor: pointer;">chevron_right</span>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
+</main>

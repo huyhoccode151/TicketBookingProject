@@ -10,4 +10,5 @@ export const environment = {
     access: 'access_token',
     refresh: 'refresh_token',
   },
+  googleClientId: '455230432669-k0v935bh7dcsj1tonsee46tdq6se7mu4.apps.googleusercontent.com'
 };

@@ -12,54 +12,59 @@ public class EventRepository : BaseRepository<Event>, IEventRepository
     public EventRepository(TicketBookingProjectContext db) : base(db)
     {
     }
-    public async Task<PagedResponse<Event>> GetEventsAsync(EventListRequest request)
+    public async Task<(IQueryable<Event>, int TotalCount)> GetEventsAsync(EventListRequest req, bool published = false, int? organizerId = null)
     {
-        var query = _dbset
-            .Include(e => e.Category)
-            .Include(e => e.Venue)
-            .Include(e => e.Organizer)
-            .Include(e => e.EventPosters)
-            .Include(e => e.TicketTypes).AsQueryable();
+        var events = _dbset.AsQueryable();
 
-        if (!string.IsNullOrWhiteSpace(request.Category)) query = query.Where(c => c.Category.Name == request.Category);
+        if (organizerId != null) events = events.Where(b => b.OrganizerId == organizerId);
 
-        if (request.DatePreset != null)
+        if (published) events = events.Where(e => e.Status == EventStatus.Published);
+
+        if (req.Category != null && req.Category.Any(x => x != null)) events = events.Where(c => req.Category.Contains(c.Category.Name));
+
+        if (req.DatePreset != null)
         {
-            var (from, to) = DateTimeResolve.Resolve(request.DatePreset);
-            query = query.Where(d => (!from.HasValue || d.ActiveAt >= from) && (!to.HasValue || d.EndAt <= to));
-        } else if (request.DateFrom.HasValue && request.DateTo.HasValue)
+            var (from, to) = DateTimeResolve.Resolve(req.DatePreset);
+            events = events.Where(d => (!from.HasValue || d.ActiveAt >= from) && (!to.HasValue || d.EndAt <= to));
+        } else if (req.DateFrom.HasValue && req.DateTo.HasValue)
         {
-            query = query.Where(d => (d.ActiveAt > request.DateFrom) && (d.EndAt <= request.DateTo));
+            events = events.Where(d => (d.ActiveAt > req.DateFrom) && (d.EndAt <= req.DateTo));
         }
 
-        if (!string.IsNullOrWhiteSpace(request.Venue))
+        if (!string.IsNullOrWhiteSpace(req.Venue))
         {
-            query = query.Where(v => v.Venue.Name != null && request.Venue.Contains(v.Venue.Name));
+            events = events.Where(v => v.Venue.Name != null && req.Venue.Contains(v.Venue.Name));
         }
 
-        if (!string.IsNullOrWhiteSpace(request.Search))
+        if (!string.IsNullOrWhiteSpace(req.Search))
         {
-            query = query.Where(s => (s.Name == null || s.Name.Contains(request.Search)));
+            events = events.Where(s => (s.Name == null || s.Name.Contains(req.Search)));
         }
 
-        if (request.Status != null) query = query.Where(s => s.Status == request.Status);
+        if (req.Status != null) events = events.Where(s => s.Status == req.Status);
 
-        if (request.OnSaleOnly == true) query = query.Where(o => o.SaleStartAt <= DateTime.UtcNow && o.SaleEndAt >= DateTime.UtcNow);
+        if (req.OnSaleOnly == true) events = events.Where(o => o.SaleStartAt <= DateTime.UtcNow && o.SaleEndAt >= DateTime.UtcNow);
 
-        if (!string.IsNullOrWhiteSpace(request.SortBy))
-        {
-            if (request.SortDesc) query = query.OrderBy($"{request.SortBy} descending");
-            else query = query.OrderBy(x => x.CreatedAt);
-        }
+        //if (!string.IsNullOrWhiteSpace(req.SortBy))
+        //{
+        //    if (req.SortDesc) events = events.OrderBy($"{req.SortBy} descending");
+        //    else events = events.OrderBy(x => x.CreatedAt);
+        //}
 
-        var total = await query.CountAsync();
+        //if (req.SortDesc == true) events = events.OrderBy(x => x.CreatedAt);
 
-        var events = await query.Skip((request.Page - 1) * request.PageSize).Take(request.PageSize).ToListAsync();
+        events = events.OrderByDescending(x => x.CreatedAt);
 
-        return new PagedResponse<Event>(events, request.Page, request.PageSize, total);
+        var total = await events.CountAsync();
+
+        events = events.Skip((req.Page - 1) * req.PageSize).Take(req.PageSize);
+
+        return (events, total);
     }
 
     public async Task<Event> CreateEventAsync(Event evt) {
+        evt.CreatedAt = DateTime.UtcNow;
+        evt.UpdatedAt = DateTime.UtcNow;
         _dbset.Add(evt);
         return evt;
     }
@@ -232,5 +237,71 @@ public class EventRepository : BaseRepository<Event>, IEventRepository
         .ExecuteUpdateAsync(s => s
             .SetProperty(x => x.BookingId, booking.Id)
         );
+    }
+
+    public async Task<List<EventTrendingResponse>> GetEventTrending()
+    {
+        return await _dbset.Select(e => new
+        {
+            EventName = e.Name,
+
+            ImageUrl = e.EventPosters
+                .Where(p => p.IsPrimary)
+                .Select(p => p.ImageUrl)
+                .FirstOrDefault(),
+
+            Stock = e.TicketTypes
+                .Sum(tt => tt.Quantity),
+
+            Sold = e.TicketTypes
+                .Sum(tt => tt.SoldQuantity)
+        })
+        .OrderByDescending(x => x.Sold)          // trending theo số bán
+        .ThenByDescending(x => x.Stock)          // tie-break
+        .Take(3)
+        .Select(x => new EventTrendingResponse(
+            x.ImageUrl ?? "",                   // tránh null
+            x.EventName ?? "",
+            x.Sold,
+            x.Stock
+        ))
+        .ToListAsync();
+    }
+
+    public async Task<List<(Event Event, string oStatus, string nStatus)>> UpdateEventStatusAuto()
+    {
+        var now = DateTime.UtcNow;
+        var events = await _dbset.Where(e =>
+            (e.Status == EventStatus.Confirm && e.SaleStartAt <= now) ||
+            (e.Status == EventStatus.Published && e.ActiveAt <= now) ||
+            (e.Status == EventStatus.Ongoing && e.EndAt <= now)
+            ).ToListAsync();
+        var changedEvents = new List<(Event Event, string OldStatus, string NewStatus)>(); ;
+
+        foreach (var e in events)
+        {
+            var oldStatus = e.Status;
+            e.Status = e.Status switch
+            {
+                EventStatus.Confirm => EventStatus.Published,
+                EventStatus.Published => EventStatus.Ongoing,
+                EventStatus.Ongoing => EventStatus.Completed,
+                _ => e.Status
+            };
+            e.UpdatedAt = now;
+            changedEvents.Add((e, oldStatus.ToString(), e.Status.ToString()));
+        }
+
+        if (changedEvents.Any())
+            await _db.SaveChangesAsync();
+
+        return changedEvents;
+    }
+
+    public async Task<List<string>> GetEventName(string? req)
+    {
+        if (!string.IsNullOrWhiteSpace(req)) return await _dbset.Where(e => EF.Functions.Like(e.Name ?? "", $"%{req}%")).Take(10).Select(n => n.Name ?? n.Id.ToString()).ToListAsync();
+
+        return await _dbset.Select(n => n.Name ?? n.Id.ToString()).ToListAsync();
     }
 }

@@ -9,7 +9,7 @@
     <app-page-header title="Event Management"
                      subtitle="Manage and monitor all platform participants.">
 
-      <a class="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2" href="/events/create">
+      <a class="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2" [routerLink]="route.eventsCreate()">
 
         <span class="material-symbols-outlined text-base">
           add
@@ -24,26 +24,33 @@
     <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 mb-8">
       <div class="flex flex-col lg:flex-row gap-4 items-center justify-between">
         <app-table-toolbar (search)="onSearch($event)">
-          <app-filter-select label="Category"
+          <!--<app-filter-select label="Category"
                              [options]="categoryOptions"
                              [value]="filter.category"
-                             (valueChange)="filter.category=$event; loadEvent()">
-          </app-filter-select>
+                             (valueChange)="filter.category=$event;  page=1; loadEvent();">
+          </app-filter-select>-->
+          <ng-select [items]="categories"
+                     [(ngModel)]="selectedCategories"
+                     [multiple]="true"
+                     placeholder="Select category..."
+                     (change)="onCategoryFilterChange($event)"
+                     [closeOnSelect]="false">
+          </ng-select>
           <app-filter-select label="Venue"
                              [options]="venueOptions"
                              [value]="filter.venue"
-                             (valueChange)="filter.venue=$event; loadEvent()">
+                             (valueChange)="filter.venue=$event;  page=1; loadEvent();">
           </app-filter-select>
           <app-filter-select label="Status"
                              [options]="statusOptions"
                              [value]="filter.status"
-                             (valueChange)="filter.status=$event; loadEvent()">
+                             (valueChange)="filter.status=$event;  page=1; loadEvent();">
           </app-filter-select>
         </app-table-toolbar>
       </div>
     </div>
     <!-- Event Grid -->
-    <div class="grid grid-cols-1 gap-6">
+    <div class="grid grid-cols-1 gap-6" *ngIf="events">
       <!-- Horizontal Event Card - Matching Image 3 -->
       <div *ngFor="let event of events" class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
         <!-- Top Section -->
@@ -59,11 +66,46 @@
               {{event.name}}
             </h3>
           </div>
-          <app-table-actions [id]="event.id"
-                             (edit)="editEvent($event)"
-                             (delete)="deleteEvent($event)"
-                             (view)="viewEvent($event)">
-          </app-table-actions>
+          <div>
+            <div class="px-6 py-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2">
+
+              <!-- draft → confirm -->
+              <ng-container *hasPermission="'event:confirm'">
+                <button *ngIf="event.status === 'Draft'"
+                        (click)="confirmEvent(event.id)"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold
+                               bg-emerald-50 text-emerald-700 border border-emerald-200
+                               hover:bg-emerald-100 hover:border-emerald-300
+                               dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800
+                               dark:hover:bg-emerald-900/50 transition-colors">
+                  <span class="material-symbols-outlined text-[16px]">check_circle</span>
+                  Confirm
+                </button>
+              </ng-container>
+
+              <!-- draft / published → cancel -->
+              <ng-container *hasPermission="'event:cancel'">
+                <button *ngIf="event.status === 'Draft' || event.status === 'Published'"
+                        (click)="cancelEvent(event.id)"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold
+                               bg-red-50 text-red-700 border border-red-200
+                               hover:bg-red-100 hover:border-red-300
+                               dark:bg-red-900/30 dark:text-red-400 dark:border-red-800
+                               dark:hover:bg-red-900/50 transition-colors">
+                  <span class="material-symbols-outlined text-[16px]">cancel</span>
+                  Cancel
+                </button>
+              </ng-container>
+              <app-table-actions [id]="event.id"
+                                 (edit)="editEvent($event)"
+                                 (delete)="deleteEvent($event)"
+                                 (view)="viewEvent($event)">
+              </app-table-actions>
+            </div>
+
+          </div>
+          
+         
         </div>
         <!-- Bottom Section: Data Points Row -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-6 bg-slate-50/30 dark:bg-slate-800/20">
@@ -128,7 +170,7 @@
     </div>
 
     <!-- Empty State Placeholder -->
-    <div class="mt-12 text-center py-20 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
+    <div class="mt-12 text-center py-20 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl" *ngIf="!events">
       <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
         <span class="material-symbols-outlined text-slate-400 text-3xl">event_busy</span>
       </div>

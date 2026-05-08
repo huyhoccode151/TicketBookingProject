@@ -1,12 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { PageHeader } from '../../../shared/ui/page-header/page-header';
 import { Card } from '../../../shared/ui/card/card';
-import { UserService, passwordMatchValidator } from '../services/user';
+import { passwordMatchValidator, UserService } from '../services/user';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastService } from '../../../shared/ui/toast/toast.service';
 import { Modal } from '../../../shared/ui/modal/modal';
+import { HasPermissionDirective } from '../../../shared/directives/has-permission-directive';
+import { RouteService } from '../../../core/services/route.service';
 
 @Component({
   selector: 'app-create',
@@ -16,14 +18,17 @@ import { Modal } from '../../../shared/ui/modal/modal';
     PageHeader,
     Modal,
     CommonModule,
+    HasPermissionDirective,
     ReactiveFormsModule
   ],
   templateUrl: './create.html',
-  styleUrl: './create.scss',
+  styleUrls: ['./create.scss'],
 })
 export class Create {
   form: FormGroup;
   submitted = false;
+  errorMessage: string = '';
+  routeNavigate = inject(RouteService);
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
@@ -34,9 +39,9 @@ export class Create {
       firstname: ['', Validators.required],
       lastname: ['', Validators.required],
       username: ['', Validators.required],
-      email: ['', Validators.email],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      confirm_password: ['', Validators.required],
+      email: ['', Validators.required, Validators.email],
+      password: ['', [Validators.required, Validators.minLength(8)]],
+      confirmpassword: ['', Validators.required],
       status: [false],
       role: ['', Validators.required],
     },
@@ -58,6 +63,7 @@ export class Create {
       username: v.username,
       email: v.email,
       password: v.password,
+      confirmpassword: v.confirmpassword,
       status: v.status ? 'Active' : 'Inactive',
       roles: [v.role],
       gender: 'Unknown',
@@ -69,18 +75,40 @@ export class Create {
       next: () => {
         this.form.reset();
         this.submitted = false;
-        this.router.navigate(['/users']);
+        this.router.navigate(this.routeNavigate.users());
         this.toast.success('Created User', 'Created user successfully!!!');
       },
       error: (err) => {
-        console.log('FULL ERROR:', err);
-        console.log('VALIDATION:', err.error?.errors);
-        this.toast.error('Create User', 'Create user failed!!!');
+        if (err.status === 400 && err.error.errors) {
+          const serverError = err.error?.errors ;
+          console.log(serverError, 'dfsaf');
+          for (const field in serverError) {
+
+            let controlName = field.toLowerCase();
+
+            const control = this.form.get(controlName);
+
+            if (control) {
+              control.setErrors({ serverError: serverError[field][0] });
+            }
+          }
+
+          //this.
+
+          this.toast.error('Validation failed. Please check your input.');
+        } else {
+          this.errorMessage = err?.error?.message ?? 'An error occured. Please try again.';
+          this.toast.error('Create failed!!!');
+        }
       }
     });
   }
 
   isInvalid(field: string) {
     return this.submitted && this.form.get(field)?.invalid;
+  }
+
+  onNavigateToUsers() {
+    this.router.navigate(this.routeNavigate.users());
   }
 }

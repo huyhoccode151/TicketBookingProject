@@ -1,0 +1,191 @@
+<main class="min-h-screen bg-white">
+
+  <div *ngIf="loading" class="flex items-center justify-center min-h-screen">
+    <app-loader />
+  </div>
+
+  <div *ngIf="!loading">
+
+    <!-- Hero / Search Section -->
+    <section class="bg-[#e3f2f1] py-16 md:py-24">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-[#2b2b2b] leading-tight">
+            Discover Events For All <br class="hidden md:block" /> The Things You Love
+          </h1>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="max-w-5xl mx-auto bg-white p-2 md:p-3 rounded-2xl shadow-xl flex flex-col md:flex-row gap-2 md:items-center">
+          <div class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-2">
+
+            <!-- Search Input -->
+            <div class="relative border-l border-gray-100">
+              <label class="sr-only">Search</label>
+              <input class="w-full border-none focus:ring-0 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg h-12 px-3"
+                     placeholder="Search events..."
+                     type="text"
+                     [(ngModel)]="searchTemp"
+                     (keyup.enter)="onSearch(searchTemp)" />
+            </div>
+
+            <!-- Category -->
+            <!--<div class="relative border-l border-gray-100 hidden md:block">
+    <label class="sr-only">Category</label>
+    <select class="w-full border-none focus:ring-0 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg h-12 px-3"
+            [value]="filter.category"
+            (change)="filter.category=$any($event.target).value; page=1; loadEvent()">
+      <option value="">All Categories</option>
+      <option *ngFor="let c of categoryOptions" [value]="c.value">{{c.label}}</option>
+    </select>
+  </div>-->
+
+            <ng-select [items]="categories"
+                       [(ngModel)]="selectedCategories"
+                       [multiple]="true"
+                       placeholder="Select category..."
+                       (change)="onCategoryFilterChange($event)"
+                       [closeOnSelect]="false">
+            </ng-select>
+
+            <!-- Venue -->
+            <div class="relative">
+              <label class="sr-only">Venue</label>
+              <select class="w-full border-none focus:ring-0 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg h-12 px-3"
+                      [value]="filter.venue"
+                      (change)="filter.venue=$any($event.target).value; page=1; loadEvent()">
+                <option value="">All Venues</option>
+                <option *ngFor="let v of venueOptions" [value]="v.value">{{v.label}}</option>
+              </select>
+            </div>
+
+
+          </div>
+          <button class="bg-[#6abf45] hover:bg-[#5aa33a] text-white px-10 py-3.5 rounded-lg font-bold transition-all shadow-md md:w-auto w-full"
+                  (click)="onSearch(searchTemp)">
+            Find
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filter Bar (Date Presets) -->
+    <section class="py-8 border-b border-gray-100">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center overflow-x-auto hide-scrollbar space-x-3 pb-2">
+          <button *ngFor="let preset of datePresets"
+                  class="whitespace-nowrap px-6 py-2 rounded-full text-sm font-semibold transition-all"
+                  [class.bg-[#2b2b2b]]="datePreset === preset.value"
+                  [class.text-white]="datePreset === preset.value"
+                  [class.bg-gray-100]="datePreset !== preset.value"
+                  [class.text-[#2b2b2b]]="datePreset !== preset.value"
+                  [class.hover:bg-gray-200]="datePreset !== preset.value"
+                  (click)="onDatePreset(preset.value)">
+            {{preset.label}}
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Event Grid -->
+    <section class="py-12">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- No results -->
+        <div *ngIf="events.length === 0"
+             class="text-center py-20 border-2 border-dashed border-slate-200 rounded-xl">
+          <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="material-symbols-outlined text-slate-400 text-3xl">event_busy</span>
+          </div>
+          <p class="text-slate-500 text-sm font-medium">No events found for this filter.</p>
+          <button class="mt-4 text-[#6abf45] font-bold text-sm hover:underline" (click)="clearFilters()">
+            Clear all filters
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <article *ngFor="let event of events"
+                   class="event-card bg-white rounded-xl overflow-hidden border border-gray-100 cursor-pointer"
+                   (click)="viewEvent(event.id)">
+
+            <!-- Image -->
+            <div class="relative aspect-[4/5]">
+              <div class="w-full h-full bg-cover bg-center bg-slate-100"
+                   [style.background-image]="'url(' + getThumbnail(event.thumbnailUrl) + ')'">
+              </div>
+
+              <!-- Bookmark -->
+              <button class="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-md hover:bg-white transition-colors"
+                      (click)="$event.stopPropagation()">
+                <svg class="h-5 w-5 text-[#2b2b2b]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                        stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                </svg>
+              </button>
+
+              <!-- Low stock badge -->
+              <div class="absolute bottom-4 left-4"
+                   *ngIf="getRemainingTickets(event) > 0 && getRemainingTickets(event) <= 10">
+                <span class="bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">
+                  {{getRemainingTickets(event)}} Remaining
+                </span>
+              </div>
+
+              <!-- Sold out badge -->
+              <div class="absolute bottom-4 left-4" *ngIf="getRemainingTickets(event) === 0">
+                <span class="bg-gray-800 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">
+                  Sold Out
+                </span>
+              </div>
+            </div>
+
+            <!-- Info -->
+            <div class="p-5">
+              <p class="text-xs font-bold text-[#6abf45] mb-1 uppercase tracking-wider">
+                {{event.categoryName || 'Event'}}
+              </p>
+              <h3 class="text-lg font-bold text-[#2b2b2b] mb-2 line-clamp-1">{{event.name}}</h3>
+              <div class="flex items-center text-sm text-gray-500 mb-2">
+                <svg class="h-4 w-4 mr-1 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                </svg>
+                <span>{{event.activeAt | date:'d MMM • EEE, h.mm a'}}</span>
+              </div>
+              <p class="text-xl font-extrabold text-[#2b2b2b]">
+                {{event.minPrice | currency:'VND':'symbol':'1.2-2'}} vnd
+              </p>
+            </div>
+
+          </article>
+        </div>
+
+        <!-- Pagination / Load More -->
+        <div class="mt-16 flex flex-col items-center gap-6" *ngIf="events.length > 0">
+          <button *ngIf="page < totalPages"
+                  class="bg-[#6abf45] hover:bg-[#5aa33a] text-white px-12 py-4 rounded-lg font-bold text-lg transition-all shadow-lg transform hover:scale-105 active:scale-95"
+                  (click)="loadMore()">
+            Load More
+          </button>
+
+          <!-- On Sale Toggle -->
+          <label class="inline-flex items-center cursor-pointer">
+            <input class="sr-only peer" type="checkbox"
+                   [checked]="onSale"
+                   (change)="onSale=$any($event.target).checked; page=1; loadEvent()" />
+            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer
+              peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full
+              peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px]
+              after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full
+              after:h-5 after:w-5 after:transition-all peer-checked:bg-[#6abf45]">
+            </div>
+            <span class="ms-3 text-sm font-semibold text-[#2b2b2b]">Only show events on sale</span>
+          </label>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+</main>

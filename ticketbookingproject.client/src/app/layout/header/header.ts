@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, ViewEncapsulation, Output, HostListener, inject } from "@angular/core";
 import { AuthService } from "../../core/services/auth.service";
 import { CommonModule } from "@angular/common";
+import { Router } from "@angular/router";
+import { RouteService } from "../../core/services/route.service";
 @Component({
   selector: 'app-header',
   standalone: true,
@@ -13,6 +15,8 @@ export class Header {
   isDropdownOpen: boolean = false;
 
   private authService = inject(AuthService);
+  private router = inject(Router);
+  private route = inject(RouteService);
 
   toggleDropdown(event: MouseEvent) {
     event.stopPropagation();
@@ -22,6 +26,10 @@ export class Header {
   @HostListener('document:click')
   closeDropdown() {
     this.isDropdownOpen = false;
+  }
+
+  goProfile() {
+    this.router.navigate(this.route.profile());
   }
 
   logout() {

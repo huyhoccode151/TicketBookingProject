@@ -11,6 +11,7 @@ import { ConfirmDialog, ConfirmDialogConfig } from '../../../shared/ui/confirm-d
 import { Router, ActivatedRoute } from '@angular/router';
 import { environment } from '../../../../environments/environments';
 import { Index } from '../index';
+import { RouteService } from '../../../core/services/route.service';
 
 type ImageItem = {
   file?: File;       // undefined = ảnh cũ từ server
@@ -44,6 +45,7 @@ export class Edit implements OnInit, OnDestroy {
   ticketFormEdit!: FormGroup;
   ticketFormCreate!: FormGroup;
   baseUrl = environment.api;
+  routeNavigate = inject(RouteService);
 
   eventId!: number;
   isLoading = true;
@@ -71,6 +73,7 @@ export class Edit implements OnInit, OnDestroy {
   dialogEditConfig: ConfirmDialogConfig = { title: '', message: '' };
   dialogCreateConfig: ConfirmDialogConfig = { title: '', message: '' };
   dialogDeleteConfig: ConfirmDialogConfig = { title: '', message: '' };
+  errorMessage = '';
 
   tickets: Ticket[] = [];
 
@@ -98,6 +101,7 @@ export class Edit implements OnInit, OnDestroy {
         venue: ['', Validators.required],
         description: [''],
         category: ['', Validators.required],
+        images: [[], Validators.required]
       }),
 
       settings: this.fb.group({
@@ -119,16 +123,16 @@ export class Edit implements OnInit, OnDestroy {
 
     this.ticketFormEdit = this.fb.group({
       name: ['', Validators.required],
-      price: [0, Validators.required],
-      quantity: [0, Validators.required],
-      maxPerUser: [0, Validators.required],
+      price: [2000, [Validators.required, Validators.min(1)]],
+      quantity: [1, [Validators.required, Validators.min(1)]],
+      maxPerUser: [1, [Validators.required, Validators.min(1)]],
     });
 
     this.ticketFormCreate = this.fb.group({
       name: ['', Validators.required],
-      price: [0, Validators.required],
-      quantity: [0, Validators.required],
-      maxPerUser: [0, Validators.required],
+      price: [2000, [Validators.required, Validators.min(1)]],
+      quantity: [1, [Validators.required, Validators.min(1)]],
+      maxPerUser: [1, [Validators.required, Validators.min(1)]],
     });
   }
 
@@ -246,6 +250,8 @@ export class Edit implements OnInit, OnDestroy {
           posterId: p.id,
           isExisting: true,
         }));
+        this.updateImagesControl();
+
 
         this.isLoading = false;
         this.cdr.detectChanges();
@@ -292,6 +298,14 @@ export class Edit implements OnInit, OnDestroy {
       const group = this.form.get('details') as FormGroup;
       if (group.invalid) { group.markAllAsTouched(); return; }
     }
+
+    if (this.currentStep == 1) {
+      if (!this.tickets || this.tickets.length === 0) {
+        this.toast.error('You must create at least one ticket!');
+        return;
+      }
+    }
+
     if (this.currentStep === 2) {
       const group = this.form.get('settings') as FormGroup;
       if (group.invalid) { group.markAllAsTouched(); return; }
@@ -356,9 +370,33 @@ export class Edit implements OnInit, OnDestroy {
     this.eventService.updateEvent(this.eventId, formData).subscribe({
       next: () => {
         this.toast.success('Success', 'Event updated successfully!!!');
-        this.router.navigate(['/events']);
+            this.router.navigate(this.routeNavigate.events());
       },
-      error: () => this.toast.error('Error', 'Failed to update event'),
+      error: (err) => {
+        if (err.status === 400 && err.error.errors || err.status === 400 && err.error?.message) {
+          const serverError = err.error?.errors ?? err.error?.message;
+          console.log(serverError, 'dfsaf');
+          for (const field in serverError) {
+
+            let controlName = field.toLowerCase();
+
+            const control = this.form.get(controlName);
+
+            if (control) {
+              control.setErrors({ serverError: serverError[field][0] });
+            }
+            console.log(controlName, 'controlName');
+          }
+          for (const key in serverError) {
+            if (Array.isArray(serverError[key])) {
+              serverError[key].forEach(msg => this.toast.error('Validation failed. Please check your input.', msg));
+            }
+          }
+        } else {
+          this.errorMessage = err?.error?.message ?? 'An error occured. Please try again.';
+          this.toast.error('Validate failed!!!');
+        }
+      }
     });
   }
 
@@ -450,10 +488,23 @@ export class Edit implements OnInit, OnDestroy {
   readFiles(files: FileList): void {
     const remaining = this.MAX_IMAGES - this.images.length;
     Array.from(files).slice(0, remaining).forEach(file => {
-      if (!file.type.startsWith('image/') || file.size > 10 * 1024 * 1024) return;
+      if (!file.type.startsWith('image/')) {
+        this.form.get('details.images')?.setErrors({
+          fileType: 'Only image files are allowed'
+        });
+        return;
+      }
+
+      if (!file.type.startsWith('image/') || file.size > 10 * 1024 * 1024) {
+        this.form.get('details.images')?.setErrors({
+          fileSize: 'Each image must be less than 10MB'
+        });
+        return;
+      }
       const reader = new FileReader();
       reader.onload = () => {
         this.images.push({ file, preview: reader.result as string, isExisting: false });
+        this.updateImagesControl();
         this.cdr.detectChanges();
       };
       reader.readAsDataURL(file);
@@ -462,6 +513,22 @@ export class Edit implements OnInit, OnDestroy {
 
   removeImage(index: number): void {
     this.images.splice(index, 1);
+    this.updateImagesControl();
+  }
+
+  updateImagesControl(): void {
+    const ctrl = this.form.get('details.images');
+    if (!ctrl) return;
+
+    ctrl.setValue(this.images);
+
+    if (this.images.length === 0) {
+      ctrl.setErrors({ required: true });
+    } else {
+      ctrl.setErrors(null);
+    }
+
+    ctrl.updateValueAndValidity();
   }
 
   onDragOver(e: DragEvent): void { e.preventDefault(); this.isDragOver = true; }
@@ -505,6 +572,11 @@ export class Edit implements OnInit, OnDestroy {
 
   // ─── Validation helpers ───────────────────────────────────────────────────────
 
+  isInvalid(controlPath: string): boolean {
+    const control = this.form.get(controlPath);
+    return !!(control && control.invalid && (control.dirty || control.touched));
+  }
+
   getError(controlName: string, errorField: string): string {
     const ctrl = this.form.get(controlName);
     if (!ctrl?.errors || !(ctrl.touched || ctrl.dirty)) return '';
@@ -518,6 +590,8 @@ export class Edit implements OnInit, OnDestroy {
     const ctrl = this.ticketFormEdit.get(controlName);
     if (!ctrl?.errors || !(ctrl.touched || ctrl.dirty)) return '';
     if (ctrl.errors['required']) return `${errorField} is required`;
+    if (ctrl.errors['min']) return `${errorField} must be at least 1`;
+
     return 'Invalid field';
   }
 
@@ -525,6 +599,8 @@ export class Edit implements OnInit, OnDestroy {
     const ctrl = this.ticketFormCreate.get(controlName);
     if (!ctrl?.errors || !(ctrl.touched || ctrl.dirty)) return '';
     if (ctrl.errors['required']) return `${errorField} is required`;
+    if (ctrl.errors['min']) return `${errorField} must be at least 1`;
+
     return 'Invalid field';
   }
 }

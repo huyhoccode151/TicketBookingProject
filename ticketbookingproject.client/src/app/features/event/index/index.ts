@@ -11,8 +11,12 @@ import { ChangeDetectorRef } from '@angular/core';
 import { TableActions } from '../../../shared/ui/table-actions/table-actions';
 import { ConfirmDialog, ConfirmDialogConfig } from '../../../shared/ui/confirm-dialog/confirm-dialog';
 import { ToastService } from '../../../shared/ui/toast/toast.service';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { Loader } from '../../../shared/ui/loader/loader';
+import { HasPermissionDirective } from '../../../shared/directives/has-permission-directive';
+import { RouteService } from '../../../core/services/route.service';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-index',
@@ -26,7 +30,12 @@ import { Loader } from '../../../shared/ui/loader/loader';
     FilterSelect,
     CommonModule,
     Loader,
-    ConfirmDialog
+    HasPermissionDirective,
+    ConfirmDialog,
+    RouterModule,
+    FormsModule,
+    NgSelectModule,
+
   ],
   templateUrl: './index.html',
   styleUrls: ['./index.scss'],
@@ -51,10 +60,17 @@ export class Index {
     category: '',
     status: '',
   }
+  filters = {
+    venue: '',
+    category: [] as string[],
+    status: '',
+  }
   onSale: boolean = false;
   eventId!: number;
   isDialogOpen = false;
   dialogConfig: ConfirmDialogConfig = { title: '', message: '' };
+  selectedCategories: string[] = [];
+  categories: string[] = [];
 
   statusOptions = [
     { label: 'Draft', value: 'draft' },
@@ -66,17 +82,18 @@ export class Index {
 
   private toast = inject(ToastService);
   private router = inject(Router);
+  route = inject(RouteService);
   constructor(private eventService: EventService,
     private cdr: ChangeDetectorRef) { }
 
   ngOnInit() {
-    this.loadEvent();
     this.loadCategory();
     this.loadVenue();
+    this.loadEvent();
   }
 
   loadEvent() {
-    this.eventService.getEvent(this.page, this.pageSize, this.searchTemp, this.filter.venue, this.filter.category, this.filter.status, this.datePreset, this.onSale, this.dateFrom, this.dateTo)
+    this.eventService.getEvent(this.page, this.pageSize, this.searchTemp, this.filter.venue, this.selectedCategories, this.filter.status, this.datePreset, this.onSale, this.dateFrom, this.dateTo)
       .subscribe((res) => {
         this.events = res.data.items;
         this.pageSize = res.data.pageSize;
@@ -97,6 +114,7 @@ export class Index {
           label: item.name,
           value: item.name,
         }));
+        this.categories = res.data.map((item) => item.name);
         this.cdr.markForCheck();
       }
     );
@@ -124,15 +142,15 @@ export class Index {
   }
 
   editEvent(eventId: number) {
-    this.router.navigate(['/events/edit', eventId]);
+    this.router.navigate(this.route.eventsEdit(eventId));
   }
 
   deleteEvent(eventId: number) {
     this.eventId = eventId;
     this.dialogConfig = {
-      title: 'Xóa sự kiện',
-      message: 'Bạn có chắc muốn xóa sự kiện này không?',
-      detail: `Sự kiện: ${eventId}`,
+      title: 'Delete Event',
+      message: 'Are you sure you want to delete this event?',
+      detail: `Event ID: ${eventId}`,
       confirmText: 'Delete',
       cancelText: 'Cancel',
       variant: 'danger',
@@ -145,6 +163,7 @@ export class Index {
     this.eventService.deleteEvent(this.eventId).subscribe({
       next: (res) => {
         this.toast.success('Delete User', 'Deleted User Successfully!!!');
+        this.page = 1;
         this.loadEvent();
       },
       error: (err) => {
@@ -160,7 +179,7 @@ export class Index {
   }
 
   viewEvent(eventId: number) {
-    this.router.navigate(['/events/show', eventId]);
+    this.router.navigate(this.route.customerEventShow(eventId));
   }
 
   //
@@ -176,5 +195,44 @@ export class Index {
 
     // Nếu là link local (/uploads/...)
     return this.baseUrl + url;
+  }
+
+  confirmEvent(eventId: number) {
+    this.eventService.confirmEvent(eventId).subscribe({
+      next: (res) => {
+        this.toast.success('Confirm Event', 'Event confirmed successfully!');
+        this.loadEvent();
+      },
+      error: (err) => {
+        if (err.status === 400 && err.error.errors || err.status === 400 && err.error?.message) {
+          this.toast.error('Validation failed. Please check your input.', err.error?.errors || err.error?.message);
+        } else {
+          this.toast.error('Confirm Event', 'Failed to confirm event.');
+        }
+      }
+    });
+  }
+
+  cancelEvent(eventId: number) {
+    this.eventService.cancelEvent(eventId).subscribe({
+      next: (res) => {
+        this.toast.success('Cancel Event', 'Event cancelled successfully!');
+        this.loadEvent();
+      },
+      error: (err) => {
+        if (err.status === 400 && err.error?.errors || err.status === 400 && err.error?.message) {
+          console.log(err.error?.errors, 'dfsaf');
+          this.toast.error('Validation failed. Please check your input.', err.error?.errors || err.error?.message);
+        } else {
+          this.toast.error('Cancel Event', 'Failed to cancel event.');
+        }
+      }
+    });
+  }
+
+  onCategoryFilterChange(value: string[]) {
+    this.selectedCategories = value ? value : [];
+    this.page = 1;
+    this.loadEvent();
   }
 }

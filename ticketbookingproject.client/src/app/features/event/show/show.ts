@@ -6,6 +6,7 @@ import { EventService } from '../services/event';
 import { environment } from '../../../../environments/environments';
 import { Loader } from '../../../shared/ui/loader/loader';
 import { ToastService } from '../../../shared/ui/toast/toast.service';
+import { RouteService } from '../../../core/services/route.service';
 
 @Component({
   selector: 'app-show',
@@ -20,6 +21,7 @@ export class Show {
   private toast = inject(ToastService);
   private eventService = inject(EventService);
   private cdr = inject(ChangeDetectorRef);
+  routeNavigate = inject(RouteService);
 
   baseUrl = environment.api;
 
@@ -34,7 +36,7 @@ export class Show {
   activeAt: Date = new Date();
   endAt: Date = new Date();
   saleStartAt: Date = new Date();
-  saleEndAt: string = '';
+  saleEndAt: Date = new Date();
 
   bookingEnd: Date = new Date();
 
@@ -67,6 +69,7 @@ export class Show {
     this.eventService.getEventById(this.eventId).subscribe({
       next: (res) => {
         const data = res.data;
+        console.log(data);
 
         this.name = data.name;
         this.description = data.description;
@@ -76,7 +79,7 @@ export class Show {
         this.activeAt = new Date(data.activeAt);
         this.endAt = new Date(data.endAt);
         this.saleStartAt = new Date(data.saleStartAt);
-        this.saleEndAt = data.saleEndAt.toString();
+        this.saleEndAt = new Date(data.saleEndAt);
 
         this.images = data.posters?.length
           ? data.posters.map((p: any) => ({
@@ -86,6 +89,11 @@ export class Show {
           isPrimary: p.isPrimary,
           })) : [{ imageUrl: 'https://picsum.photos/1200/630/?image=375' } as any];
 
+        if (this.timer) {
+          clearInterval(this.timer);
+        }
+        this._startCountdown();
+
         setTimeout(() => {
           this.loading = false,
             this.cdr.detectChanges();
@@ -93,7 +101,7 @@ export class Show {
       },
       error: () => {
         this.toast.error("Load Event Failed!!!");
-        this.router.navigate(['forbidden']);
+        //this.router.navigate(['forbidden']);
       }
     });
   }
@@ -112,7 +120,9 @@ export class Show {
 
   private _startCountdown(): void {
     const pad = (n: number) => String(n).padStart(2, '0');
-    const target = new Date('2026-04-24T19:00:00');
+    //const target = new Date('2026-04-24T19:00:00');
+    const target = this.saleEndAt ?? new Date();
+    console.log('SALE_START_AT', target);  
 
     const tick = () => {
       const diff = Math.max(0, target.getTime() - Date.now());
@@ -123,7 +133,10 @@ export class Show {
       this.cdr.markForCheck();
     };
 
+
     tick();
+    console.log('TICK', this.minutes);
+
     this.timer = setInterval(tick, 1000);
   }
 
@@ -137,6 +150,10 @@ export class Show {
 
   updateTicket(amount: number) {
     this.ticketCount = Math.max(1, this.ticketCount + amount);
+  }
+
+  book() {
+    this.router.navigate(this.routeNavigate.customerEventBooking(this.eventId));
   }
 
   get totalAmount() {

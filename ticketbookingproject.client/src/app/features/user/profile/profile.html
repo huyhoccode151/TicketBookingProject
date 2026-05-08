@@ -1,0 +1,471 @@
+<main class="main-content">
+  <section class="profile-card">
+    <div class="accent-bar"></div>
+    <div class="profile-body">
+      <div class="profile-top">
+        <div class="profile-info">
+          <div class="avatar-icon">
+            <span class="material-symbols-outlined">account_circle</span>
+          </div>
+          <h1>{{ userAuth.firstname }} {{ userAuth.lastname }}</h1>
+          <p>{{ userAuth.email ?? 'No email provided' }}</p>
+        </div>
+        <div class="profile-stats">
+          <button class="edit-btn" (click)="openChangeProfileDialog()">Edit Profile</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+  <div class="tab-navigation">
+    <button [class.active]="activeTab === 'home'" (click)="setTab('home')">Home</button>
+    <button [class.active]="activeTab === 'about'" (click)="setTab('about')">About</button>
+    <!--<button [class.active]="activeTab === 'settings'" (click)="setTab('settings')">Settings</button>
+    <button [class.active]="activeTab === 'orders'" (click)="setTab('orders')">My Orders</button>-->
+  </div>
+  <section class="tabs-container grid grid-cols-1 lg:grid-cols-12 gap-lg mt-sm h-[600px]" *ngIf="activeTab === 'home'">
+    <app-data-table class="lg:col-span-8 bg-white rounded-xl border border-gray-200 shadow-[0px_2px_15px_rgba(0,0,0,0.05)] flex flex-col max-h-full overflow-hidden min-h-0">
+      <div class="shrink-0">
+        <app-table-toolbar (search)="onSearch($event)" />
+      </div>
+
+      <div class="flex-1 overflow-y-auto px-2 min-h-0">
+        <!-- Booking List Content -->
+        <div class="grid grid-cols-1 gap-6">
+          <ng-container *ngFor="let booking of bookings">
+            <div class="group bg-surface-container-lowest rounded-xl overflow-hidden ring-1 ring-outline-variant/15 transition-all duration-300 mb-2"
+                 [class.shadow-xl]="expandedBookingId === booking.id">
+              <div class="flex flex-col md:flex-row h-auto md:h-64 cursor-pointer" (click)="toggleExpand(booking.id)">
+                <div class="relative w-70 md:w-80 h-70 md:h-full overflow-hidden">
+                  <!--<img class="w-70 h-70 object-cover group-hover:scale-105 transition-transform duration-500"
+                  [src]="booking.imageUrl" [alt]="booking.eventName" referrerPolicy="no-referrer" />-->
+                  <div class="absolute inset-0 bg-cover bg-center"
+                       [style.background-image]="'url(' + getThumbnail(booking.imageUrl) + ')'">
+                  </div>
+                  <div class="absolute inset-0 booking-card-overlay flex flex-col justify-end p-6">
+                    <span class="bg-primary/90 text-on-primary text-[10px] font-bold px-3 py-1 rounded-full w-fit mb-2 uppercase tracking-tighter">
+                      {{ booking.id === 9022 ? 'Theater' : booking.id === 9023 ? 'Sports' : 'Concert' }}
+                    </span>
+                    <h3 class="text-xl font-extrabold text-white leading-tight">{{booking.eventName}}</h3>
+                  </div>
+                </div>
+                <div class="flex-1 p-8 flex flex-col justify-between">
+                  <div class="flex justify-between items-start">
+                    <div class="space-y-4">
+                      <div class="flex items-center gap-8">
+                        <div>
+                          <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+                            Date & Time
+                          </p>
+                          <p class="text-sm font-semibold mt-1">{{booking.eventActiveAt | date:'MMM d, yyyy • HH:mm'}}</p>
+                        </div>
+                        <div>
+                          <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+                            Venue Location
+                          </p>
+                          <p class="text-sm font-semibold mt-1">{{booking.venueName}}</p>
+                        </div>
+
+                      </div>
+                    </div>
+                    <div [class]="booking.status === 1 ? 'bg-primary-container text-on-primary-container px-4 py-2 rounded-lg text-sm font-bold' : 'bg-amber-100 text-amber-800 px-4 py-2 rounded-lg text-sm font-bold'">
+                      {{booking.statusLabel}}
+                    </div>
+                  </div>
+                  <div class="flex items-center justify-between border-t border-outline-variant/10 pt-6">
+                    <div class="flex -space-x-3">
+
+                    </div>
+                    <div class="flex items-center gap-4">
+                      <button class="text-primary font-bold text-sm flex items-center gap-1 group/btn">
+                        {{ expandedBookingId === booking.id ? 'Close Details' : 'View Details' }}
+                        <span class="material-symbols-outlined text-base transition-transform"
+                              [class.rotate-90]="expandedBookingId === booking.id">
+                          {{ expandedBookingId === booking.id ? 'expand_more' : 'arrow_forward' }}
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Ticket Table Dropdown -->
+              <div *ngIf="expandedBookingId === booking.id" class="border-t border-outline-variant/10 bg-surface px-8 py-6">
+                <div class="flex items-center justify-between mb-4">
+                  <h4 class="text-sm font-bold flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">confirmation_number</span>
+                    Active Tickets Management
+                  </h4>
+                  <div class="flex gap-2">
+                    <button class="bg-surface-container-lowest px-4 py-1.5 rounded-lg text-xs font-semibold ring-1 ring-outline-variant/20 hover:bg-white transition-colors">
+                      Export
+                      CSV
+                    </button>
+                    <button class="bg-surface-container-lowest px-4 py-1.5 rounded-lg text-xs font-semibold ring-1 ring-outline-variant/20 hover:bg-white transition-colors">
+                      Bulk
+                      Action
+                    </button>
+                  </div>
+                </div>
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left border-separate border-spacing-y-2">
+                    <thead>
+                      <tr class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">
+                        <th class="px-4 py-2">ID</th>
+                        <th class="px-4 py-2">Seat ID</th>
+                        <th class="px-4 py-2">Type</th>
+                        <th class="px-4 py-2">Status</th>
+                        <th class="px-4 py-2">Checked-in Info</th>
+                        <th class="px-4 py-2 text-right">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let ticket of booking.tickets" class="bg-surface-container-lowest hover:bg-white transition-colors group/row">
+                        <td class="px-4 py-3 text-xs font-bold text-primary">#TK-{{ticket.id}}</td>
+                        <td class="text-xs" *ngIf="ticket.seatNumber">{{ticket.sectionName}}, Row {{ticket.row}}, {{ticket.seatNumber}}</td>
+                        <td class="text-xs" *ngIf="!ticket.seatNumber">This is stand-ticket</td>
+                        <td class="px-4 py-3">
+                          <span [class]="ticket.ticketTypeName === 'VIP GOLD' ? 'text-[10px] px-2 py-0.5 rounded bg-amber-50 text-amber-700 font-bold border border-amber-200' : 'text-[10px] px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-bold border border-blue-200'">
+                            {{ticket.ticketTypeName}}
+                          </span>
+                        </td>
+                        <td class="px-4 py-3">
+                          <div class="flex items-center gap-1.5 text-xs font-semibold"
+                               [class.text-green-700]="ticket.status === 1"
+                               [class.text-on-surface-variant]="ticket.status === 2"
+                               [class.text-error]="ticket.status === 3">
+                            <span class="w-1.5 h-1.5 rounded-full"
+                                  [class.bg-green-600]="ticket.status === 1"
+                                  [class.bg-on-surface-variant]="ticket.status === 2"
+                                  [class.bg-error]="ticket.status === 3"></span>
+                            {{ticket.statusLabel}}
+                          </div>
+                        </td>
+                        <td class="px-4 py-3">
+                          <div class="flex flex-col">
+                            <span class="text-xs font-medium">{{ ticket.status === 2 ? '19:42, Oct 24' : 'Not Checked In' }}</span>
+                            <span class="text-[10px] text-on-surface-variant">{{ ticket.status === 2 ? 'By Staff: Sarah J.' : 'Waiting...' }}</span>
+                          </div>
+                        </td>
+                        <td class="px-4 py-3 text-right">
+                          <button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors text-lg">
+                            more_vert
+                          </button>
+                        </td>
+                      </tr>
+                      <tr *ngIf="booking.tickets.length === 0">
+                        <td colspan="6" class="px-4 py-8 text-center text-sm text-on-surface-variant italic">
+                          No tickets found for this booking.
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+
+      </div>
+
+      <div class="shrink-0">
+        <app-pagination [page]="filters.page"
+                        [pageSize]="pageSize"
+                        [totalPages]="totalPages"
+                        [totalCount]="totalCount"
+                        (pageChange)="onPageChange($event)">
+        </app-pagination>
+      </div>
+    </app-data-table>
+
+    <app-data-table class="lg:col-span-4 space-y-lg ml-2">
+      <h2 class="text-sm font-bold uppercase tracking-widest text-on-surface-variant mb-4 mt-4 ml-4 flex items-center gap-2 ">
+        <span class="material-symbols-outlined text-primary">manage_accounts</span>
+        Audit Logs
+      </h2>
+      <table class="w-full text-left border-collapse">
+
+        <thead>
+          <tr class="bg-slate-50 dark:bg-slate-800/50">
+            <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">Action</th>
+            <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">Description</th>
+            <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">Time</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+
+          <tr *ngFor="let log of auditLogs; let i = index"
+              class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+
+            <!-- Action -->
+            <td class="px-6 py-4">
+              <span class="font-semibold text-sm text-blue-600">
+                {{ log.action }}
+              </span>
+            </td>
+
+            <!-- Description -->
+            <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+              {{ log.description }}
+            </td>
+
+            <!-- Time -->
+            <td class="px-6 py-4 text-sm text-slate-500">
+              {{ log.createdAt | date:'dd/MM/yyyy HH:mm' }}
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+    </app-data-table>
+  </section>
+
+  <section *ngIf="activeTab === 'about'" class="mt-sm px-2">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <!-- Card: Personal Info -->
+      <div class="bg-white rounded-xl border border-gray-200 shadow-[0px_2px_15px_rgba(0,0,0,0.05)] p-6">
+        <h2 class="text-sm font-bold uppercase tracking-widest text-on-surface-variant mb-4 flex items-center gap-2">
+          <span class="material-symbols-outlined text-primary">person</span>
+          Personal Information
+        </h2>
+        <div class="space-y-4">
+
+          <div class="flex justify-between items-center border-b border-outline-variant/10 pb-3">
+            <span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Full Name</span>
+            <span class="text-sm font-semibold">{{ userAuth.firstname }} {{ userAuth.lastname }}</span>
+          </div>
+
+          <div class="flex justify-between items-center border-b border-outline-variant/10 pb-3">
+            <span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Username</span>
+            <span class="text-sm font-semibold">@{{ userAuth.username }}</span>
+          </div>
+
+          <div class="flex justify-between items-center border-b border-outline-variant/10 pb-3">
+            <span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Email</span>
+            <span class="text-sm font-semibold">{{ userAuth.email ?? 'No email provided' }}</span>
+          </div>
+
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Member Since</span>
+            <span class="text-sm font-semibold">{{ userAuth.createdAt | date:'MMM d, yyyy' }}</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Card: Account Info -->
+      <div class="bg-white rounded-xl border border-gray-200 shadow-[0px_2px_15px_rgba(0,0,0,0.05)] p-6">
+        <h2 class="text-sm font-bold uppercase tracking-widest text-on-surface-variant mb-4 flex items-center gap-2">
+          <span class="material-symbols-outlined text-primary">manage_accounts</span>
+          Account Details
+        </h2>
+        <div class="space-y-4">
+
+          <div class="flex justify-between items-center border-b border-outline-variant/10 pb-3">
+            <span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Role</span>
+            <span class="bg-primary/10 text-primary text-xs font-bold px-3 py-1 rounded-full uppercase tracking-tight">
+              {{ userAuth.roles }}
+            </span>
+          </div>
+
+          <div class="flex justify-between items-center border-b border-outline-variant/10 pb-3">
+            <span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Status</span>
+            <span [class]="userAuth.status === 'Active'
+            ? 'flex items-center gap-1.5 text-xs font-bold text-green-700'
+            : 'flex items-center gap-1.5 text-xs font-bold text-error'">
+              <span [class]="userAuth.status === 'Active' ? 'w-2 h-2 rounded-full bg-green-500' : 'w-2 h-2 rounded-full bg-error'"></span>
+              {{ userAuth.status }}
+            </span>
+          </div>
+
+          <div class="flex justify-between items-center border-b border-outline-variant/10 pb-3">
+            <span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Login Type</span>
+            <span class="text-sm font-semibold capitalize">{{ userAuth.logintype }}</span>
+          </div>
+
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Verified</span>
+            <span [class]="userAuth.isEmailVerified
+            ? 'flex items-center gap-1.5 text-xs font-bold text-green-700'
+            : 'flex items-center gap-1.5 text-xs font-bold text-amber-600'">
+              <span class="material-symbols-outlined text-base">
+                {{ userAuth.isEmailVerified ? 'verified' : 'pending' }}
+              </span>
+              {{ userAuth.isEmailVerified ? 'Verified' : 'Not Verified' }}
+            </span>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+    <section class="bg-red-50 dark:bg-red-900/10 mt-6 rounded-xl border border-red-100 dark:border-red-900/30 overflow-hidden">
+      <div class="p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h2 class="text-red-800 dark:text-red-400 text-lg font-bold">Danger Zone</h2>
+          <p class="text-red-700/70 dark:text-red-400/60 text-sm">
+            Change your password regularly to keep your account secure.
+          </p>
+          <p class="text-red-700/70 dark:text-red-400/60 text-sm">
+            Make sure to use a strong and unique password that you don't use for other accounts.
+          </p>
+        </div>
+        <a class="flex items-center gap-2 px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-bold transition-all shadow-sm"
+           (click)="openChangePasswordDialog()">
+          <span class="material-symbols-outlined text-[18px]">delete</span> Change Password
+        </a>
+      </div>
+    </section>
+  </section>
+  <app-confirm-dialog [isOpen]="isDialogOpen" [config]="dialogConfig" (confirmed)="onPasswordChangeConfirmed()"
+                      (cancelled)="onPasswordChangeCancelled()">
+    <form [formGroup]="form">
+        <!-- Password -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-medium" for="password">Password</label>
+          <input class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
+                 formControlName="password" placeholder="••••••••" type="password" />
+          <span class="error-msg" *ngIf="isInvalid('password')">
+            <ng-container *ngIf="form.get('password')?.errors?.['required']">Password is required.</ng-container>
+            <ng-container *ngIf="form.get('password')?.errors?.['serverError']">
+              {{ form.get('password')?.errors?.['serverError'] }}
+            </ng-container>
+          </span>
+        </div>
+        <!-- New Password -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-medium" for="newpassword">New Password</label>
+          <input class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
+                 formControlName="newpassword" placeholder="••••••••" type="password" />
+          <span class="error-msg" *ngIf="isInvalid('newpassword')">
+            <ng-container *ngIf="form.get('newpassword')?.errors?.['required']">New Password is required.</ng-container>
+            <ng-container *ngIf="form.get('newpassword')?.errors?.['serverError']">
+              {{ form.get('newpassword')?.errors?.['serverError'] }}
+            </ng-container>
+          </span>
+        </div>
+        <!-- Confirm Password -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-medium" for="confirmpassword">Confirm Password</label>
+          <input class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
+                 formControlName="confirmpassword" placeholder="••••••••" type="password" />
+          <span class="error-msg" *ngIf="isInvalid('confirmpassword')">
+            <ng-container *ngIf="form.get('confirmpassword')?.errors?.['required']">Confirm Password is required.</ng-container>
+            <ng-container *ngIf="form.get('confirmpassword')?.errors?.['serverError']">
+              {{ form.get('confirmpassword')?.errors?.['serverError'] }}
+            </ng-container>
+          </span>
+        </div>
+      
+    </form>
+  </app-confirm-dialog>
+
+  <app-confirm-dialog [isOpen]="isProfileDialogOpen" [config]="profileDialogConfig" (confirmed)="onProfileUpdateConfirmed()"
+                      (cancelled)="onProfileUpdateCancelled()">
+    <form [formGroup]="profileForm">
+
+      <!-- Name Row -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-sm">
+        <!-- First Name -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-medium" for="first_name">First Name</label>
+          <input class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
+                 formControlName="first_name" id="first_name" placeholder="Enter your first name" type="text" />
+          <span class="error-msg" *ngIf="isProfileInvalid('first_name')">
+            <ng-container *ngIf="profileForm.get('first_name')?.errors?.['required']">First Name is required.</ng-container>
+            <ng-container *ngIf="profileForm.get('first_name')?.errors?.['serverError']">
+              {{ profileForm.get('first_name')?.errors?.['serverError'] }}
+            </ng-container>
+          </span>
+        </div>
+        <!-- Last Name -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-medium" for="last_name">Last Name</label>
+          <input class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
+                 formControlName="last_name" id="last_name" placeholder="Enter your last name" type="text" />
+          <span class="error-msg" *ngIf="isProfileInvalid('last_name')">
+            <ng-container *ngIf="profileForm.get('last_name')?.errors?.['required']">Last Name is required.</ng-container>
+            <ng-container *ngIf="profileForm.get('last_name')?.errors?.['serverError']">
+              {{ profileForm.get('last_name')?.errors?.['serverError'] }}
+            </ng-container>
+          </span>
+        </div>
+      </div>
+
+      <!-- Username and Email Row -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-sm">
+        <!-- Username -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-medium" for="username">Username</label>
+          <input class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
+                 formControlName="username" id="username" placeholder="verdant_user_88" type="text" />
+          <span class="error-msg" *ngIf="isProfileInvalid('username')">
+            <ng-container *ngIf="profileForm.get('username')?.errors?.['required']">Username is required.</ng-container>
+            <ng-container *ngIf="profileForm.get('username')?.errors?.['serverError']">
+              {{ profileForm.get('username')?.errors?.['serverError'] }}
+            </ng-container>
+          </span>
+        </div>
+        <!-- Email -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-medium" for="email">Email Address</label>
+          <input class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
+                 formControlName="email" id="email" placeholder="user@verdant-network.com" type="email" />
+          <span class="error-msg" *ngIf="isProfileInvalid('email')">
+            <ng-container *ngIf="profileForm.get('email')?.errors?.['required']">Email Address is required.</ng-container>
+            <ng-container *ngIf="profileForm.get('email')?.errors?.['email']">Email Address is invalid.</ng-container>
+            <ng-container *ngIf="profileForm.get('email')?.errors?.['serverError']">
+              {{ profileForm.get('email')?.errors?.['serverError'] }}
+            </ng-container>
+          </span>
+        </div>
+      </div>
+
+      <!-- Gender -->
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-medium">Gender</label>
+        <div class="flex flex-wrap gap-md">
+          <label class="flex items-center gap-3 cursor-pointer">
+            <input name="gender" type="radio" value="Male" formControlName="gender" />
+            <span class="text-sm">Male</span>
+          </label>
+          <label class="flex items-center gap-3 cursor-pointer">
+            <input name="gender" type="radio" value="Female" formControlName="gender" />
+            <span class="text-sm">Female</span>
+          </label>
+          <label class="flex items-center gap-3 cursor-pointer">
+            <input name="gender" type="radio" value="Unknown" formControlName="gender" />
+            <span class="text-sm">Non-binary</span>
+          </label>
+          <label class="flex items-center gap-3 cursor-pointer">
+            <input name="gender" type="radio" value="Other" formControlName="gender" />
+            <span class="text-sm">Prefer not to say</span>
+          </label>
+        </div>
+        <span class="error-msg" *ngIf="isProfileInvalid('gender')">
+          <ng-container *ngIf="profileForm.get('gender')?.errors?.['required']">Gender is required.</ng-container>
+          <ng-container *ngIf="profileForm.get('gender')?.errors?.['serverError']">
+            {{ profileForm.get('gender')?.errors?.['serverError'] }}
+          </ng-container>
+        </span>
+      </div>
+
+    </form>
+  </app-confirm-dialog>
+
+
+  <footer class="main-footer">
+    <div class="social-links">
+      <a><span class="material-symbols-outlined">public</span></a>
+      <a><span class="material-symbols-outlined">share</span></a>
+      <a><span class="material-symbols-outlined">mail</span></a>
+    </div>
+    <div class="copyright">
+      © 2023 EventPro Global. All rights reserved.
+    </div>
+  </footer>
+</main>

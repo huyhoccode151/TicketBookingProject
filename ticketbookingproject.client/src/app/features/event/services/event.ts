@@ -16,16 +16,19 @@ export class EventService {
   private venueApi = environment.apiUrl + '/Venue';
   constructor(private http: HttpClient) { }
 
-  getEvent(page: number, pageSize: number, searchTemp: string, venue: string, category: string, status: string, datePreset: string, onsale: boolean, dateFrom?: Date | null, dateTo?: Date | null) {
+  getEvent(page: number, pageSize: number, searchTemp: string, venue: string, category: string[], status: string, datePreset: string, onsale: boolean, dateFrom?: Date | null, dateTo?: Date | null) {
     let params = new HttpParams()
       .set('Page', page)
       .set('PageSize', pageSize)
       .set('Search', searchTemp)
       .set('Venue', venue)
-      .set('Category', category)
       .set('Status', status)
       .set('DatePreset', datePreset)
       .set('OnSaleOnly', onsale);
+
+    category.forEach(c => {
+      params = params.append("Category", c);
+    });
 
     if (dateFrom) {
       params = params.set('DateFrom', dateFrom.toISOString());
@@ -92,5 +95,13 @@ export class EventService {
   //sau này nếu phát triển thêm chọn từng ghế ngồi sẽ sửa lại đầu vào của api!!!
   createBooking(selectedBookings: CreateBooking[]) {
     return this.http.post<ApiResponse<BookingResponse>>(`${this.bookApi}`, { items: selectedBookings });
+  }
+
+  confirmEvent(id: number) {
+    return this.http.patch(`${this.api}/${id}/status`, { status: 'Confirm' });
+  }
+
+  cancelEvent(id: number) {
+    return this.http.patch(`${this.api}/${id}/status`, { status: 'Cancelled' });
   }
 }

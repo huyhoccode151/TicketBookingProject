@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TicketBookingProject.Server;
+using TicketBookingProject.Server.Common.Extensions;
 
 namespace MyApp.Namespace
 {
@@ -9,14 +11,20 @@ namespace MyApp.Namespace
     public class UserController : ControllerBase
     {
         private readonly IUserService _user;
-        public UserController(IUserService user) => _user = user;
+        public UserController(IUserService user)
+        {
+            _user = user;
+        }
 
+        
         [HttpGet]
+        [Authorize(Roles = "admin")]
+        [HasPermission("user:manage")]
         public async Task<IActionResult> ListUser([FromQuery] UserListRequest req)
         {
             var pagedUsers = await _user.GetListUserAsync(req);
-            if (pagedUsers == null) return NotFound(ApiResponse<PagedResponse<UserListItemResponse>>.Fail("Cant found any user"));
-            return Ok(ApiResponse<PagedResponse<UserListItemResponse>>.Ok(pagedUsers));
+            
+            return pagedUsers.ToActionResult();
         }
 
         [HttpGet("{id}")]
@@ -28,11 +36,13 @@ namespace MyApp.Namespace
         }
 
         [HttpPatch("{id}")]
+        [Authorize(Roles = "admin")]
+        [HasPermission("user:update")]
         public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserRequest req)
         {
             var userUpdated = await _user.UpdateUserAsync(id, req);
-            if (userUpdated == null) return NotFound();
-            return Ok(ApiResponse<UserDetailResponse>.Ok(userUpdated, "Update successed!!!"));
+            
+            return userUpdated.ToActionResult();
         }
 
         [HttpPatch("{id}/password")]
@@ -42,30 +52,46 @@ namespace MyApp.Namespace
             return Ok(ApiResponse.Ok("Password changed"));
         }
 
+        [HttpPatch("change-password")]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest req)
+        {
+            var user = await _user.ChangePassword(req);
+
+            return user.ToActionResult();
+        }
+
         [HttpPost]
+        [Authorize(Roles = "admin")]
+        [HasPermission("user:create")]
         public async Task<IActionResult> AddUser([FromBody] CreateUserRequest req)
         {
             var user = await _user.StoreUserAsync(req);
-            if (user == null) return Ok();
-            return Ok(ApiResponse<UserDetailResponse>.Ok(user, "User added successfully!!!"));
+
+            return user.ToActionResult();
         }
 
         [HttpPost("sign-up")]
-        public async Task<IActionResult> RegisterUser([FromBody] RegisterUserRequest req)
+        public async Task<IActionResult> RegisterUser([FromBody] RegisterRequest req)
         {
             var user = await _user.RegisterUserAsync(req);
-            if (user == null) return Ok();
-            return Ok(ApiResponse<UserDetailResponse>.Ok(user, "User added successfully!!!"));
+
+            return user.ToActionResult();
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "admin")]
+        [HasPermission("user:delete")]
         public async Task<IActionResult> DeleteUser(int id)
         {
             var user = await _user.DeleteUserAsync(id);
-            return Ok(ApiResponse.Ok("Success deleted!!!"));
+
+            return user.ToActionResult();
         }
 
         [HttpPost("{id}/permissions")]
+        [Authorize(Roles = "admin")]
+        [HasPermission("permission:manage")]
         public async Task<IActionResult> AssignPermissionToUser(int id, [FromBody] AssignPermissionRequest req)
         {
             var user = await _user.AssignPermissionToUserAsync(id, req);
@@ -88,10 +114,28 @@ namespace MyApp.Namespace
         }
 
         [HttpGet("stats")]
+        [Authorize(Roles = "admin")]
+        [HasPermission("user:manage")]
         public async Task<IActionResult> GetStatUsers()
         {
             var userStats = await _user.GetUserStats();
             return Ok(ApiResponse< UserStatsDto >.Ok(userStats, "Get user stats successfully!!!"));
+        }
+
+        [HttpGet("name")]
+        public async Task<IActionResult> GetUserName([FromQuery] string? req)
+        {
+            var userNames = await _user.GetUserName(req);
+
+            return Ok(ApiResponse<List<string>>.Ok(userNames, "Load User name search successfully!!!"));
+        }
+
+        [HttpPatch("profile")]
+        [Authorize]
+        public async Task<IActionResult> UpdateUserProfile([FromBody] UpdateUserProfile req)
+        {
+            var user = await _user.UpdateUserProfileAsync(req);
+            return user.ToActionResult();
         }
     }
 }

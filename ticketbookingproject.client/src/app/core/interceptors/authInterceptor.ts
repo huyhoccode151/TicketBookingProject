@@ -3,20 +3,20 @@ import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, filter, Observable, switchMap, take, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
-export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const token = localStorage.getItem('access_token');
+//export const authInterceptor: HttpInterceptorFn = (req, next) => {
+//  const token = localStorage.getItem('access_token');
 
-  if (token) {
-    const cloned = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-    return next(cloned);
-  }
+//  if (token) {
+//    const cloned = req.clone({
+//      setHeaders: {
+//        Authorization: `Bearer ${token}`
+//      }
+//    });
+//    return next(cloned);
+//  }
 
-  return next(req);
-};
+//  return next(req);
+//};
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -26,12 +26,22 @@ export class AuthInterceptor implements HttpInterceptor {
   private auth = inject(AuthService);
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    const publicUrls = ['/login', '/sign-up'];
+    if (publicUrls.some(url => req.url.includes(url))) {
+      return next.handle(req);
+    }
+
     const token = localStorage.getItem('access_token');
     const authReq = token ? this.addToken(req, token) : req;
 
+    if (!token) {
+      this.auth.logout();
+      return throwError(() => new Error('No token'));
+    }
+
     return next.handle(authReq).pipe(
       catchError(err => {
-        if (err instanceof HttpErrorResponse && err.status === 401) {
+        if ((err instanceof HttpErrorResponse && err.status === 401) || this.isUnauthorizedException(err)) {
           return this.handle401(req, next);
         }
         return throwError(() => err);
@@ -62,7 +72,11 @@ export class AuthInterceptor implements HttpInterceptor {
       }),
       catchError(err => {
         this.isRefreshing = false;
-        this.auth.logout();
+
+        if (err.status === 401 || err.status === 403 || !err.status) {
+          this.auth.logout();
+        }
+
         return throwError(() => err);
       })
     )
@@ -72,5 +86,10 @@ export class AuthInterceptor implements HttpInterceptor {
     return req.clone({
       setHeaders: { Authorization: `Bearer ${token}` }
     });
+  }
+
+  private isUnauthorizedException(error: HttpErrorResponse): boolean {
+    return error.status === 500 &&
+      error.error?.includes?.('UnauthorizedAccessException');
   }
 }
