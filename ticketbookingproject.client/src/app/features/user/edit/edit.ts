@@ -52,7 +52,7 @@ export class Edit implements OnInit {
       username: [{ value:'', disabled: true }],
       email: [{ value: '', disabled: true }, Validators.email],
       password: [null],
-      confirm_password: [null],
+      confirmpassword: [null],
       status: [false],
       role: [''],
     },
@@ -109,6 +109,7 @@ export class Edit implements OnInit {
       username: v.username,
       email: v.email,
       password: v.password,
+      confirmpassword: v.confirmpassword,
       status: v.status ? 'Active' : 'Inactive',
       roles: v.role ? [v.role] : null,
       gender: 'Unknown',
@@ -232,8 +233,9 @@ export class Edit implements OnInit {
         this.toast.success('Permissions', 'Updated permissions successfully!');
         this.isPermissionDialogOpen = false;
       },
-      error: () => {
-        this.toast.error('Permissions', 'Update permissions failed!');
+      error: (err) => {
+        this.toast.error("Permission", err?.error?.errors?.Permissions[0]);
+        //this.toast.error('Permissions', 'Update permissions failed!');
       }
     });
   }

@@ -1,5 +1,6 @@
 export interface AdminBookingListRequest {
   searchTemp: string;
+  eventName: string;
   status: string;
   dateFrom: string;
   dateTo: string;

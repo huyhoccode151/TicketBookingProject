@@ -16,7 +16,7 @@ export class EventService {
   private venueApi = environment.apiUrl + '/Venue';
   constructor(private http: HttpClient) { }
 
-  getEvent(page: number, pageSize: number, searchTemp: string, venue: string, category: string[], status: string, datePreset: string, onsale: boolean, dateFrom?: Date | null, dateTo?: Date | null) {
+  getEvent(page: number, pageSize: number, searchTemp: string, venue: string, category: string[], status: string, datePreset: string, onsale: boolean, dateFrom?: string, dateTo?: string) {
     let params = new HttpParams()
       .set('Page', page)
       .set('PageSize', pageSize)
@@ -31,16 +31,24 @@ export class EventService {
     });
 
     if (dateFrom) {
-      params = params.set('DateFrom', dateFrom.toISOString());
+      params = params.set('DateFrom', dateFrom);
     }
 
     if (dateTo) {
-      params = params.set('DateTo', dateTo.toISOString());
+      params = params.set('DateTo', dateTo);
     }
 
     return this.http.get<ApiResponse<PagedResult<Event>>>(this.api, { params });
   }
   //note: careful venue & category need to set repo to active -> filterbyname
+
+  getEventNames(search?: string) {
+    let params = new HttpParams();
+    if (search) {
+      params = params.set('search', search);
+    }
+    return this.http.get<ApiResponse<string[]>>(`${this.api}/event-name`, { params });
+  }
 
   getCategory() {
       const params = new HttpParams();
@@ -101,7 +109,23 @@ export class EventService {
     return this.http.patch(`${this.api}/${id}/status`, { status: 'Confirm' });
   }
 
+  draftEvent(id: number) {
+    return this.http.patch(`${this.api}/${id}/status`, { status: 'Draft' });
+  }
+
   cancelEvent(id: number) {
     return this.http.patch(`${this.api}/${id}/status`, { status: 'Cancelled' });
+  }
+
+  subscribeEvent(id: number) {
+    return this.http.post(`${this.api}/${id}/subscribe`, id);
+  }
+
+  unsubscribeEvent(id: number) {
+    return this.http.delete(`${this.api}/${id}/unSubscribe`);
+  }
+
+  getFavEvent() {
+    return this.http.get<ApiResponse<Event[]>>(`${this.api}/fav`);
   }
 }

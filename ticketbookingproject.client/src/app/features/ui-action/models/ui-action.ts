@@ -2,14 +2,14 @@ export interface UIActionResponse {
   id: number;
   actionKey: string;
   label: string;
-  icon?: string | null;
-  routePath?: string | null;
-  permissionRequired?: string | null;
+  icon: string;
+  routePath: string
+  permissionRequired: string;
   actionType: string;
-  parentId?: number | null;
+  parentId: number;
   displayOrder: number;
   isActive: boolean;
-  children?: UIActionResponse[];
+  children: UIActionResponse[];
 }
 
 export interface UIActionRequest {

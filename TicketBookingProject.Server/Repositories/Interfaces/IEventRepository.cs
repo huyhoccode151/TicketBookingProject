@@ -5,6 +5,7 @@ namespace TicketBookingProject.Server;
 public interface IEventRepository : IBaseRepository<Event>
 {
     Task<(IQueryable<Event>, int TotalCount)> GetEventsAsync(EventListRequest req, bool published = false, int? organizerId = null);
+    Task<IQueryable<Event>> GetFavEvent(int currentUserId);
     Task<Event> CreateEventAsync(Event evt);
     Task AddEventWithPosters(Event evt, List<UploadPosterRequest> posters);
     Task AddTicketTypeWithPoster(Event evt, List<TicketType> ticketTypes);

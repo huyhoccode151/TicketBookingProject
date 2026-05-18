@@ -31,14 +31,14 @@
 
             <!-- Category -->
             <!--<div class="relative border-l border-gray-100 hidden md:block">
-    <label class="sr-only">Category</label>
-    <select class="w-full border-none focus:ring-0 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg h-12 px-3"
-            [value]="filter.category"
-            (change)="filter.category=$any($event.target).value; page=1; loadEvent()">
-      <option value="">All Categories</option>
-      <option *ngFor="let c of categoryOptions" [value]="c.value">{{c.label}}</option>
-    </select>
-  </div>-->
+              <label class="sr-only">Category</label>
+              <select class="w-full border-none focus:ring-0 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg h-12 px-3"
+                      [value]="filter.category"
+                      (change)="filter.category=$any($event.target).value; page=1; loadEvent()">
+                <option value="">All Categories</option>
+                <option *ngFor="let c of categoryOptions" [value]="c.value">{{c.label}}</option>
+              </select>
+            </div>-->
 
             <ng-select [items]="categories"
                        [(ngModel)]="selectedCategories"
@@ -58,7 +58,6 @@
                 <option *ngFor="let v of venueOptions" [value]="v.value">{{v.label}}</option>
               </select>
             </div>
-
 
           </div>
           <button class="bg-[#6abf45] hover:bg-[#5aa33a] text-white px-10 py-3.5 rounded-lg font-bold transition-all shadow-md md:w-auto w-full"
@@ -115,14 +114,21 @@
               </div>
 
               <!-- Bookmark -->
-              <button class="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-md hover:bg-white transition-colors"
-                      (click)="$event.stopPropagation()">
-                <svg class="h-5 w-5 text-[#2b2b2b]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
-                        stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                </svg>
-              </button>
-
+              <ng-container *ngIf="!event.isSubscribe">
+                <button class="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-md hover:bg-white transition-colors"
+                        (click)="openDialogSubscribe(event.id, event.name); $event.stopPropagation()">
+                  <svg class="h-5 w-5 text-[#2b2b2b]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                          stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                  </svg>
+                </button>
+              </ng-container>
+              <ng-container *ngIf="event.isSubscribe">
+                <button class="absolute top-4 right-4 w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#316b00] shadow-md"
+                        (click)="openDialogUnSubscribe(event.id, event.name); $event.stopPropagation()">
+                  <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">bookmark</span>
+                </button>
+              </ng-container>
               <!-- Low stock badge -->
               <div class="absolute bottom-4 left-4"
                    *ngIf="getRemainingTickets(event) > 0 && getRemainingTickets(event) <= 10">
@@ -153,7 +159,7 @@
                 <span>{{event.activeAt | date:'d MMM • EEE, h.mm a'}}</span>
               </div>
               <p class="text-xl font-extrabold text-[#2b2b2b]">
-                {{event.minPrice | currency:'VND':'symbol':'1.2-2'}} vnd
+                {{event.minPrice | currency:'VND':'symbol':'1.0-0'}} Vnd
               </p>
             </div>
 
@@ -187,5 +193,8 @@
     </section>
 
   </div>
-
+  <app-confirm-dialog [isOpen]="isOpenDialog" [config]="subscribeDialogConfig" (confirmed)="subscribeNotiFromEvent()"
+                      (cancelled)="onCancelled()" />
+  <app-confirm-dialog [isOpen]="isOpenUnSubscribeDialog" [config]="unSubscribeDialogConfig" (confirmed)="unSubscribeNotiFromEvent()"
+                      (cancelled)="onCancelled()" />
 </main>

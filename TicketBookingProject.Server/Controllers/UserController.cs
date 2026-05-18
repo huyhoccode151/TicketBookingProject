@@ -137,5 +137,13 @@ namespace MyApp.Namespace
             var user = await _user.UpdateUserProfileAsync(req);
             return user.ToActionResult();
         }
+
+        [HttpGet("userEvents")]
+        public async Task<IActionResult> GetUserEvent()
+        {
+            await _user.GetEventOfUser();
+
+            return Ok();
+        }
     }
 }

@@ -21,6 +21,7 @@ export class BookingService {
   getListBooking(req: AdminBookingListRequest) {
     const params = new HttpParams()
       .set('Search', req.searchTemp)
+      .set('EventName', req.eventName)
       .set('Status', req.status)
       .set('Page', req.page)
       .set('PageSize', req.pageSize)

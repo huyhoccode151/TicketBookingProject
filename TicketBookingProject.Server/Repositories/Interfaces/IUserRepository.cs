@@ -22,4 +22,5 @@ public interface IUserRepository : IBaseRepository<User>
     Task<List<string>> GetUserName(string? req);
     Task<UserAuthDto> VerifyEmail(User user);
     Task<User?> GetUserByEmail(string email);
+    Task UserEvent(int id);
 }

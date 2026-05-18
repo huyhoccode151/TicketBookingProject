@@ -1,7 +1,7 @@
 <div class="app-container">
-  <app-header> </app-header>
+  <app-header [actions]="actions()"> </app-header>
   <div class="layout-body">
-    <app-sidebar></app-sidebar>
+    <app-sidebar [actions]="actions()"></app-sidebar>
     <main class="main-content">
       <router-outlet></router-outlet>
     </main>

@@ -49,6 +49,15 @@ public class BookingService : IBookingService
         return bookings;
     }
 
+    public async Task<Result<BookingTicketDetails>> GetMyBookingPending()
+    {
+        var currentUserId = _currentUser.UserId ?? 0;
+        var booking = await _bookingRepo.GetMyBookingPending(currentUserId);
+        if (booking == null) return Result<BookingTicketDetails>.Success(new BookingTicketDetails(), "Has no Booking Detail");
+
+        return Result<BookingTicketDetails>.Success(booking, "Retrived booking pending!!!");
+    }
+
     public async Task<Result<PagedResponse<AdminBookingListItemResponse>>> GetListBooking(AdminBookingListRequest req)
     {
         var currentOrganizerId = _currentUser.UserId;

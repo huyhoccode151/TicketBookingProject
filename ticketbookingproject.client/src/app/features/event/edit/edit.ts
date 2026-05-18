@@ -12,6 +12,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { environment } from '../../../../environments/environments';
 import { Index } from '../index';
 import { RouteService } from '../../../core/services/route.service';
+import { disabled } from '@angular/forms/signals';
 
 type ImageItem = {
   file?: File;       // undefined = ảnh cũ từ server
@@ -59,6 +60,10 @@ export class Edit implements OnInit, OnDestroy {
   currentStep = 0;
   MAX_IMAGES = 10;
 
+  isPastEvent = false;
+  isPastBookingStart = false;
+  isPastBookingEnd = false;
+
   images: ImageItem[] = [];
   isDragOver = false;
   listDeleteImageIds: number[] = [];
@@ -74,6 +79,7 @@ export class Edit implements OnInit, OnDestroy {
   dialogCreateConfig: ConfirmDialogConfig = { title: '', message: '' };
   dialogDeleteConfig: ConfirmDialogConfig = { title: '', message: '' };
   errorMessage = '';
+  formattedPrice = '';
 
   tickets: Ticket[] = [];
 
@@ -123,14 +129,14 @@ export class Edit implements OnInit, OnDestroy {
 
     this.ticketFormEdit = this.fb.group({
       name: ['', Validators.required],
-      price: [2000, [Validators.required, Validators.min(1)]],
+      price: [2000, [Validators.required, Validators.min(2000)]],
       quantity: [1, [Validators.required, Validators.min(1)]],
       maxPerUser: [1, [Validators.required, Validators.min(1)]],
     });
 
     this.ticketFormCreate = this.fb.group({
       name: ['', Validators.required],
-      price: [2000, [Validators.required, Validators.min(1)]],
+      price: [2000, [Validators.required, Validators.min(2000)]],
       quantity: [1, [Validators.required, Validators.min(1)]],
       maxPerUser: [1, [Validators.required, Validators.min(1)]],
     });
@@ -140,7 +146,16 @@ export class Edit implements OnInit, OnDestroy {
     // Validate endTime > startTime
     this.subs.add(
       this.form.get('details')?.valueChanges.subscribe(val => {
-        if (val.startTime && val.endTime && new Date(val.startTime) > new Date(val.endTime)) {
+        const minDate = new Date();
+        minDate.setDate(minDate.getDate() + 3);
+        const startDate = new Date(val.startTime);
+
+        if (startDate < minDate) {
+          this.form.get('details.startTime')?.setErrors({ invalidTime: true });
+          this.form.get('details.startTime')?.markAsTouched();
+        }
+
+        if (startDate && val.endTime && new Date(val.startTime) >= new Date(val.endTime)) {
           this.form.get('details.endTime')?.setErrors({ invalidRange: true });
         } else {
           this.form.get('details.endTime')?.setErrors(null);
@@ -160,6 +175,7 @@ export class Edit implements OnInit, OnDestroy {
           group.get('date')?.setValidators(Validators.required);
         }
         group.get('date')?.updateValueAndValidity();
+
       })
     );
 
@@ -175,6 +191,44 @@ export class Edit implements OnInit, OnDestroy {
           group.get('date')?.setValidators(Validators.required);
         }
         group.get('date')?.updateValueAndValidity();
+      })
+    );
+
+    this.subs.add(
+      this.form.get('settings')!.valueChanges.subscribe(settings => {
+        if (settings.bookingStart.date && settings.bookingEnd.date) {
+          const minDate = new Date();
+          const start = new Date(settings.bookingStart.date);
+          const end = new Date(settings.bookingEnd.date);
+          const startTime = settings.bookingStart.time || '00:00';
+          const endTime = settings.bookingEnd.time || '00:00';
+
+          if (start < minDate) {
+            this.form.get('settings.bookingStart.date')?.setErrors({ invalidTime: true });
+            this.form.get('settings.bookingStart.date')?.markAsTouched();
+          }
+
+          if (start > end && startTime > endTime) {
+            this.form.get('settings.bookingEnd.date')?.setErrors({ invalidBookingRange: true });
+            this.form.get('settings.bookingEnd.date')?.markAsTouched();
+          } else {
+            this.form.get('settings.bookingEnd.date')?.setErrors(null);
+          }
+
+          const eventEndTime = this.form.get('details.endTime')?.value;
+          if (eventEndTime) {
+            const eventEnd = new Date(eventEndTime);
+
+            const [endHour, endMin] = endTime.split(':').map(Number);
+            const bookingEndDateTime = new Date(end);
+            bookingEndDateTime.setHours(endHour, endMin, 0, 0);
+
+            if (bookingEndDateTime > eventEnd) {
+              this.form.get('settings.bookingEnd.date')?.setErrors({ exceedsEventEnd: true });
+              this.form.get('settings.bookingEnd.date')?.markAsTouched();
+            }
+          }
+        }
       })
     );
   }
@@ -198,6 +252,7 @@ export class Edit implements OnInit, OnDestroy {
     this.eventService.getEventById(this.eventId).subscribe({
       next: res => {
         const e = res.data;
+        const now = new Date();
         console.log('Loaded event:', e);
 
         // ── 1. Patch details ──────────────────────────────────────────────────
@@ -252,6 +307,32 @@ export class Edit implements OnInit, OnDestroy {
         }));
         this.updateImagesControl();
 
+        // Check startTime (activeAt)
+        if (e.activeAt) {
+          this.isPastEvent = new Date(e.activeAt) < now;
+          if (this.isPastEvent) {
+            this.form.get('details.startTime')?.disable({ emitEvent: false });
+            this.form.get('details.endTime')?.disable({ emitEvent: false });
+          }
+        }
+
+        // Check saleStartAt
+        if (e.saleStartAt) {
+          this.isPastBookingStart = new Date(e.saleStartAt) < now;
+          if (this.isPastBookingStart) {
+            this.form.get('settings.bookingStart')?.disable({ emitEvent: false });
+            this.form.get('settings.startImmediately')?.disable({ emitEvent: false });
+          }
+        }
+
+        // Check saleEndAt
+        if (e.saleEndAt) {
+          this.isPastBookingEnd = new Date(e.saleEndAt) < now;
+          if (this.isPastBookingEnd) {
+            this.form.get('settings.bookingEnd')?.disable({ emitEvent: false });
+            this.form.get('settings.endImmediately')?.disable({ emitEvent: false });
+          }
+        }
 
         this.isLoading = false;
         this.cdr.detectChanges();
@@ -327,7 +408,7 @@ export class Edit implements OnInit, OnDestroy {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
 
     const toDateTime = (date: string) => `${date}T00:00:00`;
-    const v = this.form.value;
+    const v = this.form.getRawValue();
     const posterMeta: PosterMeta[] = this.images.map((img, index) => ({
       posterId: img.isExisting ? img.posterId : undefined,
       isPrimary: index == 0,
@@ -358,7 +439,7 @@ export class Edit implements OnInit, OnDestroy {
 
     formData.append('posterMeta', JSON.stringify(posterMeta));
 
-    // Tickets (nếu API update event nhận ticketTypes luôn)
+    // Tickets
     this.tickets.forEach((t: any, index: number) => {
       if (t.id) formData.append(`TicketTypes[${index}].Id`, t.id.toString());
       formData.append(`TicketTypes[${index}].Name`, t.name);
@@ -403,7 +484,7 @@ export class Edit implements OnInit, OnDestroy {
   // ─── Tickets CRUD ─────────────────────────────────────────────────────────────
 
   createTicket(): void {
-    this.ticketFormCreate.reset({ name: '', price: 0, quantity: 0, maxPerUser: 0 });
+    this.ticketFormCreate.reset({ name: 'New Ticket', price: 2000, quantity: 1, maxPerUser: 1 });
     this.dialogCreateConfig = {
       title: 'Create ticket type',
       message: '',
@@ -583,6 +664,9 @@ export class Edit implements OnInit, OnDestroy {
     if (ctrl.errors['required']) return `${errorField} is required`;
     if (ctrl.errors['minlength']) return 'Minimum 3 characters';
     if (ctrl.errors['invalidRange']) return 'End date must be after start date';
+    if (ctrl.errors['invalidTime']) return 'Start time must be after now';
+    if (ctrl.errors['exceedsEventEnd']) return 'Booking end time must be befor event start';
+
     return 'Invalid field';
   }
 
@@ -602,5 +686,16 @@ export class Edit implements OnInit, OnDestroy {
     if (ctrl.errors['min']) return `${errorField} must be at least 1`;
 
     return 'Invalid field';
+  }
+
+  onPriceInput(event: any) {
+    let value = event.target.value.replace(/\D/g, '');
+
+    this.ticketFormEdit.patchValue({
+      price: Number(value)
+    }, { emitEvent: false });
+
+    this.formattedPrice =
+      Number(value).toLocaleString('vi-VN');
   }
 }

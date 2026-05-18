@@ -41,7 +41,53 @@ export class RouteService {
   ticketBooked(id: string | number) {
     return ['/ticket-booked', id];
   }
+  ticket(id: string | number) {
+    return [`/ticket`, id];
+  }
   eventBookingPayment(eventId: string | number, bookingId: string | number) {
     return ['/events', eventId, 'bookings', bookingId, 'payment'];
+  }
+
+
+  getRoutePath(actionKey: string): string[] {
+
+    switch (actionKey) {
+
+      case 'nav.events.manage':
+        return this.events();
+
+      case 'nav.bookings.manage':
+        return this.bookings();
+
+      //case 'nav.tickets.manage':
+      //  return ['/', this.permission.getRoleSlug(), 'tickets'];
+
+      case 'nav.venues.manage':
+        return this.venues();
+
+      case 'nav.users.manage':
+        return this.users();
+
+      case 'nav.roles.manage':
+        return this.roles();
+
+      case 'nav.permissions.manage':
+        return this.permissions();
+
+      case 'nav.payments.manage':
+        return this.payments();
+
+      //case 'nav.refunds.manage':
+      //return ['/', this.permission.getRoleSlug(), 'refunds'];
+
+      //case 'nav.reports.manage':
+      //return ['/', this.permission.getRoleSlug(), 'reports'];
+
+      case 'nav.audit-log.manage':
+        return this.auditLogs();
+
+      default:
+        return ['/'];
+    }
   }
 }

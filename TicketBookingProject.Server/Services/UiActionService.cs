@@ -16,10 +16,10 @@ public class UiActionService : IUiActionService
         _mapper = mapper;
     }
 
-    public async Task<List<UIActionDto>> GetAllAsync()
+    public async Task<Result<List<UIActionDto>>> GetAllAsync()
     {
         var items = await _uiActionRepo.GetAllUiActionsAsync();
-        return _mapper.Map<List<UIActionDto>>(items);
+        return Result<List<UIActionDto>>.Success(_mapper.Map<List<UIActionDto>>(items), "Get list UI Action result successfully!!!");
     }
 
     public async Task<Result<PagedResponse<UIActionDto>>> GetAllUIActions(ListUIActionRequest req)

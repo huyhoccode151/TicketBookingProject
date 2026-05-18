@@ -10,10 +10,16 @@
 
     <app-data-table>
       <app-table-toolbar (search)="onSearch($event)">
+        <app-filter-select label="Event"
+                           [options]="eventOptions"
+                           [value]="eventName"
+                           (valueChange)="eventName=$event; loadBookings()">
+        </app-filter-select>
+
         <app-filter-select label="Status"
                            [options]="statusOptions"
-                           [value]="filters.status"
-                           (valueChange)="filters.status=$event; loadBookings()">
+                           [value]="status"
+                           (valueChange)="status=$event; loadBookings()">
         </app-filter-select>
 
         <div class="date-range-filter">

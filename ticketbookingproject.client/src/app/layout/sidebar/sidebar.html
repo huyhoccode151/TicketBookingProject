@@ -6,47 +6,12 @@
       <span>Overview</span>
     </a>
 
-    <a *hasPermission="'event:manage'" [routerLink]="route.events()" routerLinkActive="active" class="nav-item">
-      <span class="material-symbols-outlined">calendar_today</span>
-      <span>All Events</span>
-    </a>
-
-    <a *hasPermission="'user:manage'" [routerLink]="route.users()" routerLinkActive="active" class="nav-item">
-      <span class="material-symbols-outlined">group</span>
-      <span>Users</span>
-    </a>
-
-    <a *hasPermission="'booking:manage'" [routerLink]="route.bookings()" class="nav-item">
-      <span class="material-symbols-outlined">featured_play_list</span>
-      <span>Bookings</span>
-    </a>
-
-    <a *hasPermission="'payment:manage'" [routerLink]="route.payments()" class="nav-item">
-      <span class="material-symbols-outlined">Payments</span>
-      <span>Payments</span>
-    </a>
-  </nav>
-
-  <nav class="nav-section">
-    <p class="nav-label">Operations</p>
-    <a *hasPermission="'audit-log:manage'" [routerLink]="route.auditLogs()" class="nav-item">
-      <span class="material-symbols-outlined">tune</span>
-      <span>Audit Logs</span>
-    </a>
-    <a [routerLink]="route.myBooking()" class="nav-item">
-      <span class="material-symbols-outlined">Orders</span>
-      <span>My Booking</span>
-    </a>
-
-    <a *hasPermission="'permission:manage'" [routerLink]="route.permissions()" class="nav-item">
-      <span class="material-symbols-outlined">account_balance_wallet</span>
-      <span>Permissions</span>
-    </a>
-
-    <a *hasPermission="'role:manage'" [routerLink]="route.roles()" class="nav-item">
-      <span class="material-symbols-outlined">account_balance_wallet</span>
-      <span>Roles</span>
-    </a>
+    <div *ngFor="let action of actions">
+      <a *hasPermission="action.permissionRequired" [routerLink]="action.routePath" routerLinkActive="active" class="nav-item">
+        <span class="material-symbols-outlined">{{action.icon}}</span>
+        <span>{{action.label}}</span>
+      </a>
+    </div>
 
     <a *hasPermission="'ui-action:manage'" [routerLink]="route.uiActions()" class="nav-item">
       <span class="material-symbols-outlined">account_balance_wallet</span>
@@ -64,17 +29,4 @@
     <span>Support Tickets</span>
   </a>-->
   </nav>
-
-  <div class="sidebar-footer">
-    <div class="health-card">
-      <p class="health-label">Server Health</p>
-      <div class="health-stat">
-        <span>Stability</span>
-        <span class="stat-value">99.9%</span>
-      </div>
-      <div class="progress-bar">
-        <div class="progress-fill" style="width: 99.9%"></div>
-      </div>
-    </div>
-  </div>
 </aside>

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TicketBookingProject.Server;
+using TicketBookingProject.Server.Common.Extensions;
 
 namespace MyApp.Namespace
 {
@@ -23,13 +24,29 @@ namespace MyApp.Namespace
             return Ok(ApiResponse<List<TicketDetailResponse>>.Ok(tickets, "Load tickets successfully!!!"));
         }
 
+        [HttpGet("{ticketId}")]
         [Authorize]
+        public async Task<IActionResult> GetTicketById(int ticketId)
+        {
+            var ticket = await _ticketService.GetTicketById(ticketId);
+            return ticket.ToActionResult();
+        }
+
         [HttpGet("my-bookings")]
+        [Authorize]
         public async Task<IActionResult> GetTicketByUserId([FromQuery] TicketListRequest req)
         {
             var tickets = await _ticketService.GetTicketsByUserId(req);
 
             return Ok(ApiResponse<PagedResponse<BookingTicketListItemResponse>>.Ok(tickets, "Load tickets successfully!!!"));
+        }
+
+        [HttpGet("my-upcoming-event-booked")]
+        [Authorize]
+        public async Task<IActionResult> GetUpcomingTicket()
+        {
+            var tickets = await _ticketService.GetUpcomingTicketsByUserId();
+            return tickets.ToActionResult();
         }
 
         [HttpPost("checkin")]

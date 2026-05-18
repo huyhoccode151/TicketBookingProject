@@ -58,6 +58,9 @@ public partial class TicketBookingProjectContext : DbContext
     public virtual DbSet<VenueSection> VenueSections { get; set; }
 
     public virtual DbSet<UiAction> UiActions { get; set; }
+    public virtual DbSet<Notification> Notifications { get; set; }
+    public virtual DbSet<EventSubscription> EventSubscriptions { get; set; }
+    public virtual DbSet<Coupon> Coupons { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -856,6 +859,78 @@ public partial class TicketBookingProjectContext : DbContext
             entity.HasIndex(x => x.CreatedAt);
         });
 
+        modelBuilder.Entity<Notification>(entity =>
+        {
+            entity.ToTable("notifications");
+
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.Id).UseIdentityColumn();
+
+            entity.Property(x => x.UserId).IsRequired();
+
+            entity.Property(x => x.Type).IsRequired();
+
+            entity.Property(x => x.Title)
+                .HasMaxLength(255);
+
+            entity.Property(x => x.Content)
+                .HasColumnType("text");
+
+            entity.Property(x => x.Status)
+                .HasDefaultValue((byte)0);
+
+            entity.Property(x => x.SentAt)
+                .HasColumnType("datetime2(0)");
+
+            entity.Property(x => x.CreatedAt)
+                .HasColumnType("datetime2(0)");
+
+            entity.HasIndex(x => x.UserId);
+            entity.HasIndex(x => x.Status);
+            entity.HasOne(x => x.User)
+                .WithMany(u => u.Notifications)
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<EventSubscription>(entity => 
+        {
+            entity.ToTable("event_subscriptions");
+
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.Id)
+                .UseIdentityColumn();
+
+            entity.Property(x => x.UserId)
+                .IsRequired();
+
+            entity.Property(x => x.EventId)
+                .IsRequired();
+
+            entity.Property(x => x.Status)
+                .HasDefaultValue((byte)1);
+
+            entity.Property(x => x.CreatedAt)
+                .HasColumnType("datetime2(0)");
+
+            // Unique constraint: một user chỉ subscribe một event một lần
+            entity.HasIndex(x => new { x.UserId, x.EventId })
+                .IsUnique();
+
+            entity.HasIndex(x => x.EventId);
+            entity.HasIndex(x => x.Status);
+            // Relationships
+            entity.HasOne(x => x.User)
+                .WithMany(u => u.EventSubscriptions)
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(x => x.Event)
+                .WithMany(e => e.EventSubscriptions)
+                .HasForeignKey(x => x.EventId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
         modelBuilder.Entity<UiAction>(entity =>
         {
             entity.HasIndex(e => e.ActionKey).IsUnique();
@@ -869,6 +944,32 @@ public partial class TicketBookingProjectContext : DbContext
                   .WithMany(e => e.Children)
                   .HasForeignKey(e => e.ParentId)
                   .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Coupon>(entity =>
+        {
+            entity.HasIndex(e => e.Code)
+                  .IsUnique();
+
+            entity.HasIndex(e => e.ExpiredAt);
+
+            entity.Property(e => e.Code)
+                  .HasMaxLength(50)
+                  .IsRequired();
+
+            entity.Property(e => e.UsedCount)
+                  .HasDefaultValue(0);
+
+            entity.Property(e => e.ExpiredAt)
+                  .HasColumnType("datetime2(0)");
+
+            entity.Property(e => e.CreatedAt)
+                  .HasColumnType("datetime2(0)");
+
+            entity.HasOne(e => e.CreatedByUser)
+              .WithMany()                          
+              .HasForeignKey(e => e.CreatedBy)     
+              .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -15,48 +15,127 @@
           <a class="text-sm font-semibold text-dark-gray hover:text-primary transition-colors" href="/booking-events-ticket-online">Home</a>
           <a class="text-sm font-semibold text-dark-gray hover:text-primary transition-colors" href="/booking-events-ticket-online">Explore</a>
           <a class="text-sm font-semibold text-dark-gray hover:text-primary transition-colors" href="#">Categories</a>
-          <a class="text-sm font-semibold text-dark-gray hover:text-primary transition-colors" href="#">About Us</a>
+          <a class="text-sm font-semibold text-dark-gray hover:text-primary transition-colors" href="/about-us">About Us</a>
         </nav>
+
         <!-- Profile / CTA -->
         <div class="flex items-center space-x-4" *ngIf="!isLogin">
           <a class="hidden md:block text-sm font-semibold text-dark-gray hover:text-primary transition-colors" href="/login">
             Sign
             In
           </a>
-          <button class="bg-primary text-white px-6 py-2.5 rounded-custom font-semibold text-sm hover:bg-primary-dark transition-colors shadow-sm">
-            Create Event
-          </button>
+
         </div>
+        
+        <div class="flex items-center gap-3" *ngIf="isLogin">
+          <div class="relative" #notifRef>
+            <button class="icon-btn relative"
+                    (click)="toggleNotifications($event)"
+                    aria-label="Notifications">
+              <span class="material-symbols-outlined">notifications</span>
+              <!-- Unread badge -->
+              <span *ngIf="unreadNotiCount > 0"
+                    class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center leading-none">
+                {{ unreadNotiCount >= 99 ? '99+' : unreadNotiCount }}
+              </span>
+            </button>
 
-        <div class="relative flex items-center gap-3 cursor-pointer select-none" *ngIf="isLogin" (click)="toggleDropdown($event)">
-          <div class="text-right">
-            <p class="text-sm font-semibold text-white leading-tight">Admin User</p>
-            <p class="text-xs text-gray-400 leading-tight">System Manager</p>
+            <!-- Notification Dropdown -->
+            <div *ngIf="isNotifOpen"
+                 (click)="$event.stopPropagation()"
+                 class="absolute right-0 top-full mt-2 w-80 rounded-xl bg-gray-900 border border-white/10 shadow-xl shadow-black/40 overflow-hidden z-50">
+
+              <!-- Header -->
+              <div class="flex items-center justify-between px-4 py-3 border-b border-white/10">
+                <span class="text-sm font-semibold text-white">Notifications</span>
+                <button *ngIf="unreadCount > 0"
+                        (click)="markAllAsRead()"
+                        class="text-xs text-indigo-400 hover:text-indigo-300 transition-colors font-medium">
+                  Mark all as read
+                </button>
+              </div>
+
+              <!-- Loading -->
+              <div *ngIf="isLoadingNotifs" class="flex items-center justify-center py-8">
+                <span class="material-symbols-outlined text-gray-500 animate-spin text-2xl">progress_activity</span>
+              </div>
+
+              <!-- Empty state -->
+              <div *ngIf="!isLoadingNotifs && notifications.length === 0"
+                   class="flex flex-col items-center justify-center py-8 text-gray-500">
+                <span class="material-symbols-outlined text-3xl mb-2">notifications_off</span>
+                <span class="text-sm">No notifications</span>
+              </div>
+
+              <!-- Notification List -->
+              <ul *ngIf="!isLoadingNotifs && notifications.length > 0"
+                  class="max-h-[360px] overflow-y-auto divide-y divide-white/5">
+                <li *ngFor="let notif of notifications"
+                    (click)="onNotifClick(notif)"
+                    class="flex items-start gap-3 px-4 py-3 cursor-pointer transition-colors"
+                    [ngClass]="notif.status === 1
+                    ? 'bg-indigo-500/10 hover:bg-indigo-500/20'
+                    : 'hover:bg-white/5'">
+
+                  <!-- Icon -->
+                  <div class="mt-0.5 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                       [ngClass]="notif.status === 1 ? 'bg-indigo-500/20' : 'bg-gray-700'">
+                    <span class="material-symbols-outlined text-[16px]"
+                          [ngClass]="notif.status === 1 ? 'text-indigo-400' : 'text-gray-400'">
+                      event
+                    </span>
+                  </div>
+
+                  <!-- Content -->
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm leading-snug"
+                       [ngClass]="notif.status === 1 ? 'text-white font-medium' : 'text-gray-300'">
+                      {{ notif.content }}
+                    </p>
+                    <p class="text-xs text-gray-500 mt-1">
+                      {{ notif.sentAt | date:'MMM d, y · h:mm a' }}
+                    </p>
+                  </div>
+
+                  <!-- Unread dot -->
+                  <span *ngIf="notif.status === 1"
+                        class="mt-1.5 w-2 h-2 rounded-full bg-indigo-400 flex-shrink-0"></span>
+                </li>
+              </ul>
+
+              <!-- Footer -->
+              <div *ngIf="notifications.length > 0"
+                   class="border-t border-white/10 px-4 py-2.5 text-center">
+                <button class="text-xs text-indigo-400 hover:text-indigo-300 transition-colors font-medium">
+                  View all notifications
+                </button>
+              </div>
+            </div>
           </div>
 
-          <div class="w-9 h-9 rounded-full bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center text-indigo-300">
-            <span class="material-symbols-outlined text-[20px]">shield_person</span>
-          </div>
+          <div class="relative flex items-center gap-3 cursor-pointer select-none" *ngIf="isLogin" (click)="toggleDropdown($event)">
+            <div class="w-9 h-9 rounded-full bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center text-indigo-300">
+              <span class="material-symbols-outlined text-[20px]">shield_person</span>
+            </div>
 
-          <!-- Dropdown -->
-          <div *ngIf="isDropdownOpen"
-               (click)="$event.stopPropagation()"
-               class="absolute right-0 top-full mt-2 w-44 rounded-xl bg-gray-900 border border-white/10 shadow-xl shadow-black/40 overflow-hidden z-50">
-            
-            <button
-              class="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
-              (click)="goProfile()"
-            >
-              <span class="material-symbols-outlined text-[18px]">person</span>
-              Profile
-            </button>
-      
+            <!-- Dropdown -->
+            <div *ngIf="isDropdownOpen"
+                 (click)="$event.stopPropagation()"
+                 class="absolute right-0 top-full mt-2 w-44 rounded-xl bg-gray-900 border border-white/10 shadow-xl shadow-black/40 overflow-hidden z-50">
 
-            <button class="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:bg-red-500/10 hover:text-red-400 transition-colors"
-                    (click)="logout()">
-              <span class="material-symbols-outlined text-[18px]">logout</span>
-              Logout
-            </button>
+              <button class="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
+                      (click)="goProfile()">
+                <span class="material-symbols-outlined text-[18px]">person</span>
+                Profile
+              </button>
+
+
+              <button class="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:bg-red-500/10 hover:text-red-400 transition-colors"
+                      (click)="logout()">
+                <span class="material-symbols-outlined text-[18px]">logout</span>
+                Logout
+              </button>
+            </div>
           </div>
         </div>
 

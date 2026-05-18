@@ -41,6 +41,14 @@ public class TicketService : ITicketService
         return _mapper.Map<List<TicketDetailResponse>>(tickets);
     }
 
+    public async Task<Result<TicketDetailResponse>> GetTicketById(int ticketId)
+    {
+        var ticket = await _ticketRepo.GetTicketByIdAsync(ticketId);
+        if (ticket is not null)
+            return Result<TicketDetailResponse>.Success(_mapper.Map<TicketDetailResponse>(ticket));
+        return Result<TicketDetailResponse>.Failure("Could not found ticket with this id!!!");
+    }
+
     public async Task<PagedResponse<BookingTicketListItemResponse>> GetTicketsByUserId(TicketListRequest req)
     {
         var userId = _currentUser.UserId;
@@ -65,6 +73,19 @@ public class TicketService : ITicketService
                     total
                 );
         }
+    }
+
+    public async Task<Result<List<BookingTicketListItemResponse>>> GetUpcomingTicketsByUserId()
+    {
+        var userId = _currentUser.UserId ?? 0;
+
+        var bookings = await _ticketRepo.GetUpcomingTicketsByUserId(userId);
+        var result = await bookings.ProjectTo<BookingTicketListItemResponse>(_mapper.ConfigurationProvider)
+            .ToListAsync();
+
+        if (result == null) return Result<List<BookingTicketListItemResponse>>.Failure("Cant retrived upcoming tickets events!!!", StatusCodes.Status204NoContent);
+
+        return Result<List<BookingTicketListItemResponse>>.Success(result, "Retrived upcoming tickets events successfully!!!");
     }
 
     public async Task<CheckInResult> CheckInAsync(string qrCode)

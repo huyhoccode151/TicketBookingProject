@@ -53,22 +53,23 @@ export class Index {
   totalCount = 0;
   totalPages = 1;
   datePreset = '';
-  dateFrom: Date | null = null;
-  dateTo: Date | null = null;
+  dateFrom: string = '';
+  dateTo: string = '';
   filter = {
     venue: '',
     category: '',
     status: '',
   }
-  filters = {
-    venue: '',
-    category: [] as string[],
-    status: '',
-  }
   onSale: boolean = false;
   eventId!: number;
   isDialogOpen = false;
+  isDraftDialogOpen = false;
+  isConfirmDialogOpen = false;
+  isCancelDialogOpen = false;
   dialogConfig: ConfirmDialogConfig = { title: '', message: '' };
+  dialogDraftConfig: ConfirmDialogConfig = { title: '', message: '' }
+  dialogConfirmConfig: ConfirmDialogConfig = { title: '', message: '' }
+  dialogCancelConfig: ConfirmDialogConfig = { title: '', message: '' }
   selectedCategories: string[] = [];
   categories: string[] = [];
 
@@ -176,10 +177,17 @@ export class Index {
 
   onCancelled(): void {
     this.isDialogOpen = false;
+    this.isDraftDialogOpen = false;
+    this.isConfirmDialogOpen = false;
+    this.isCancelDialogOpen = false;
   }
 
   viewEvent(eventId: number) {
-    this.router.navigate(this.route.customerEventShow(eventId));
+    this.eventService.getEventById(eventId).subscribe({
+      next: (res) => {
+        this.router.navigate(this.route.bookings(), { queryParams: { eventName: res.data.name } });
+      }
+    });
   }
 
   //
@@ -197,8 +205,52 @@ export class Index {
     return this.baseUrl + url;
   }
 
-  confirmEvent(eventId: number) {
-    this.eventService.confirmEvent(eventId).subscribe({
+  openDraftEvent(eventId: number) {
+    this.eventId = eventId;
+    this.dialogDraftConfig = {
+      title: 'Draft Event',
+      message: 'Are you sure you want to draft this event?',
+      detail: `Event ID: ${eventId}`,
+      confirmText: 'Draft',
+      cancelText: 'Cancel',
+      variant: 'info',
+    }
+    this.isDraftDialogOpen = true;
+  }
+
+  draftEvent() {
+    this.isDraftDialogOpen = false;
+    this.eventService.draftEvent(this.eventId).subscribe({
+      next: (res) => {
+        this.toast.success('Draft Event', 'Event drafted successfully!');
+        this.loadEvent();
+      },
+      error: (err) => {
+        if (err.status === 400 && err.error.errors || err.status === 400 && err.error?.message) {
+          this.toast.error('Validation failed. Please check your input.', err.error?.errors || err.error?.message);
+        } else {
+          this.toast.error('Draft Event', 'Failed to draft event.');
+        }
+      }
+    });
+  }
+
+  openConfirmEvent(eventId: number) {
+    this.eventId = eventId;
+    this.dialogConfirmConfig = {
+      title: 'Confirm Event',
+      message: 'Are you sure you want to confirm this event?',
+      detail: `Event ID: ${eventId}`,
+      confirmText: 'Confirm',
+      cancelText: 'Cancel',
+      variant: 'success',
+    }
+    this.isConfirmDialogOpen = true;
+  }
+
+  confirmEvent() {
+    this.isConfirmDialogOpen = false;
+    this.eventService.confirmEvent(this.eventId).subscribe({
       next: (res) => {
         this.toast.success('Confirm Event', 'Event confirmed successfully!');
         this.loadEvent();
@@ -213,8 +265,22 @@ export class Index {
     });
   }
 
-  cancelEvent(eventId: number) {
-    this.eventService.cancelEvent(eventId).subscribe({
+  openCancelEvent(eventId: number) {
+    this.eventId = eventId;
+    this.dialogCancelConfig = {
+      title: 'Cancel Event',
+      message: 'Are you sure you want to cancel this event?',
+      detail: `Event ID: ${eventId}`,
+      confirmText: 'Cancel',
+      cancelText: 'Cancel',
+      variant: 'warning',
+    }
+    this.isCancelDialogOpen = true;
+  }
+
+  cancelEvent() {
+    this.isCancelDialogOpen = false;
+    this.eventService.cancelEvent(this.eventId).subscribe({
       next: (res) => {
         this.toast.success('Cancel Event', 'Event cancelled successfully!');
         this.loadEvent();
@@ -234,5 +300,15 @@ export class Index {
     this.selectedCategories = value ? value : [];
     this.page = 1;
     this.loadEvent();
+  }
+
+  onDateChange(): void {
+    if (!this.dateFrom && !this.dateTo) {
+      this.loadEvent();
+      return;
+    }
+    if (this.dateFrom && this.dateTo) {
+      this.loadEvent();
+    }
   }
 }

@@ -59,7 +59,7 @@ public class BookingRepository : BaseRepository<Booking>, IBookingRepository
                 }).ToList()
             };
 
-            booking.TotalAmount = booking.BookingDetails.Sum(d => d.Price);
+            booking.TotalAmount = (long)(booking.BookingDetails.Sum(d => d.Price * d.Quantity) * 1.02);
 
             await _dbset.AddAsync(booking);
             await _db.SaveChangesAsync();
@@ -123,6 +123,41 @@ public class BookingRepository : BaseRepository<Booking>, IBookingRepository
         .FirstOrDefaultAsync();
     }
 
+    public async Task<BookingTicketDetails?> GetMyBookingPending(int currentUserId)
+    {
+        return await _dbset
+        .AsNoTracking()
+        .Where(b => b.UserId == currentUserId && b.Status == BookingStatus.Pending).OrderByDescending(b => b.CreatedAt)
+        .Include(b => b.SeatHolds)
+        .Include(b => b.BookingDetails)
+            .ThenInclude(d => d.TicketType)
+        .Select(b => new BookingTicketDetails
+        {
+            Id = b.Id,
+            UserId = b.UserId,
+            EventId = b.EventId,
+            TotalAmount = b.TotalAmount,
+            ExpiresAt = b.ExpiresAt,
+
+            Details = b.BookingDetails.Select(d => new BookingDetails
+            {
+                EventSeatId = d.EventSeatId,
+                TicketTypeId = d.TicketTypeId,
+                TicketTypeName = d.TicketType.Name ?? null,
+                Quantity = d.Quantity,
+                Price = d.Price
+            }).ToList(),
+
+            SeatHolds = b.SeatHolds.Select(s => new SeatHolds
+            {
+                EventSeatId = s.EventSeatId,
+                TicketTypeId = s.TicketTypeId,
+                Quantity = s.Quantity
+            }).ToList()
+        })
+        .FirstOrDefaultAsync();
+    }
+
     public async Task<(IQueryable<Booking>, int TotalCount)> GetListBooking(AdminBookingListRequest req, int? organizerId = null)
     {
         var bookings = _dbset.AsQueryable();
@@ -140,6 +175,8 @@ public class BookingRepository : BaseRepository<Booking>, IBookingRepository
                                             b.Event.Venue != null &&
                                             EF.Functions.Like(b.Event.Venue.Name ?? "", $"%{req.Search}%"))));
         }
+
+        if (!string.IsNullOrWhiteSpace(req.EventName)) bookings = bookings.Where(b => b.Event.Name == req.EventName);
 
         if (req.Status != null) bookings = bookings.Where(b => b.Status == req.Status);
 
@@ -202,7 +239,7 @@ public class BookingRepository : BaseRepository<Booking>, IBookingRepository
 
     public async Task<bool> RegainQuantityTicketType(int id)
     {
-        var booking = await _dbset.FindAsync(id);
+        var booking = await _dbset.Include(b => b.SeatHolds).ThenInclude(s => s.TicketType).FirstOrDefaultAsync(b => b.Id == id);
 
         if (booking == null) return false;
 
@@ -212,6 +249,7 @@ public class BookingRepository : BaseRepository<Booking>, IBookingRepository
             {
                 if (seatHold.TicketType != null)
                 {
+                    seatHold.Status = SeatHoldStatus.Released;
                     seatHold.TicketType.SoldQuantity -= seatHold.Quantity;
                     seatHold.TicketType.Quantity += seatHold.Quantity;
                 }

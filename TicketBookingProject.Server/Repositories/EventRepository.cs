@@ -28,7 +28,7 @@ public class EventRepository : BaseRepository<Event>, IEventRepository
             events = events.Where(d => (!from.HasValue || d.ActiveAt >= from) && (!to.HasValue || d.EndAt <= to));
         } else if (req.DateFrom.HasValue && req.DateTo.HasValue)
         {
-            events = events.Where(d => (d.ActiveAt > req.DateFrom) && (d.EndAt <= req.DateTo));
+            events = events.Where(d => (d.ActiveAt >= req.DateFrom) && (d.ActiveAt <= req.DateTo));
         }
 
         if (!string.IsNullOrWhiteSpace(req.Venue))
@@ -78,6 +78,14 @@ public class EventRepository : BaseRepository<Event>, IEventRepository
             .Include(e => e.EventPosters)
             .Include(e => e.TicketTypes)
             .FirstOrDefaultAsync(e => e.Id == id) ?? null;
+    }
+
+    public async Task<IQueryable<Event>> GetFavEvent(int currentUserId)
+    {
+        var events = _dbset.AsQueryable();
+        events = events.Where(e => e.EventSubscriptions.Any(s => s.UserId == currentUserId));
+
+        return events;
     }
 
     public async Task<bool> DeleteEventAsync(int id)
@@ -196,9 +204,9 @@ public class EventRepository : BaseRepository<Event>, IEventRepository
 
                 if (ticketType == null) throw new Exception($"Ticket type with ID {item.Id} not found.");
 
-                if (ticketType.Quantity < item.Quantity) throw new Exception($"Not enough tickets available for {ticketType.Name}.");
+                if ((ticketType.Quantity - ticketType.SoldQuantity) < item.Quantity) throw new Exception($"Not enough tickets available for {ticketType.Name}.");
 
-                ticketType.Quantity -= item.Quantity;
+                //ticketType.Quantity -= item.Quantity; 
                 ticketType.SoldQuantity += item.Quantity;
 
                 var seatHold = new SeatHold

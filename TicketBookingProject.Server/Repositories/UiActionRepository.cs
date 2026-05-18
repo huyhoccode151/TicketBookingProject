@@ -15,6 +15,7 @@ public class UiActionRepository : BaseRepository<UiAction>, IUiActionRepository
     {
         return await _db.UiActions
             .Include(x => x.Children)
+            .Where(x => x.ActionKey.Contains("manage"))
             .Where(x => x.ParentId == null)
             .OrderBy(x => x.DisplayOrder)
             .ToListAsync();

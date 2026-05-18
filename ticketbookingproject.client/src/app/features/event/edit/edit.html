@@ -92,9 +92,12 @@
             <div class="field-group">
               <label class="block text-sm font-medium">When is event going to active?</label>
               <input class="rounded-lg border border-slate-200 bg-slate-50 mt-2 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
-                     type="date" formControlName="startTime" />
+                     type="date" formControlName="startTime" [class.cursor-not-allowed]="isPastEvent"/>
               <span class="error-msg" *ngIf="isInvalid('details.startTime')">
                 <ng-container *ngIf="form.get('details.startTime')?.errors?.['required']">Start time is required.</ng-container>
+                <ng-container *ngIf="form.get('details.startTime')?.errors?.['invalidTime']">
+                  Event start time must be after 3 days from now.
+                </ng-container>
                 <ng-container *ngIf="form.get('details.startTime')?.errors?.['serverError']">
                   {{ form.get('details.startTime')?.errors?.['serverError'] }}
                 </ng-container>
@@ -206,7 +209,7 @@
           <div class="tcard-top">
             <div class="tcard-icon">{{ ticket.initials }}</div>
             <div class="tcard-meta">
-              <strong>{{ ticket.name }} — ${{ ticket.price }}.00</strong>
+              <strong>{{ ticket.name }} — {{ ticket.price | currency:'VND':'symbol':'1.0-0'}}</strong>
             </div>
             <div class="tcard-actions">
               <button type="button" class="btn-dot">&#8942;</button>
@@ -344,7 +347,8 @@
       <div class="flex flex-col gap-1.5">
         <label class="text-sm font-medium">Price</label>
         <input class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-               formControlName="price" placeholder="Price" type="number" />
+               formControlName="price" placeholder="Price" [value]="formattedPrice"
+ (input)="onPriceInput($event)" type="text" />
         @if(getInvalid('price', 'Price')){ <p class="text-xs text-red-500">{{ getInvalid('price', 'Price') }}</p> }
       </div>
       <div class="flex flex-col gap-1.5">
@@ -375,7 +379,8 @@
       <div class="flex flex-col gap-1.5">
         <label class="text-sm font-medium">Price</label>
         <input class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-               formControlName="price" placeholder="Price" type="number" />
+               formControlName="price" placeholder="Price" [value]="formattedPrice"
+ (input)="onPriceInput($event)" type="text" />
         @if(getCreateInvalid('price', 'Price')){ <p class="text-xs text-red-500">{{ getCreateInvalid('price', 'Price') }}</p> }
       </div>
       <div class="flex flex-col gap-1.5">

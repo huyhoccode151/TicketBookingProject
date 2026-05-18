@@ -180,10 +180,11 @@ export class BookingPayment {
 }
 
 export interface BookingTicketDetails {
+  id: number;
   userId: number;
   eventId: number;
   totalAmount: number;
-  expiresAt: string; // hoặc Date nếu bạn parse
+  expiresAt: string; 
 
   details: BookingDetail[];
   seatHolds: SeatHold[];

@@ -4,10 +4,31 @@
         <span class="material-symbols-outlined">layers</span>
         <h2>Ticket-H</h2>
       </div>
+
       <div class="search-container">
-        <div class="search-box">
+        <div class="search-box" (click)="$event.stopPropagation()">
           <span class="material-symbols-outlined">search</span>
-          <input type="text" placeholder="Search events, users, or tickets...">
+          <input type="text"
+                 [(ngModel)]="searchKeyword"
+                 (input)="onSearch()"
+                 (focus)="isDropdownSOpen = true"
+                 placeholder="Search menu..." />
+
+          <!-- Dropdown -->
+          <div class="search-dropdown" *ngIf="isDropdownSOpen && filteredActions.length > 0">
+
+            <ng-container *ngFor="let action of filteredActions">
+
+              <button class="search-item"
+                      *hasPermission="action.permissionRequired"
+                      (click)="navigate(action)">
+                <span class="material-symbols-outlined">{{ action.icon }}</span>
+                {{ action.label }}
+              </button>
+
+            </ng-container>
+            
+          </div>
         </div>
       </div>
     </div>

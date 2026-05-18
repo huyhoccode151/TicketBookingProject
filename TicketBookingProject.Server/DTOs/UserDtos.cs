@@ -166,7 +166,7 @@ public record UpdateUserRequest
     [StringLength(100, MinimumLength = 8, ErrorMessage = "Password length must be at least 8 characters")]
     public string? Password { get; init; } = default!;
 
-    [Compare("Password", ErrorMessage = "Pass word do not match")]
+    [Compare("Password", ErrorMessage = "Password do not match")]
     public string? ConfirmPassword { get; init; } = default!;
 
     [StringLength(100, MinimumLength = 1, ErrorMessage = "First Name is not valid")]
@@ -186,7 +186,8 @@ public record UpdateUserRequest
 
 public record AssignPermissionRequest
 {
-    [Required, MinLength(1)]
+    [Required(ErrorMessage = "This field must be fill")]
+    [MinLength(1, ErrorMessage = "This field must be at least one permission")]
     public List<string> Permissions { get; init; } = [];
 }
 

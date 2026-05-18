@@ -1,8 +1,8 @@
 <main class="main-content">
-  <section class="profile-card">
+  <section>
     <div class="accent-bar"></div>
     <div class="profile-body">
-      <div class="profile-top">
+      <!--<div class="profile-top">
         <div class="profile-info">
           <div class="avatar-icon">
             <span class="material-symbols-outlined">account_circle</span>
@@ -13,214 +13,535 @@
         <div class="profile-stats">
           <button class="edit-btn" (click)="openChangeProfileDialog()">Edit Profile</button>
         </div>
-      </div>
+      </div>-->
+
+      <section class="mb-10">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+          <div>
+            <h1 class="font-epilogue text-4xl md:text-[56px] font-extrabold text-[#1a1c1c] leading-[1.1] tracking-tight mb-2">Hello, {{ userAuth.firstname }} {{ userAuth.lastname }}</h1>
+            <p class="text-[16px] text-[#414939]">Welcome back to your event hub.</p>
+          </div>
+          <!--<div class="flex gap-4 overflow-x-auto pb-2">
+            <div class="bg-white p-6 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.05)] min-w-[160px] flex flex-col items-center text-center">
+              <span class="text-[#316b00] text-[32px] font-bold">12</span>
+              <span class="text-[14px] text-[#414939] font-medium">Total Tickets</span>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.05)] min-w-[160px] flex flex-col items-center text-center">
+              <span class="text-[#316b00] text-[32px] font-bold">48</span>
+              <span class="text-[14px] text-[#414939] font-medium">Saved Events</span>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.05)] min-w-[160px] flex flex-col items-center text-center">
+              <span class="text-[#316b00] text-[32px] font-bold">2.4k</span>
+              <span class="text-[14px] text-[#414939] font-medium">Loyalty Points</span>
+            </div>
+          </div>-->
+        </div>
+
+        <!-- Action Required Alert -->
+        <!--<div class="bg-[#ffdad6] border-l-4 border-[#ba1a1a] p-6 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4 mb-10">
+          <div class="flex items-center gap-4">
+            <span class="material-symbols-outlined text-[#ba1a1a] text-[32px]">pending_actions</span>
+            <div>
+              <h4 class="text-lg font-semibold text-[#93000a]">Payment Pending</h4>
+              <p class="text-[#93000a]/80">Your reservation for "Neon Nights Festival" expires in <span class="font-bold">14:52</span>.</p>
+            </div>
+          </div>
+          <button class="bg-[#76c043] text-[#204b00] px-8 py-3 rounded-full font-bold transition-transform active:scale-95 hover:shadow-lg">Pay Now</button>
+        </div>-->
+        <div *ngIf="isLoading" class="...">Loading...</div>
+
+        <!-- Banner booking pending -->
+        <div *ngIf="!isLoading && bookingInfo && !isExpired"
+             class="bg-[#ffdad6] border-l-4 border-[#ba1a1a] p-6 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4 mb-10">
+          <div class="flex items-center gap-4">
+            <span class="material-symbols-outlined text-[#ba1a1a] text-[32px]">pending_actions</span>
+            <div>
+              <h4 class="text-lg font-semibold text-[#93000a]">Payment Pending with {{bookingInfo.totalAmount | currency:'VND':'symbol':'1.0-0'}}</h4>
+              <p class="text-[#93000a]/80">
+                Your reservation expires in
+                <span class="font-bold">{{ countdownDisplay }}</span>.
+              </p>
+            </div>
+          </div>
+          <button (click)="confirmPayNow()"
+                  class="bg-[#76c043] text-[#204b00] px-8 py-3 rounded-full font-bold transition-transform active:scale-95 hover:shadow-lg">
+            Pay Now
+          </button>
+        </div>
+
+        <!-- Banner khi hết hạn -->
+        <div *ngIf="!isLoading && isExpired"
+             class="bg-[#ffdad6] border-l-4 border-[#ba1a1a] p-6 rounded-xl flex items-center gap-4 mb-10">
+          <span class="material-symbols-outlined text-[#ba1a1a] text-[32px]">error</span>
+          <p class="text-[#93000a] font-semibold">Your reservation has expired. Please start a new booking.</p>
+        </div>
+      </section>
 
     </div>
   </section>
   <div class="tab-navigation">
     <button [class.active]="activeTab === 'home'" (click)="setTab('home')">Home</button>
+    <button [class.active]="activeTab === 'favorite'" (click)="setTab('favorite')">Favorite</button>
     <button [class.active]="activeTab === 'about'" (click)="setTab('about')">About</button>
+
     <!--<button [class.active]="activeTab === 'settings'" (click)="setTab('settings')">Settings</button>
     <button [class.active]="activeTab === 'orders'" (click)="setTab('orders')">My Orders</button>-->
   </div>
-  <section class="tabs-container grid grid-cols-1 lg:grid-cols-12 gap-lg mt-sm h-[600px]" *ngIf="activeTab === 'home'">
-    <app-data-table class="lg:col-span-8 bg-white rounded-xl border border-gray-200 shadow-[0px_2px_15px_rgba(0,0,0,0.05)] flex flex-col max-h-full overflow-hidden min-h-0">
-      <div class="shrink-0">
-        <app-table-toolbar (search)="onSearch($event)" />
+  <!--<section class="tabs-container grid grid-cols-1 lg:grid-cols-12 gap-lg mt-sm h-[1200px]" *ngIf="activeTab === 'home'">-->
+  <!--<app-data-table class="lg:col-span-12 bg-white rounded-xl border border-gray-200 shadow-[0px_2px_15px_rgba(0,0,0,0.05)] flex flex-col max-h-full overflow-hidden min-h-0">
+    <div class="shrink-0">
+      <app-table-toolbar (search)="onSearch($event)" />
+    </div>
+    <h2 class="text-sm font-bold uppercase tracking-widest text-on-surface-variant mb-4 mt-4 ml-4 flex items-center gap-2 ">
+      <span class="material-symbols-outlined text-primary">manage_accounts</span>
+      Recently Bookings Success
+    </h2>
+    <div class="flex-1 overflow-y-auto px-2 min-h-0">-->
+  <!-- Booking List Content -->
+  <!--<div class="grid grid-cols-1 gap-6">
+    <ng-container *ngFor="let booking of bookings">
+      <div class="group bg-surface-container-lowest rounded-xl overflow-hidden ring-1 ring-outline-variant/15 transition-all duration-300 mb-2"
+           [class.shadow-xl]="expandedBookingId === booking.id">
+        <div class="flex flex-col md:flex-row h-auto md:h-64 cursor-pointer" (click)="toggleExpand(booking.id)">
+          <div class="relative w-70 md:w-80 h-70 md:h-full overflow-hidden">-->
+  <!--<img class="w-70 h-70 object-cover group-hover:scale-105 transition-transform duration-500"
+  [src]="booking.imageUrl" [alt]="booking.eventName" referrerPolicy="no-referrer" />-->
+  <!--<div class="absolute inset-0 bg-cover bg-center"
+           [style.background-image]="'url(' + getThumbnail(booking.imageUrl) + ')'">
+      </div>
+      <div class="absolute inset-0 booking-card-overlay flex flex-col justify-end p-6">
+        <span class="bg-primary/90 text-on-primary text-[10px] font-bold px-3 py-1 rounded-full w-fit mb-2 uppercase tracking-tighter">
+          {{ booking.id === 9022 ? 'Theater' : booking.id === 9023 ? 'Sports' : 'Concert' }}
+        </span>
+        <h3 class="text-xl font-extrabold text-white leading-tight">{{booking.eventName}}</h3>
+      </div>
+    </div>
+    <div class="flex-1 p-8 flex flex-col justify-between">
+      <div class="flex justify-between items-start">
+        <div class="space-y-4">
+          <div class="flex items-center gap-8">
+            <div>
+              <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+                Date & Time
+              </p>
+              <p class="text-sm font-semibold mt-1">{{booking.eventActiveAt | date:'MMM d, yyyy • HH:mm'}}</p>
+            </div>
+            <div>
+              <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+                Venue Location
+              </p>
+              <p class="text-sm font-semibold mt-1">{{booking.venueName}}</p>
+            </div>
+
+          </div>
+        </div>
+        <div class="space-y-4">
+          <div class="flex items-center gap-8">
+            <div>
+              <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+                Created At
+              </p>
+              <p class="text-sm font-semibold mt-1">{{booking.createdAt | date:'MMM d, yyyy • HH:mm'}}</p>
+            </div>
+          </div>
+        </div>
+        <div [class]="booking.status === 1 ? 'bg-primary-container text-on-primary-container px-4 py-2 rounded-lg text-sm font-bold' : 'bg-amber-100 text-amber-800 px-4 py-2 rounded-lg text-sm font-bold'">
+          {{booking.statusLabel}}
+        </div>
+      </div>
+      <div class="flex items-center justify-between border-t border-outline-variant/10 pt-6">
+        <div class="flex -space-x-3">
+        </div>
+        <div class="flex items-center gap-4">
+          <button class="text-primary font-bold text-sm flex items-center gap-1 group/btn">
+            {{ expandedBookingId === booking.id ? 'Close Details' : 'View Details' }}
+            <span class="material-symbols-outlined text-base transition-transform"
+                  [class.rotate-90]="expandedBookingId === booking.id">
+              {{ expandedBookingId === booking.id ? 'expand_more' : 'arrow_forward' }}
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>-->
+  <!-- Ticket Table Dropdown -->
+  <!--<div *ngIf="expandedBookingId === booking.id" class="border-t border-outline-variant/10 bg-surface px-8 py-6">
+    <div class="flex items-center justify-between mb-4">
+      <h4 class="text-sm font-bold flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary">confirmation_number</span>
+        Active Tickets Management
+      </h4>-->
+  <!--<div class="flex gap-2">
+    <button class="bg-surface-container-lowest px-4 py-1.5 rounded-lg text-xs font-semibold ring-1 ring-outline-variant/20 hover:bg-white transition-colors">
+      Export
+      CSV
+    </button>
+    <button class="bg-surface-container-lowest px-4 py-1.5 rounded-lg text-xs font-semibold ring-1 ring-outline-variant/20 hover:bg-white transition-colors">
+      Bulk
+      Action
+    </button>
+  </div>-->
+  <!--</div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-separate border-spacing-y-2">
+                  <thead>
+                    <tr class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">
+                      <th class="px-4 py-2">ID</th>
+                      <th class="px-4 py-2">Seat ID</th>
+                      <th class="px-4 py-2">Type</th>
+                      <th class="px-4 py-2">Status</th>
+                      <th class="px-4 py-2">Checked-in Info</th>
+                      <th class="px-4 py-2 text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let ticket of booking.tickets" class="bg-surface-container-lowest hover:bg-white transition-colors group/row">
+                      <td class="px-4 py-3 text-xs font-bold text-primary">#TK-{{ticket.id}}</td>
+                      <td class="text-xs" *ngIf="ticket.seatNumber">{{ticket.sectionName}}, Row {{ticket.row}}, {{ticket.seatNumber}}</td>
+                      <td class="text-xs" *ngIf="!ticket.seatNumber">This is stand-ticket</td>
+                      <td class="px-4 py-3">
+                        <span [class]="ticket.ticketTypeName === 'VIP GOLD' ? 'text-[10px] px-2 py-0.5 rounded bg-amber-50 text-amber-700 font-bold border border-amber-200' : 'text-[10px] px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-bold border border-blue-200'">
+                          {{ticket.ticketTypeName}}
+                        </span>
+                      </td>
+                      <td class="px-4 py-3">
+                        <div class="flex items-center gap-1.5 text-xs font-semibold"
+                             [class.text-green-700]="ticket.status === 1"
+                             [class.text-on-surface-variant]="ticket.status === 2"
+                             [class.text-error]="ticket.status === 3">
+                          <span class="w-1.5 h-1.5 rounded-full"
+                                [class.bg-green-600]="ticket.status === 1"
+                                [class.bg-on-surface-variant]="ticket.status === 2"
+                                [class.bg-error]="ticket.status === 3"></span>
+                          {{ticket.statusLabel}}
+                        </div>
+                      </td>
+                      <td class="px-4 py-3">
+                        <div class="flex flex-col">
+                          <span class="text-xs font-medium">{{ ticket.status === 2 ? '19:42, Oct 24' : 'Not Checked In' }}</span>
+                          <span class="text-[10px] text-on-surface-variant">{{ ticket.status === 2 ? 'By Staff: Sarah J.' : 'Waiting...' }}</span>
+                        </div>
+                      </td>
+                      <td class="px-4 py-3 text-right">
+                        <button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors text-lg" (click)="viewTicket(ticket.id)">
+                          more_vert
+                        </button>
+                      </td>
+                    </tr>
+                    <tr *ngIf="booking.tickets.length === 0">
+                      <td colspan="6" class="px-4 py-8 text-center text-sm text-on-surface-variant italic">
+                        No tickets found for this booking.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </ng-container>
       </div>
 
-      <div class="flex-1 overflow-y-auto px-2 min-h-0">
-        <!-- Booking List Content -->
-        <div class="grid grid-cols-1 gap-6">
+    </div>
+
+    <div class="shrink-0">
+      <app-pagination [page]="filters.page"
+                      [pageSize]="pageSize"
+                      [totalPages]="totalPages"
+                      [totalCount]="totalCount"
+                      (pageChange)="onPageChange($event)">
+      </app-pagination>
+    </div>
+  </app-data-table>-->
+  <!--</section>-->
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-10" *ngIf="activeTab === 'home'">
+    <!-- Left Column: Upcoming Events -->
+    <div class="md:col-span-12 space-y-12">
+      <section>
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="font-epilogue text-[32px] font-bold">Upcoming Events</h2>
+          <!--<a class="text-[#316b00] font-bold flex items-center gap-1 hover:underline" href="#">
+            View All <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+          </a>-->
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <ng-container *ngFor="let booking of bookings">
-            <div class="group bg-surface-container-lowest rounded-xl overflow-hidden ring-1 ring-outline-variant/15 transition-all duration-300 mb-2"
-                 [class.shadow-xl]="expandedBookingId === booking.id">
-              <div class="flex flex-col md:flex-row h-auto md:h-64 cursor-pointer" (click)="toggleExpand(booking.id)">
-                <div class="relative w-70 md:w-80 h-70 md:h-full overflow-hidden">
-                  <!--<img class="w-70 h-70 object-cover group-hover:scale-105 transition-transform duration-500"
-                  [src]="booking.imageUrl" [alt]="booking.eventName" referrerPolicy="no-referrer" />-->
-                  <div class="absolute inset-0 bg-cover bg-center"
-                       [style.background-image]="'url(' + getThumbnail(booking.imageUrl) + ')'">
-                  </div>
-                  <div class="absolute inset-0 booking-card-overlay flex flex-col justify-end p-6">
-                    <span class="bg-primary/90 text-on-primary text-[10px] font-bold px-3 py-1 rounded-full w-fit mb-2 uppercase tracking-tighter">
-                      {{ booking.id === 9022 ? 'Theater' : booking.id === 9023 ? 'Sports' : 'Concert' }}
-                    </span>
-                    <h3 class="text-xl font-extrabold text-white leading-tight">{{booking.eventName}}</h3>
-                  </div>
-                </div>
-                <div class="flex-1 p-8 flex flex-col justify-between">
-                  <div class="flex justify-between items-start">
-                    <div class="space-y-4">
-                      <div class="flex items-center gap-8">
-                        <div>
-                          <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-                            Date & Time
-                          </p>
-                          <p class="text-sm font-semibold mt-1">{{booking.eventActiveAt | date:'MMM d, yyyy • HH:mm'}}</p>
-                        </div>
-                        <div>
-                          <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-                            Venue Location
-                          </p>
-                          <p class="text-sm font-semibold mt-1">{{booking.venueName}}</p>
-                        </div>
+            <div class="group perspective-1000 w-full min-h-[400px]">
+              <div class="relative w-full h-full transition-all duration-700 preserve-3d"
+                   [class.rotate-y-180]="expandedBookingId === booking.id">
 
-                      </div>
-                    </div>
-                    <div [class]="booking.status === 1 ? 'bg-primary-container text-on-primary-container px-4 py-2 rounded-lg text-sm font-bold' : 'bg-amber-100 text-amber-800 px-4 py-2 rounded-lg text-sm font-bold'">
-                      {{booking.statusLabel}}
+                <div class="backface-hidden absolute inset-0 w-full h-full bg-white rounded-xl overflow-hidden shadow-lg border border-gray-100">
+                  <div class="relative h-48 overflow-hidden cursor-pointer" (click)="toggleExpand(booking.id)">
+                    <img class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" [src]="booking.imageUrl" [alt]="booking.eventName" />
+                    <!--<button class="absolute top-4 right-4 w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#316b00] shadow-md">
+                      <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">bookmark</span>
+                    </button>-->
+                    <div class="absolute bottom-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-lg">
+                      <span class="text-xs font-bold text-[#316b00]">{{booking.eventActiveAt | date:'MMM d, yyyy'}}</span>
                     </div>
                   </div>
-                  <div class="flex items-center justify-between border-t border-outline-variant/10 pt-6">
-                    <div class="flex -space-x-3">
 
-                    </div>
-                    <div class="flex items-center gap-4">
-                      <button class="text-primary font-bold text-sm flex items-center gap-1 group/btn">
-                        {{ expandedBookingId === booking.id ? 'Close Details' : 'View Details' }}
-                        <span class="material-symbols-outlined text-base transition-transform"
-                              [class.rotate-90]="expandedBookingId === booking.id">
-                          {{ expandedBookingId === booking.id ? 'expand_more' : 'arrow_forward' }}
-                        </span>
+                  <div class="p-6">
+                    <h3 class="text-lg font-bold mb-1">{{booking.eventName}}</h3>
+                    <p class="text-sm text-[#414939] flex items-center gap-1">
+                      <span class="material-symbols-outlined text-[16px]">location_on</span> {{booking.venueName}}
+                    </p>
+                    <div class="mt-4 pt-4 border-t border-[#e2e2e2] flex justify-between items-center">
+                      <span class="text-sm font-bold text-[#316b00]">{{booking.tickets.length}} Tickets</span>
+                      <button class="bg-[#316b00] text-white px-4 py-2 rounded-full text-xs font-bold hover:bg-[#265200] transition-colors"
+                              (click)="toggleExpand(booking.id)">
+                        View Tickets
                       </button>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <!-- Ticket Table Dropdown -->
-              <div *ngIf="expandedBookingId === booking.id" class="border-t border-outline-variant/10 bg-surface px-8 py-6">
-                <div class="flex items-center justify-between mb-4">
-                  <h4 class="text-sm font-bold flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary">confirmation_number</span>
-                    Active Tickets Management
-                  </h4>
-                  <div class="flex gap-2">
-                    <button class="bg-surface-container-lowest px-4 py-1.5 rounded-lg text-xs font-semibold ring-1 ring-outline-variant/20 hover:bg-white transition-colors">
-                      Export
-                      CSV
-                    </button>
-                    <button class="bg-surface-container-lowest px-4 py-1.5 rounded-lg text-xs font-semibold ring-1 ring-outline-variant/20 hover:bg-white transition-colors">
-                      Bulk
-                      Action
+                <div class="backface-hidden rotate-y-180 absolute inset-0 w-full h-full bg-[#f9fafb] rounded-xl overflow-hidden shadow-2xl border border-gray-200 flex flex-col">
+                  <div class="p-4 bg-white border-b flex justify-between items-center">
+                    <h4 class="text-sm font-bold flex items-center gap-2">
+                      <span class="material-symbols-outlined text-[#316b00]">confirmation_number</span>
+                      Ticket Management
+                    </h4>
+                    <button (click)="toggleExpand(booking.id)" class="text-gray-400 hover:text-red-500 transition-colors">
+                      <span class="material-symbols-outlined">close</span>
                     </button>
                   </div>
+
+                  <div class="flex-1 overflow-y-auto p-4">
+                    <table class="w-full text-left border-separate border-spacing-y-2">
+                      <thead>
+                        <tr class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">
+                          <th class="px-2 py-1">Seat</th>
+                          <th class="px-2 py-1">Status</th>
+                          <th class="px-2 py-1 text-right">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let ticket of booking.tickets" class="bg-white rounded-lg shadow-sm">
+                          <td class="px-2 py-3 text-xs">
+                            <div class="font-bold text-[#316b00]">#TK-{{ticket.id}}</div>
+                            <div class="text-[10px] text-gray-500" *ngIf="ticket.seatNumber">{{ticket.sectionName}}, {{ticket.seatNumber}}</div>
+                            <div class="text-[10px] text-gray-500" *ngIf="!ticket.seatNumber">Standing</div>
+                          </td>
+                          <td class="px-2 py-3">
+                            <div class="flex items-center gap-1 text-[10px] font-bold"
+                                 [class.text-green-600]="ticket.status === 1"
+                                 [class.text-blue-600]="ticket.status === 2">
+                              <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+                              {{ticket.statusLabel}}
+                            </div>
+                          </td>
+                          <td class="px-2 py-3 text-right">
+                            <button class="material-symbols-outlined text-gray-400 text-lg" (click)="viewTicket(ticket.id)">more_vert</button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div class="p-4 bg-gray-50 text-center">
+                    <button (click)="toggleExpand(booking.id)" class="text-xs font-bold text-[#316b00] underline">Back to Info</button>
+                  </div>
                 </div>
-                <div class="overflow-x-auto">
-                  <table class="w-full text-left border-separate border-spacing-y-2">
-                    <thead>
-                      <tr class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">
-                        <th class="px-4 py-2">ID</th>
-                        <th class="px-4 py-2">Seat ID</th>
-                        <th class="px-4 py-2">Type</th>
-                        <th class="px-4 py-2">Status</th>
-                        <th class="px-4 py-2">Checked-in Info</th>
-                        <th class="px-4 py-2 text-right">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr *ngFor="let ticket of booking.tickets" class="bg-surface-container-lowest hover:bg-white transition-colors group/row">
-                        <td class="px-4 py-3 text-xs font-bold text-primary">#TK-{{ticket.id}}</td>
-                        <td class="text-xs" *ngIf="ticket.seatNumber">{{ticket.sectionName}}, Row {{ticket.row}}, {{ticket.seatNumber}}</td>
-                        <td class="text-xs" *ngIf="!ticket.seatNumber">This is stand-ticket</td>
-                        <td class="px-4 py-3">
-                          <span [class]="ticket.ticketTypeName === 'VIP GOLD' ? 'text-[10px] px-2 py-0.5 rounded bg-amber-50 text-amber-700 font-bold border border-amber-200' : 'text-[10px] px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-bold border border-blue-200'">
-                            {{ticket.ticketTypeName}}
-                          </span>
-                        </td>
-                        <td class="px-4 py-3">
-                          <div class="flex items-center gap-1.5 text-xs font-semibold"
-                               [class.text-green-700]="ticket.status === 1"
-                               [class.text-on-surface-variant]="ticket.status === 2"
-                               [class.text-error]="ticket.status === 3">
-                            <span class="w-1.5 h-1.5 rounded-full"
-                                  [class.bg-green-600]="ticket.status === 1"
-                                  [class.bg-on-surface-variant]="ticket.status === 2"
-                                  [class.bg-error]="ticket.status === 3"></span>
-                            {{ticket.statusLabel}}
-                          </div>
-                        </td>
-                        <td class="px-4 py-3">
-                          <div class="flex flex-col">
-                            <span class="text-xs font-medium">{{ ticket.status === 2 ? '19:42, Oct 24' : 'Not Checked In' }}</span>
-                            <span class="text-[10px] text-on-surface-variant">{{ ticket.status === 2 ? 'By Staff: Sarah J.' : 'Waiting...' }}</span>
-                          </div>
-                        </td>
-                        <td class="px-4 py-3 text-right">
-                          <button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors text-lg">
-                            more_vert
-                          </button>
-                        </td>
-                      </tr>
-                      <tr *ngIf="booking.tickets.length === 0">
-                        <td colspan="6" class="px-4 py-8 text-center text-sm text-on-surface-variant italic">
-                          No tickets found for this booking.
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+
+              </div>
+            </div>
+            <!-- Event Card 1 -->
+            <!--<div class="group bg-white rounded-xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-all duration-300"
+                 [class.shadow-xl]="expandedBookingId === booking.id">
+              <div class="relative h-48 overflow-hidden" (click)="toggleExpand(booking.id)">
+                <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" [src]="booking.imageUrl" [alt]="booking.eventName" />
+                <button class="absolute top-4 right-4 w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#316b00] shadow-md hover:scale-110 transition-transform" [style.background-image]="'url(' + getThumbnail(booking.imageUrl) + ')'">
+                  <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">bookmark</span>
+                </button>
+                <div class="absolute bottom-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-lg">
+                  <span class="text-xs font-bold text-[#316b00]">{{booking.eventActiveAt | date:'MMM d, yyyy • HH:mm'}}</span>
+                </div>
+              </div>
+              <div class="p-6">
+                <h3 class="text-lg font-bold mb-1">{{booking.eventName}}</h3>
+                <p class="text-sm text-[#414939] flex items-center gap-1">
+                  <span class="material-symbols-outlined text-[16px]">location_on</span> {{booking.venueName}}
+                </p>
+                <div class="mt-4 pt-4 border-t border-[#e2e2e2] flex justify-between items-center">
+                  <span class="text-sm font-bold text-[#316b00]">{{booking.tickets.length}} Tickets</span>
+                  <button class="bg-[#e2e2e2] text-[#414939] px-4 py-2 rounded-full text-xs font-bold hover:bg-[#316b00] hover:text-white transition-colors" (click)="toggleExpand(booking.id)">View Details</button>
                 </div>
               </div>
             </div>
+            <div *ngIf="expandedBookingId === booking.id" class="border-t border-outline-variant/10 bg-surface px-8 py-6">
+              <div class="flex items-center justify-between mb-4">
+                <h4 class="text-sm font-bold flex items-center gap-2">
+                  <span class="material-symbols-outlined text-primary">confirmation_number</span>
+                  Active Tickets Management
+                </h4>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-separate border-spacing-y-2">
+                  <thead>
+                    <tr class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">
+                      <th class="px-4 py-2">ID</th>
+                      <th class="px-4 py-2">Seat ID</th>
+                      <th class="px-4 py-2">Type</th>
+                      <th class="px-4 py-2">Status</th>
+                      <th class="px-4 py-2">Checked-in Info</th>
+                      <th class="px-4 py-2 text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let ticket of booking.tickets" class="bg-surface-container-lowest hover:bg-white transition-colors group/row">
+                      <td class="px-4 py-3 text-xs font-bold text-primary">#TK-{{ticket.id}}</td>
+                      <td class="text-xs" *ngIf="ticket.seatNumber">{{ticket.sectionName}}, Row {{ticket.row}}, {{ticket.seatNumber}}</td>
+                      <td class="text-xs" *ngIf="!ticket.seatNumber">This is stand-ticket</td>
+                      <td class="px-4 py-3">
+                        <span [class]="ticket.ticketTypeName === 'VIP GOLD' ? 'text-[10px] px-2 py-0.5 rounded bg-amber-50 text-amber-700 font-bold border border-amber-200' : 'text-[10px] px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-bold border border-blue-200'">
+                          {{ticket.ticketTypeName}}
+                        </span>
+                      </td>
+                      <td class="px-4 py-3">
+                        <div class="flex items-center gap-1.5 text-xs font-semibold"
+                             [class.text-green-700]="ticket.status === 1"
+                             [class.text-on-surface-variant]="ticket.status === 2"
+                             [class.text-error]="ticket.status === 3">
+                          <span class="w-1.5 h-1.5 rounded-full"
+                                [class.bg-green-600]="ticket.status === 1"
+                                [class.bg-on-surface-variant]="ticket.status === 2"
+                                [class.bg-error]="ticket.status === 3"></span>
+                          {{ticket.statusLabel}}
+                        </div>
+                      </td>
+                      <td class="px-4 py-3">
+                        <div class="flex flex-col">
+                          <span class="text-xs font-medium">{{ ticket.status === 2 ? '19:42, Oct 24' : 'Not Checked In' }}</span>
+                          <span class="text-[10px] text-on-surface-variant">{{ ticket.status === 2 ? 'By Staff: Sarah J.' : 'Waiting...' }}</span>
+                        </div>
+                      </td>
+                      <td class="px-4 py-3 text-right">
+                        <button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors text-lg" (click)="viewTicket(ticket.id)">
+                          more_vert
+                        </button>
+                      </td>
+                    </tr>
+                    <tr *ngIf="booking.tickets.length === 0">
+                      <td colspan="6" class="px-4 py-8 text-center text-sm text-on-surface-variant italic">
+                        No tickets found for this booking.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>-->
           </ng-container>
         </div>
 
+      </section>
+    </div>
+
+    <!-- Right Column: Recent Activity -->
+    <!--<div class="md:col-span-4 space-y-10">
+      <section class="bg-white rounded-xl p-8 shadow-[0_10px_30px_rgba(0,0,0,0.05)] border border-[#eeeeee]">
+        <h2 class="text-lg font-bold mb-8">Recent Activity</h2>
+        <div class="space-y-8">
+          <div class="flex gap-4">
+            <div class="w-10 h-10 rounded-full bg-[#76c043]/20 flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-[#316b00] text-[20px]">confirmation_number</span>
+            </div>
+            <div>
+              <p class="text-[15px]">Ticket purchased for <span class="font-bold">Neon Nights</span></p>
+              <p class="text-xs text-[#414939] opacity-70">2 hours ago</p>
+            </div>
+          </div>
+          <div class="flex gap-4">
+            <div class="w-10 h-10 rounded-full bg-[#d4e3e2] flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-[#536161] text-[20px]">favorite</span>
+            </div>
+            <div>
+              <p class="text-[15px]">You favorited <span class="font-bold">Jazz in the Park</span></p>
+              <p class="text-xs text-[#414939] opacity-70">Yesterday</p>
+            </div>
+          </div>
+        </div>
+        <button class="w-full mt-10 py-3 border-2 border-[#316b00] text-[#316b00] font-bold rounded-full hover:bg-[#316b00]/5 transition-colors">See History</button>
+      </section>
+    </div>-->
+  </div>
+
+  <section *ngIf="activeTab === 'favorite'" class="py-12">
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <!-- No results -->
+      <div *ngIf="events.length === 0"
+           class="text-center py-20 border-2 border-dashed border-slate-200 rounded-xl">
+        <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <span class="material-symbols-outlined text-slate-400 text-3xl">event_busy</span>
+        </div>
+        <p class="text-slate-500 text-sm font-medium">No favorite events.</p>
       </div>
+      <div class="grid grid-cols-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <article *ngFor="let event of events"
+                 class="fav-event-card bg-white rounded-xl overflow-hidden border border-gray-100 cursor-pointer"
+                 (click)="viewEvent(event.id)">
 
-      <div class="shrink-0">
-        <app-pagination [page]="filters.page"
-                        [pageSize]="pageSize"
-                        [totalPages]="totalPages"
-                        [totalCount]="totalCount"
-                        (pageChange)="onPageChange($event)">
-        </app-pagination>
-      </div>
-    </app-data-table>
+          <!-- Image -->
+          <div class="relative aspect-[4/5]">
+            <div class="w-full h-full bg-cover bg-center bg-slate-100"
+                 [style.background-image]="'url(' + getThumbnail(event.thumbnailUrl) + ')'">
+            </div>
 
-    <app-data-table class="lg:col-span-4 space-y-lg ml-2">
-      <h2 class="text-sm font-bold uppercase tracking-widest text-on-surface-variant mb-4 mt-4 ml-4 flex items-center gap-2 ">
-        <span class="material-symbols-outlined text-primary">manage_accounts</span>
-        Audit Logs
-      </h2>
-      <table class="w-full text-left border-collapse">
+            <!-- Bookmark -->
+            <ng-container *ngIf="!event.isSubscribe">
+              <button class="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-md hover:bg-white transition-colors"
+                      (click)="openDialogSubscribe(event.id, event.name); $event.stopPropagation()">
+                <svg class="h-5 w-5 text-[#2b2b2b]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                        stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                </svg>
+              </button>
+            </ng-container>
+            <ng-container *ngIf="event.isSubscribe">
+              <button class="absolute top-4 right-4 w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#316b00] shadow-md"
+                      (click)="openDialogUnSubscribe(event.id, event.name); $event.stopPropagation()">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">bookmark</span>
+              </button>
+            </ng-container>
 
-        <thead>
-          <tr class="bg-slate-50 dark:bg-slate-800/50">
-            <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">Action</th>
-            <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">Description</th>
-            <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">Time</th>
-          </tr>
-        </thead>
-
-        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-
-          <tr *ngFor="let log of auditLogs; let i = index"
-              class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-
-            <!-- Action -->
-            <td class="px-6 py-4">
-              <span class="font-semibold text-sm text-blue-600">
-                {{ log.action }}
+            <!-- Low stock badge -->
+            <div class="absolute bottom-4 left-4"
+                 *ngIf="getRemainingTickets(event) > 0 && getRemainingTickets(event) <= 10">
+              <span class="bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">
+                {{getRemainingTickets(event)}} Remaining
               </span>
-            </td>
+            </div>
 
-            <!-- Description -->
-            <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
-              {{ log.description }}
-            </td>
+            <!-- Sold out badge -->
+            <div class="absolute bottom-4 left-4" *ngIf="getRemainingTickets(event) === 0">
+              <span class="bg-gray-800 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">
+                Sold Out
+              </span>
+            </div>
+          </div>
 
-            <!-- Time -->
-            <td class="px-6 py-4 text-sm text-slate-500">
-              {{ log.createdAt | date:'dd/MM/yyyy HH:mm' }}
-            </td>
+          <!-- Info -->
+          <div class="p-5">
+            <p class="text-xs font-bold text-[#6abf45] mb-1 uppercase tracking-wider">
+              {{event.categoryName || 'Event'}}
+            </p>
+            <h3 class="text-lg font-bold text-[#2b2b2b] mb-2 line-clamp-1">{{event.name}}</h3>
+            <div class="flex items-center text-sm text-gray-500 mb-2">
+              <svg class="h-4 w-4 mr-1 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+              </svg>
+              <span>{{event.activeAt | date:'d MMM • EEE, h.mm a'}}</span>
+            </div>
+            <p class="text-xl font-extrabold text-[#2b2b2b]">
+              {{event.minPrice | currency:'VND':'symbol':'1.0-0'}} Vnd
+            </p>
+          </div>
 
-          </tr>
-
-        </tbody>
-
-      </table>
-    </app-data-table>
+        </article>
+      </div>
+    </div>
   </section>
 
   <section *ngIf="activeTab === 'about'" class="mt-sm px-2">
@@ -316,7 +637,7 @@
         </div>
         <a class="flex items-center gap-2 px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-bold transition-all shadow-sm"
            (click)="openChangePasswordDialog()">
-          <span class="material-symbols-outlined text-[18px]">delete</span> Change Password
+          <span class="material-symbols-outlined text-[18px]">Password</span> Change Password
         </a>
       </div>
     </section>
@@ -324,43 +645,43 @@
   <app-confirm-dialog [isOpen]="isDialogOpen" [config]="dialogConfig" (confirmed)="onPasswordChangeConfirmed()"
                       (cancelled)="onPasswordChangeCancelled()">
     <form [formGroup]="form">
-        <!-- Password -->
-        <div class="flex flex-col gap-1.5">
-          <label class="text-sm font-medium" for="password">Password</label>
-          <input class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
-                 formControlName="password" placeholder="••••••••" type="password" />
-          <span class="error-msg" *ngIf="isInvalid('password')">
-            <ng-container *ngIf="form.get('password')?.errors?.['required']">Password is required.</ng-container>
-            <ng-container *ngIf="form.get('password')?.errors?.['serverError']">
-              {{ form.get('password')?.errors?.['serverError'] }}
-            </ng-container>
-          </span>
-        </div>
-        <!-- New Password -->
-        <div class="flex flex-col gap-1.5">
-          <label class="text-sm font-medium" for="newpassword">New Password</label>
-          <input class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
-                 formControlName="newpassword" placeholder="••••••••" type="password" />
-          <span class="error-msg" *ngIf="isInvalid('newpassword')">
-            <ng-container *ngIf="form.get('newpassword')?.errors?.['required']">New Password is required.</ng-container>
-            <ng-container *ngIf="form.get('newpassword')?.errors?.['serverError']">
-              {{ form.get('newpassword')?.errors?.['serverError'] }}
-            </ng-container>
-          </span>
-        </div>
-        <!-- Confirm Password -->
-        <div class="flex flex-col gap-1.5">
-          <label class="text-sm font-medium" for="confirmpassword">Confirm Password</label>
-          <input class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
-                 formControlName="confirmpassword" placeholder="••••••••" type="password" />
-          <span class="error-msg" *ngIf="isInvalid('confirmpassword')">
-            <ng-container *ngIf="form.get('confirmpassword')?.errors?.['required']">Confirm Password is required.</ng-container>
-            <ng-container *ngIf="form.get('confirmpassword')?.errors?.['serverError']">
-              {{ form.get('confirmpassword')?.errors?.['serverError'] }}
-            </ng-container>
-          </span>
-        </div>
-      
+      <!-- Password -->
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-medium" for="password">Password</label>
+        <input class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
+               formControlName="password" placeholder="••••••••" type="password" />
+        <span class="error-msg" *ngIf="isInvalid('password')">
+          <ng-container *ngIf="form.get('password')?.errors?.['required']">Password is required.</ng-container>
+          <ng-container *ngIf="form.get('password')?.errors?.['serverError']">
+            {{ form.get('password')?.errors?.['serverError'] }}
+          </ng-container>
+        </span>
+      </div>
+      <!-- New Password -->
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-medium" for="newpassword">New Password</label>
+        <input class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
+               formControlName="newpassword" placeholder="••••••••" type="password" />
+        <span class="error-msg" *ngIf="isInvalid('newpassword')">
+          <ng-container *ngIf="form.get('newpassword')?.errors?.['required']">New Password is required.</ng-container>
+          <ng-container *ngIf="form.get('newpassword')?.errors?.['serverError']">
+            {{ form.get('newpassword')?.errors?.['serverError'] }}
+          </ng-container>
+        </span>
+      </div>
+      <!-- Confirm Password -->
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-medium" for="confirmpassword">Confirm Password</label>
+        <input class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
+               formControlName="confirmpassword" placeholder="••••••••" type="password" />
+        <span class="error-msg" *ngIf="isInvalid('confirmpassword')">
+          <ng-container *ngIf="form.get('confirmpassword')?.errors?.['required']">Confirm Password is required.</ng-container>
+          <ng-container *ngIf="form.get('confirmpassword')?.errors?.['serverError']">
+            {{ form.get('confirmpassword')?.errors?.['serverError'] }}
+          </ng-container>
+        </span>
+      </div>
+
     </form>
   </app-confirm-dialog>
 
@@ -468,4 +789,8 @@
       © 2023 EventPro Global. All rights reserved.
     </div>
   </footer>
+  <app-confirm-dialog [isOpen]="isOpenDialog" [config]="subscribeDialogConfig" (confirmed)="subscribeNotiFromEvent()"
+                      (cancelled)="onCancelled()" />
+  <app-confirm-dialog [isOpen]="isOpenUnSubscribeDialog" [config]="unSubscribeDialogConfig" (confirmed)="unSubscribeNotiFromEvent()"
+                      (cancelled)="onCancelled()" />
 </main>

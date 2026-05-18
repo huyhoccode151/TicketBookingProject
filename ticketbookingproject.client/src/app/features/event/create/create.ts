@@ -62,14 +62,15 @@ export class Create implements OnInit {
   dialogCreateConfig: ConfirmDialogConfig = { title: '', message: '' }
   dialogDeleteConfig: ConfirmDialogConfig = { title: '', message: '' }
   errorMessage = '';
+  formattedPrice = '';
 
   tickets: Ticket[] = [
     {
-      initials: 'VIP', name: 'New Small', price: 10,
+      initials: 'VIP', name: 'V.I.P', price: 100000,
       quantity: '20', maxPerUser: '2'
     },
     {
-      initials: 'NOR', name: 'New Small', price: 10,
+      initials: 'NOR', name: 'NORMAL', price: 70000,
       quantity: '20', maxPerUser: '2'
     },
   ];
@@ -78,7 +79,6 @@ export class Create implements OnInit {
     this.eventService.getCategory().subscribe({
       next: (res) => {
         this.categories = res.data;
-        this.toast.success('Success', 'Load categories successfully!!!');
       },
       error: () => {
         this.toast.error('Error', 'Cannot load categories');
@@ -88,7 +88,6 @@ export class Create implements OnInit {
     this.eventService.getVenue().subscribe({
       next: (res) => {
         this.venues = res.data;
-        this.toast.success('Success', 'Load venues successfully!!!');
       },
       error: () => {
         this.toast.error('Error', 'Cannot load venues');
@@ -124,23 +123,32 @@ export class Create implements OnInit {
     });
 
     this.ticketFormEdit = this.fb.group({
-      name: ['', Validators.required],
-      price: [2000, [Validators.required, Validators.min(1)]],
+      name: ['New Ticket', Validators.required],
+      price: [2000, [Validators.required, Validators.min(2000)]],
       quantity: [1, [Validators.required, Validators.min(1)]],
       maxPerUser: [1, [Validators.required, Validators.min(1)]],
     });
 
     this.ticketFormCreate = this.fb.group({
-      name: ['', Validators.required],
-      price: [2000, [Validators.required, Validators.min(1)]],
+      name: ['New Ticket', Validators.required],
+      price: [2000, [Validators.required, Validators.min(2000)]],
       quantity: [1, [Validators.required, Validators.min(1)]],
       maxPerUser: [1, [Validators.required, Validators.min(1)]],
     });
 
     this.subs.add(
       this.form.get('details')?.valueChanges.subscribe(val => {
+        const minDate = new Date();
+        const startDate = new Date(val.startTime);
+        minDate.setDate(minDate.getDate() + 3);
+
+        if (startDate < minDate) {
+          this.form.get('details.startTime')?.setErrors({ invalidTime: true });
+          this.form.get('details.startTime')?.markAsTouched();
+        }
+
         if (val.startTime && val.endTime) {
-          if (new Date(val.startTime) > new Date(val.endTime)) {
+          if (new Date(val.startTime) >= new Date(val.endTime)) {
             this.form.get('details.endTime')?.setErrors({ invalidRange: true });
             this.form.get('details.endTime')?.markAsTouched();
           }
@@ -155,7 +163,6 @@ export class Create implements OnInit {
       this.form.get('settings.startImmediately')!.valueChanges.subscribe(immediate => {
         const group = this.form.get('settings.bookingStart') as FormGroup;
         const dateCtrl = group.get('date');
-        
 
         if (immediate) {
           group.disable({ emitEvent: false });
@@ -191,16 +198,37 @@ export class Create implements OnInit {
 
     this.subs.add(
       this.form.get('settings')!.valueChanges.subscribe(settings => {
-        if(settings.bookingStart.date && settings.bookingEnd.date) {
+        if (settings.bookingStart.date && settings.bookingEnd.date) {
+          const minDate = new Date();
           const start = new Date(settings.bookingStart.date);
           const end = new Date(settings.bookingEnd.date);
           const startTime = settings.bookingStart.time || '00:00';
           const endTime = settings.bookingEnd.time || '00:00';
+
+          if (start < minDate) {
+            this.form.get('settings.bookingStart.date')?.setErrors({ invalidTime: true });
+            this.form.get('settings.bookingStart.date')?.markAsTouched();
+          }
+
           if (start > end && startTime > endTime) {
             this.form.get('settings.bookingEnd.date')?.setErrors({ invalidBookingRange: true });
             this.form.get('settings.bookingEnd.date')?.markAsTouched();
           } else {
             this.form.get('settings.bookingEnd.date')?.setErrors(null);
+          }
+
+          const eventEndTime = this.form.get('details.endTime')?.value;
+          if (eventEndTime) {
+            const eventEnd = new Date(eventEndTime);
+
+            const [endHour, endMin] = endTime.split(':').map(Number);
+            const bookingEndDateTime = new Date(end);
+            bookingEndDateTime.setHours(endHour, endMin, 0, 0);
+
+            if (bookingEndDateTime > eventEnd) {
+              this.form.get('settings.bookingEnd.date')?.setErrors({ exceedsEventEnd: true });
+              this.form.get('settings.bookingEnd.date')?.markAsTouched();
+            }
           }
         }
       })
@@ -335,10 +363,14 @@ export class Create implements OnInit {
   }
 
   get resolvedBookingStart(): string | null {
-    if (this.isImmediate) return new Date().toISOString();
+    if (this.isImmediate) return new Date().toUTCString();
 
     const { date, time } = this.form.get('settings.bookingStart')!.value;
-    if (date && time) return `${date}T${time}:00`;
+    if (date && time) {
+      const localDateTime = `${date}T${time}:00`;
+
+      return new Date(localDateTime).toUTCString();
+    }
     return null;
   }
 
@@ -357,7 +389,12 @@ export class Create implements OnInit {
     }
 
     const { date, time } = this.form.get('settings.bookingEnd')!.value;
-    if (date && time) return `${date}T${time}:00`;
+
+    if (date && time) {
+      const localDateTime = `${date}T${time}:00`;
+
+      return new Date(localDateTime).toUTCString();
+    }
     return null;
   }
 
@@ -408,7 +445,7 @@ export class Create implements OnInit {
       return;
     }
 
-    const toDateTime = (date: string) => `${date}T00:00:00`;
+    const toDateTime = (date: string) => new Date(date).toUTCString();
 
     const v = this.form.value;
 
@@ -565,6 +602,8 @@ export class Create implements OnInit {
     if (control.errors['required']) return `${errorField} is required`;
     if (control.errors['minlength']) return 'Minimum 3 characters';
     if (control.errors['invalidBookingRange']) return 'End time must be greater than start time';
+    if (control.errors['invalidTime']) return 'Start time must be after now';
+    if (control.errors['exceedsEventEnd']) return 'Booking end time must be befor event start';
 
     return 'Invalid field';
   }
@@ -612,4 +651,14 @@ export class Create implements OnInit {
 
   //  group.get('date')?.updateValueAndValidity();
   //});
+  onPriceInput(event: any) {
+    let value = event.target.value.replace(/\D/g, '');
+
+    this.ticketFormEdit.patchValue({
+      price: Number(value)
+    }, { emitEvent: false });
+
+    this.formattedPrice =
+      Number(value).toLocaleString('vi-VN');
+  }
 }

@@ -4,7 +4,7 @@ namespace TicketBookingProject.Server;
 
 public interface IUiActionService
 {
-    Task<List<UIActionDto>> GetAllAsync();
+    Task<Result<List<UIActionDto>>> GetAllAsync();
     Task<Result<PagedResponse<UIActionDto>>> GetAllUIActions(ListUIActionRequest req);
     Task<List<UIActionDto>> GetNavItemsAsync();
     Task<Result<UIActionDto>> GetByIdAsync(int id);

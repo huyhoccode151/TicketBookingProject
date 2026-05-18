@@ -37,8 +37,9 @@ export class Booked implements OnInit {
         }, 1000);
         this.toast.info('Show tickets', 'Show tickets successfully!!!');
       },
-      error: () => {
-        this.toast.error('Show tickets', 'Show tickets successfully!!!');
+      error: (err) => {
+
+        this.toast.error('Show tickets' + err?.error?.errors, 'Show tickets failed!!!');
       }
     });
   }

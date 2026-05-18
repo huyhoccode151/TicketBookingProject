@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TicketBookingProject.Server.Models;
 using System.Linq.Dynamic.Core;
+using Microsoft.AspNetCore.Mvc;
 
 namespace TicketBookingProject.Server;
 
@@ -208,5 +209,18 @@ public class UserRepository : BaseRepository<User>, IUserRepository
             user.Roles.Select(r => r.Name).ToList(),
             user.UserPermissions.Where(u => u.UserId == user.Id).Select(up => up.Permission.Name).ToList()
         );
+    }
+
+    public async Task UserEvent(int id)
+    {
+        var user = _dbset.Include(u => u.Events).Where(u => u.Id == id)
+            .Select(u => new
+            {
+                Id = u.Id,
+                FirstName = u.Firstname,
+                LastName = u.Lastname,
+                Events = u.Events.OrderByDescending(e => e.CreatedAt).Select(e => e.Name).Take(3).ToList()
+            })
+            .FirstOrDefault();
     }
 }

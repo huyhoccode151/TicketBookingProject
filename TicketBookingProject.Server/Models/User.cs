@@ -54,4 +54,6 @@ public partial class User : IEntities, IDelEntity
     public virtual ICollection<Role> Roles { get; set; } = new List<Role>();
 
     public ICollection<UserPermission> UserPermissions { get; set; } = new List<UserPermission>();
+    public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+    public ICollection<EventSubscription> EventSubscriptions { get; set; } = new List<EventSubscription>();
 }

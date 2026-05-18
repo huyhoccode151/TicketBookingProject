@@ -14,6 +14,10 @@ export class TicketService {
 
   private http = inject(HttpClient);
 
+  getTicketById(ticketId: number) {
+    return this.http.get<ApiResponse<Ticket>>(`${this.api}/${ticketId}`);
+  }
+
   getTicketsByBookingId(bookingId: number) {
     return this.http.get<ApiResponse<Ticket[]>>(`${this.api}/booking/${bookingId}`);
   }
@@ -121,6 +125,10 @@ export class TicketService {
       .set('Status', req.status);
 
     return this.http.get<ApiResponse<PagedResult<BookingTicketListItemResponse>>>(this.api + '/my-bookings', { params });
+  }
+
+  getUpcomingTicketsByUserId(): Observable<ApiResponse<BookingTicketListItemResponse[]>> {
+    return this.http.get<ApiResponse<BookingTicketListItemResponse[]>>(this.api + "/my-upcoming-event-booked");
   }
 
   getTicketsSuccessByUserId(req: TicketSuccessListRequest): Observable<ApiResponse<PagedResult<BookingTicketListItemResponse>>> {

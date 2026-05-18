@@ -83,6 +83,35 @@ public class EventService : IEventService
         return Result<PagedResponse<EventListItemResponse>>.Success(result, "Get List Event with admin Successfully");
     }
 
+    //public async Task<Result<List<EventListItemResponse>>> ListEventUpcoming()
+    //{
+    //    var currentUserId = _currentUser.UserId;
+    //    var roles = _currentUser.Role ?? new List<string>();
+    //    var actionOfAdmin = roles.Contains("admin");
+
+    //    var actionOfOrganizer = roles.Contains("organizer");
+
+    //    var actionOfCustomer = roles.Contains("customer");
+
+    //    var events = actionOfAdmin && actionOfOrganizer ? await _eventRepo.GetEventUpcoming()
+
+    //}
+
+    public async Task<Result<List<EventListItemResponse>>> GetFavEvent()
+    {
+        var currentUserId = _currentUser.UserId ?? 0;
+
+        var favEvents = await _eventRepo.GetFavEvent(currentUserId);
+        if (favEvents == null)
+        {
+            return Result<List<EventListItemResponse>>.Failure("Has no favorite event");
+        }
+
+        var result = await favEvents.ProjectTo<EventListItemResponse>(_mapper.ConfigurationProvider).ToListAsync();
+
+        return Result<List<EventListItemResponse>>.Success(result, "Retrived success list favorite event");
+    }
+
     public async Task<EventDetailResponse> CreateEventAsync(CreateEventRequest request)
     {
         using var transaction = _db.Database.BeginTransaction(); //sử dụng transaction, có thể rollback nếu lỗi
@@ -222,7 +251,7 @@ public class EventService : IEventService
 
     public async Task<List<SeatHold>> HoldTicketsAsync(HoldTicketsRequest request)
     {
-        var userId = (int)_currentUser.UserId!;
+        var userId = _currentUser.UserId ?? 1;
         var seatHolds = await _eventRepo.HoldTicketsAsync(request, userId);
         return _mapper.Map<List<SeatHold>>(seatHolds);
     }
@@ -254,7 +283,7 @@ public class EventService : IEventService
             var now = DateTime.UtcNow;
 
             var expiredHolds = await _db.SeatHolds
-                .Where(sh => sh.Status == SeatHoldStatus.Released && sh.ExpiresAt < now)
+                .Where(sh => sh.Status == SeatHoldStatus.Active && sh.ExpiresAt < now)
                 .ToListAsync();
 
             if (expiredHolds.Any())
@@ -262,7 +291,7 @@ public class EventService : IEventService
                 foreach (var hold in expiredHolds)
                 {
                     await _db.Database.ExecuteSqlRawAsync(
-                        "UPDATE TicketTypes SET Quantity = Quantity + {0} WHERE Id = {1}",
+                        "UPDATE ticket_types SET sold_quantity = sold_quantity - {0} WHERE Id = {1}",
                         hold.Quantity, hold.TicketTypeId);
 
                     hold.Status = SeatHoldStatus.Expired;
@@ -274,7 +303,7 @@ public class EventService : IEventService
 
                         if (booking != null)
                         {
-                            booking.Status = BookingStatus.Cancelled;
+                            booking.Status = BookingStatus.Expired;
                         }
                     }
                 }
@@ -334,6 +363,8 @@ public class EventService : IEventService
 
             if (roles.Contains("admin") && (evt.Status == EventStatus.Draft) && (request.Status == EventStatus.Confirm))
                 evt.Status = request.Status;
+            else if (roles.Contains("admin") && (evt.Status == EventStatus.Confirm) && (request.Status == EventStatus.Draft))
+                evt.Status = request.Status;
             else if ((roles.Contains("organizer") || roles.Contains("admin")) && (evt.Status == EventStatus.Draft) && (request.Status == EventStatus.Cancelled))
                 evt.Status = request.Status;
             else if ((roles.Contains("organizer") || roles.Contains("admin")) && evt.Status == EventStatus.Published && request.Status == EventStatus.Cancelled)
@@ -365,4 +396,18 @@ public class EventService : IEventService
             return Result<EventDetailResponse>.Failure("Unexpected error occurred while updating event status.");
         }
     }
+
+
+    public async Task<Result<bool>> DeleteBooking(int id)
+    {
+        //var booking = _bookingRepo.GetBooking(id);
+
+        //if (booking == null) return Result<bool>.Failure("Can't find any booking", StatusCodes.Status204NoContent);
+
+        _db.Bookings.Where(x => x.Id == id).ExecuteDelete() ;
+        //_db.SaveChanges();
+
+        return Result<bool>.Success(true, "Delete booking success");
+    }
+
 }

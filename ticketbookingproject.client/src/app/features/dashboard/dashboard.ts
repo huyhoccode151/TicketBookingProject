@@ -217,7 +217,7 @@ export class Dashboard implements OnInit {
   getCapacity(event: EventTrendingResponse): number {
     if (!event.stock || event.stock === 0) return 0;
     const cap = (event.sold / (event.stock + event.sold)) * 100;
-    // Nếu phần trăm quá nhỏ (như 0.3%), chúng ta có thể làm tròn lên 1 hoặc để số thập phân 1 chữ số
+
     return parseFloat(cap.toFixed(1));
   }
 
@@ -232,7 +232,6 @@ export class Dashboard implements OnInit {
   }
 
   onApplyFilters() {
-    // Kiểm tra logic nếu cần (ví dụ: ngày bắt đầu không được lớn hơn ngày kết thúc)
     if (this.filterCriteria.dateFrom && this.filterCriteria.dateTo) {
       if (new Date(this.filterCriteria.dateFrom) > new Date(this.filterCriteria.dateTo)) {
         alert('Start date cannot be later than end date');

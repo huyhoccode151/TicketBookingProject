@@ -7,11 +7,13 @@ import { FormsModule } from '@angular/forms';
 import { Loader } from '../../../shared/ui/loader/loader';
 import { RouteService } from '../../../core/services/route.service';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { ToastService } from '../../../shared/ui/toast/toast.service';
+import { ConfirmDialog, ConfirmDialogConfig } from '../../../shared/ui/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-index-cus',
   standalone: true,
-  imports: [CommonModule, FormsModule, Loader, NgSelectModule],
+  imports: [CommonModule, FormsModule, Loader, NgSelectModule, ConfirmDialog],
   templateUrl: './index-cus.html',
   styleUrls: ['./index-cus.scss'],
 })
@@ -22,6 +24,13 @@ export class IndexCus {
   venueOptions: { label: string; value: string }[] = [];
   categories: string[] = [];
   selectedCategories: string[] = [];
+  currentEventId: number = 0;
+  currentEventName: string = '';
+  isOpenDialog = false;
+  subscribeDialogConfig: ConfirmDialogConfig = { title: '', message: '' };
+  isOpenUnSubscribeDialog = false;
+  unSubscribeDialogConfig: ConfirmDialogConfig = { title: '', message: '' };
+
 
   searchTemp = '';
   page = 1;
@@ -29,28 +38,29 @@ export class IndexCus {
   totalCount = 0;
   totalPages = 1;
   datePreset = '';
-  dateFrom: Date | null = null;
-  dateTo: Date | null = null;
+  dateFrom: string = '';
+  dateTo: string = '';
   onSale = false;
 
   filter = { venue: '', category: '', status: 'published' };
 
   datePresets = [
     { label: 'All', value: '' },
-    { label: 'Today', value: 'today' },
-    { label: 'Tomorrow', value: 'tomorrow' },
-    { label: 'This Week', value: 'this_week' },
-    { label: 'This Weekend', value: 'this_weekend' },
-    { label: 'Next Weekend', value: 'next_weekend' },
-    { label: 'This Month', value: 'this_month' },
-    { label: 'Next Month', value: 'next_month' },
-    { label: 'This Year', value: 'this_year' },
-    { label: 'Next Year', value: 'next_year' },
+    { label: 'Today', value: 'Today' },
+    { label: 'Tomorrow', value: 'Tomorrow' },
+    { label: 'This Week', value: 'ThisWeek' },
+    { label: 'This Weekend', value: 'ThisWeekend' },
+    { label: 'Next Weekend', value: 'NextWeekend' },
+    { label: 'This Month', value: 'ThisMonth' },
+    { label: 'Next Month', value: 'NextMonth' },
+    { label: 'This Year', value: 'ThisYear' },
+    { label: 'Next Year', value: 'NextYear' },
   ];
 
   private router = inject(Router);
   private eventService = inject(EventService);
   private cdr = inject(ChangeDetectorRef);
+  private toast = inject(ToastService);
   route = inject(RouteService);
 
   ngOnInit() {
@@ -73,18 +83,23 @@ export class IndexCus {
         this.dateFrom,
         this.dateTo,
       )
-      .subscribe((res) => {
-        this.events = append
-          ? [...this.events, ...res.data.items]
-          : res.data.items;
-        this.pageSize = res.data.pageSize;
-        this.totalCount = res.data.totalCount;
-        this.totalPages = res.data.totalPages;
+      .subscribe({
+        next: (res) => {
+          this.events = append
+            ? [...this.events, ...res.data.items]
+            : res.data.items;
+          this.pageSize = res.data.pageSize;
+          this.totalCount = res.data.totalCount;
+          this.totalPages = res.data.totalPages;
 
-        setTimeout(() => {
-          this.loading = false;
-          this.cdr.markForCheck();
-        }, 500);
+          setTimeout(() => {
+            this.loading = false;
+            this.cdr.markForCheck();
+          }, 500);
+        },
+        error: (err) => {
+          this.toast.error('Delete User', 'Delete Failed!!!');
+        }
       });
   }
 
@@ -156,5 +171,62 @@ export class IndexCus {
     this.selectedCategories = value ? value : [];
     this.page = 1;
     this.loadEvent();
+  }
+
+  openDialogSubscribe(id: number, EventName: string) {
+    this.currentEventId = id;
+    this.currentEventName = EventName;
+    this.subscribeDialogConfig = {
+      title: 'Subscribe Event',
+      message: 'Are you sure you want to subscribe this event? You can receive noti of this event when it has any changes!!!',
+      detail: `Event: ${EventName}`,
+      confirmText: 'Subscribe',
+      cancelText: 'Cancel',
+      variant: 'info',
+    }
+    this.isOpenDialog = true;
+  }
+
+  subscribeNotiFromEvent() {
+    this.isOpenDialog = false;
+    this.eventService.subscribeEvent(this.currentEventId).subscribe({
+      next: () => {
+        this.toast.success("You just subscribed " + this.currentEventName);
+      },
+      error: (err) => {
+        this.toast.error("You can't subscribe this event");
+      }
+    });
+  }
+
+  openDialogUnSubscribe(id: number, EventName: string) {
+    this.currentEventId = id;
+    this.currentEventName = EventName;
+    this.unSubscribeDialogConfig = {
+      title: 'UnSubscribe Event',
+      message: 'Are you sure you want to unsubscribe this event? You can not receive noti of this event when it has any changes!!!',
+      detail: `Event: ${EventName}`,
+      confirmText: 'UnSubscribe',
+      cancelText: 'Cancel',
+      variant: 'warning',
+    }
+    this.isOpenUnSubscribeDialog = true;
+  }
+
+  unSubscribeNotiFromEvent() {
+    this.isOpenUnSubscribeDialog = false;
+    this.eventService.unsubscribeEvent(this.currentEventId).subscribe({
+      next: () => {
+        this.toast.success("You just unsubscribed " + this.currentEventName);
+      },
+      error: (err) => {
+        this.toast.error("You can't unsubscribe this event");
+      }
+    });
+  }
+
+  onCancelled(): void {
+    this.isOpenUnSubscribeDialog = false;
+    this.isOpenDialog = false;
   }
 }

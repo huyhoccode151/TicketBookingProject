@@ -177,7 +177,7 @@ public class UserService : IUserService
 
         var updatedUser = await _userRepo.UpdateAsync(userUpdate);
 
-        var result = _mapper.Map<UserDetailResponse>(updatedUser);
+        var result = _mapper.Map<UserDetailResponse>(userUpdate);
 
         return Result<UserDetailResponse>.Success(result, "Updated User Successfully");
     }
@@ -302,5 +302,12 @@ public class UserService : IUserService
         await _userRepo.UpdateAsync(user);
 
         return Result<UserDetailResponse>.Success(_mapper.Map<UserDetailResponse>(user), StatusCodes.Status200OK, "Profile updated successfully");
+    }
+
+    public async Task GetEventOfUser()
+    {
+        var currentUserId = _currentUser.UserId ?? 1;
+        var userEvents = _userRepo.UserEvent(currentUserId);
+
     }
 }

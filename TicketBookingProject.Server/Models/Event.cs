@@ -49,4 +49,5 @@ public partial class Event : IEntities
     public virtual ICollection<TicketType> TicketTypes { get; set; } = new List<TicketType>();
 
     public virtual Venue Venue { get; set; } = null!;
+    public virtual ICollection<EventSubscription> EventSubscriptions { get; set; } = new List<EventSubscription>();
 }

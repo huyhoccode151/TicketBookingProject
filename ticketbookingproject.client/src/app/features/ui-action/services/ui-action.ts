@@ -23,6 +23,10 @@ export class UIActionService {
     return this.http.get<ApiResponse<PagedResult<UIActionResponse>>>(this.apiUrl + '/list', { params });
   }
 
+  getAllUiManageActions() {
+    return this.http.get<ApiResponse<UIActionResponse[]>>(this.apiUrl);
+  }
+
   getById(id: number) {
     return this.http.get<ApiResponse<UIActionResponse>>(this.apiUrl + '/' + id);
   }

@@ -60,6 +60,15 @@ namespace MyApp.Namespace
             return bookings.ToActionResult();
         }
 
+        [HttpGet("booking-pending")]
+        [Authorize]
+        public async Task<IActionResult> GetMyBookingPending()
+        {
+            var booking = await _bookingService.GetMyBookingPending();
+
+            return booking.ToActionResult();
+        }
+
         [HttpGet("recent-booking")]
         [Authorize(Roles = "admin,organizer")]
         [HasPermission("booking:manage")]

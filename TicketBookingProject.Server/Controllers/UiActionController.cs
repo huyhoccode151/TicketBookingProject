@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using TicketBookingProject.Server;
 using TicketBookingProject.Server.Common.Extensions;
@@ -16,11 +17,12 @@ namespace MyApp.Namespace
             _UiActionService = UiActionService;
         }
         // GET api/uiaction
+        // get all ui action with manage
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             var items = await _UiActionService.GetAllAsync();
-            return Ok(items);
+            return items.ToActionResult();
         }
 
         [HttpGet("list")]

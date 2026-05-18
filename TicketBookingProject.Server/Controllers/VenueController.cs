@@ -32,7 +32,7 @@ namespace MyApp.Namespace
         }
 
         [HttpGet("list-venue")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin,organizer")]
         public async Task<IActionResult> GetListVenue([FromQuery] VenueListRequest request)
         {
             var venues = await _venueService.ListVenueAsync(request);

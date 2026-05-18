@@ -261,7 +261,7 @@ public class PaymentService : IPaymentService
         var bookingId = int.Parse(response.OrderId.Split('_')[0]);
         var booking = await _bookingService.GetBookingByIdAsync(bookingId);
         if (booking == null)
-            throw new Exception($"Booking {bookingId} không tồn tại");
+            throw new Exception($"Booking {bookingId} does not exist");
 
         var payment = new Payment
         {
@@ -302,4 +302,5 @@ public class PaymentService : IPaymentService
         
         return fullTotalRevenues;
     }
+
 }

@@ -1,9 +1,13 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Hangfire;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Reflection.Metadata.Ecma335;
+using System.Security.Claims;
 using TicketBookingProject.Server.Common.Extensions;
+using TicketBookingProject.Server.Models;
 using static System.Net.WebRequestMethods;
 
 namespace TicketBookingProject.Server.Controllers
@@ -13,8 +17,16 @@ namespace TicketBookingProject.Server.Controllers
     public class EventController : ControllerBase
     {
         private readonly IEventService _eventService;
-        public EventController(IEventService eventService) => _eventService = eventService;
-
+        private readonly TicketBookingProjectContext _db;
+        private readonly IBackgroundJobClient _hangfire;
+        private readonly ICurrentUserService _currentUser;
+        public EventController(IEventService eventService, TicketBookingProjectContext db, IBackgroundJobClient hangfire, ICurrentUserService currentUser)
+        {
+            _eventService = eventService;
+            _db = db;
+            _hangfire = hangfire;
+            _currentUser = currentUser;
+        }
 
         [HttpGet("manager")]
         [Authorize(Roles = "admin, organizer")]
@@ -27,10 +39,19 @@ namespace TicketBookingProject.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetListEvents([FromQuery] EventListRequest req) { 
+        public async Task<IActionResult> GetListEvents([FromQuery] EventListRequest req)
+        {
             var pagedEvents = await _eventService.ListEventAsync(req);
 
             return pagedEvents.ToActionResult();
+        }
+
+        [HttpGet("fav")]
+        [Authorize]
+        public async Task<IActionResult> GetListFavoriteEvent()
+        {
+            var favEvent = await _eventService.GetFavEvent();
+            return favEvent.ToActionResult();
         }
 
         [HttpPost]
@@ -168,7 +189,43 @@ namespace TicketBookingProject.Server.Controllers
         {
             var eventUpdated = await _eventService.UpdateEventStatusAsync(id, request);
 
+            _hangfire.Enqueue<INotificationService>(s => s.SendNotificationToUser(id, request.CancelReason ?? ("Event " + eventUpdated.Data.Name + "already updated ")));
+
             return eventUpdated.ToActionResult();
         }
+
+        [HttpDelete("booking/{id}")]
+        public async Task<IActionResult> DeleteBooking(int id)
+        {
+            var booking = await _eventService.DeleteBooking(id);
+
+            return booking.ToActionResult();
+        }
+
+        [HttpPost("{id}/subscribe")]
+        [Authorize]
+        public async Task<IActionResult> SubscribeEvent(int id)
+        {
+            var userId = _currentUser.UserId;
+
+            if (await _db.EventSubscriptions.AnyAsync(x => x.EventId == id && x.UserId == (userId ?? 0)))
+                return BadRequest("You have already subscribed.");
+
+            _db.EventSubscriptions.Add(new EventSubscription { EventId = id, UserId = (userId ?? 0), CreatedAt = DateTime.UtcNow });
+            await _db.SaveChangesAsync();
+            return Ok();
+        }
+
+        [HttpDelete("{id}/unSubscribe")]
+        [Authorize]
+        public async Task<IActionResult> UnSubscribeEvent(int id) { 
+            var userId = _currentUser.UserId ?? 0;
+
+            if (await _db.EventSubscriptions.AnyAsync(x => x.EventId == id && x.UserId == userId))
+                _db.EventSubscriptions.Where(x => x.EventId == id && x.UserId == userId).ExecuteDelete();
+
+            return Ok();
+        }
+
     }
 }

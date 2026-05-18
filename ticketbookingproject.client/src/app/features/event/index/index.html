@@ -24,11 +24,6 @@
     <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 mb-8">
       <div class="flex flex-col lg:flex-row gap-4 items-center justify-between">
         <app-table-toolbar (search)="onSearch($event)">
-          <!--<app-filter-select label="Category"
-                             [options]="categoryOptions"
-                             [value]="filter.category"
-                             (valueChange)="filter.category=$event;  page=1; loadEvent();">
-          </app-filter-select>-->
           <ng-select [items]="categories"
                      [(ngModel)]="selectedCategories"
                      [multiple]="true"
@@ -46,6 +41,24 @@
                              [value]="filter.status"
                              (valueChange)="filter.status=$event;  page=1; loadEvent();">
           </app-filter-select>
+          <div class="date-range-filter basis-full flex items-center gap-2">
+            <span class="text-xs text-slate-500 font-semibold">Date Range</span>
+            <input type="date" class="bg-slate-50"
+                   [(ngModel)]="dateFrom"
+                   [max]="dateTo || ''"
+                   (change)="onDateChange()">
+            <span>—</span>
+            <input type="date" class="bg-slate-50"
+                   [(ngModel)]="dateTo"
+                   [min]="dateFrom || ''"
+                   (change)="onDateChange()">
+            <button *ngIf="dateFrom || dateTo"
+                    (click)="dateFrom=''; dateTo=''; loadEvent()"
+                    class="ml-2 text-slate-400 hover:text-red-500">
+              ✕
+            </button>
+          </div>
+
         </app-table-toolbar>
       </div>
     </div>
@@ -71,8 +84,21 @@
 
               <!-- draft → confirm -->
               <ng-container *hasPermission="'event:confirm'">
+                <button *ngIf="event.status === 'Confirm'"
+                        (click)="openDraftEvent(event.id)"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold
+                 bg-emerald-50 text-emerald-700 border border-emerald-200
+                 hover:bg-emerald-100 hover:border-emerald-300
+                 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800
+                 dark:hover:bg-emerald-900/50 transition-colors">
+                  <span class="material-symbols-outlined text-[16px]">Draft</span>
+                  Draft
+                </button>
+              </ng-container>
+
+              <ng-container *hasPermission="'event:confirm'">
                 <button *ngIf="event.status === 'Draft'"
-                        (click)="confirmEvent(event.id)"
+                        (click)="openConfirmEvent(event.id)"
                         class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold
                                bg-emerald-50 text-emerald-700 border border-emerald-200
                                hover:bg-emerald-100 hover:border-emerald-300
@@ -86,7 +112,7 @@
               <!-- draft / published → cancel -->
               <ng-container *hasPermission="'event:cancel'">
                 <button *ngIf="event.status === 'Draft' || event.status === 'Published'"
-                        (click)="cancelEvent(event.id)"
+                        (click)="openCancelEvent(event.id)"
                         class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold
                                bg-red-50 text-red-700 border border-red-200
                                hover:bg-red-100 hover:border-red-300
@@ -104,8 +130,8 @@
             </div>
 
           </div>
-          
-         
+
+
         </div>
         <!-- Bottom Section: Data Points Row -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-6 bg-slate-50/30 dark:bg-slate-800/20">
@@ -179,5 +205,11 @@
     </div>
   </div>
   <app-confirm-dialog [isOpen]="isDialogOpen" [config]="dialogConfig" (confirmed)="onConfirmed()"
+                      (cancelled)="onCancelled()" />
+  <app-confirm-dialog [isOpen]="isDraftDialogOpen" [config]="dialogDraftConfig" (confirmed)="draftEvent()"
+                      (cancelled)="onCancelled()" />
+  <app-confirm-dialog [isOpen]="isConfirmDialogOpen" [config]="dialogConfirmConfig" (confirmed)="confirmEvent()"
+                      (cancelled)="onCancelled()" />
+  <app-confirm-dialog [isOpen]="isCancelDialogOpen" [config]="dialogCancelConfig" (confirmed)="cancelEvent()"
                       (cancelled)="onCancelled()" />
 </main>

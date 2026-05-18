@@ -14,4 +14,5 @@ public interface IBookingRepository : IBaseRepository<Booking>
     Task<bool> RegainQuantityTicketType(int id);
     Task<bool> DeleteBooking(int id);
     Task<List<RequestRefundRequest>> CancelBooking(int id, string reason);
+    Task<BookingTicketDetails?> GetMyBookingPending(int currentUserId);
 }

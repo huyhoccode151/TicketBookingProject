@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.Identity.Client;
+using System.ComponentModel.DataAnnotations;
 
 namespace TicketBookingProject.Server;
 
@@ -41,7 +42,8 @@ public record EventListItemResponse(
     long MinPrice,
     long MaxPrice,
     string? ThumbnailUrl,
-    bool IsSaleOpen);
+    bool IsSaleOpen,
+    bool IsSubscribe);
 
 // ─────────────────────────────────────────────
 // EVENT — DETAIL
@@ -182,7 +184,7 @@ public record UpdateEventRequest : IValidatableObject
 
     [Required(ErrorMessage = "At least one ticket type is required.")]
     [MinLength(1, ErrorMessage = "At least one ticket type must be provided.")]
-    public List<CreateTicketTypeRequest> TicketTypes { get; init; } = [];
+    public List<UpdateTicketTypeRequest> TicketTypes { get; init; } = [];
 
     public List<IFormFile>? Posters { get; init; } = [];
     [Required(ErrorMessage = "Poster metadata is required.")]
@@ -290,6 +292,7 @@ public record CreateTicketTypeRequest
 
 public record UpdateTicketTypeRequest
 {
+    public int? Id { get; init; }
     [StringLength(255, MinimumLength = 1)]
     public string? Name { get; init; }
 

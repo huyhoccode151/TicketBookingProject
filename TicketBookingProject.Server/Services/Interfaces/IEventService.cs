@@ -5,6 +5,7 @@ namespace TicketBookingProject.Server;
 public interface IEventService
 {
     Task<Result<PagedResponse<EventListItemResponse>>> ListEventAsync(EventListRequest req);
+    Task<Result<List<EventListItemResponse>>> GetFavEvent();
     Task<EventDetailResponse> CreateEventAsync(CreateEventRequest request);
     Task<EventDetailResponse?> UpdateEventAsync(int id, UpdateEventRequest request);
     Task<bool> DeleteEventAsync(int id);
@@ -18,4 +19,5 @@ public interface IEventService
     Task CleanupExpiredHoldsAsync();
     Task<Result<EventDetailResponse>> UpdateEventStatusAsync(int id, UpdateEventStatusRequest request);
     Task UpdateEventStatusAuto();
+    Task<Result<bool>> DeleteBooking(int id);
 }

@@ -48,7 +48,7 @@ public class AuditLogRepository : BaseRepository<AuditLog>, IAuditLogRepository
 
     public async Task<List<AuditLogDto>> GetListAuditLogsByUserId(int userId)
     {
-        var query = _db.AuditLogs.Include(a => a.User).Where(a => a.UserId == userId).AsQueryable();
+        var query = _db.AuditLogs.Include(a => a.User).Where(a => a.UserId == userId && a.EntityType != "Login").AsQueryable();
         var items = await query.OrderByDescending(x => x.CreatedAt)
                                .Take(5)
                                .Select(x => new AuditLogDto

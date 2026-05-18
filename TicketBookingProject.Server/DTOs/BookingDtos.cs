@@ -129,6 +129,7 @@ public record SeatHoldStatusResponse(
 public record AdminBookingListRequest : PagedRequest
 {
     public string? Search { get; init; }   // user email hoặc booking id hoặc event name
+    public string? EventName { get; init; }
     public BookingStatus? Status { get; init; }
     public DateTime? DateFrom { get; init; }
     public DateTime? DateTo { get; init; }

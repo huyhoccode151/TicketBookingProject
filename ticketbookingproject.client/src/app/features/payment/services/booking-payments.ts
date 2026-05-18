@@ -18,6 +18,10 @@ export class BookingPayments {
     return this.http.get<ApiResponse<BookingTicketDetails>>(`${this.api}/${id}`);
   }
 
+  getMyPendingBooking() {
+    return this.http.get<ApiResponse<BookingTicketDetails>>(`${this.api}/booking-pending`);
+  }
+
   paymentByMomo(request: MomoPaymentRequest) {
     console.log('MOMO REQUEST:', request);
     return this.http.post<ApiResponse<MomoPaymentResponse>>(this.baseUrl + '/Payment/create-momo-payment', request);

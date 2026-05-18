@@ -60,6 +60,20 @@ public class TicketRepository : BaseRepository<Ticket>, ITicketRepository
         return tickets;
     }
 
+    public async Task<Ticket?> GetTicketByIdAsync(int ticketId)
+    {
+        return await _dbset
+            .Include(t => t.Booking)
+                .ThenInclude(b => b.Event)
+                    .ThenInclude(e => e.Venue)
+            .Include(t => t.Booking)
+                .ThenInclude(b => b.Event)
+                    .ThenInclude(e => e.EventPosters)
+            .Include(t => t.TicketType)
+            .Include(t => t.EventSeat)
+            .FirstOrDefaultAsync(t => t.Id == ticketId);
+    }
+
     public async Task<(IQueryable<Booking>, int TotalCount)> GetTicketsByUserId(int userId, TicketListRequest req)
     {
         var bookings = _db.Bookings
@@ -87,6 +101,14 @@ public class TicketRepository : BaseRepository<Ticket>, ITicketRepository
             .Take(req.PageSize);
 
         return (bookings, totalCount);
+    }
+
+    public async Task<IQueryable<Booking>> GetUpcomingTicketsByUserId(int userId)
+    {
+        var bookings = _db.Bookings.Where(b => b.UserId == userId).AsQueryable();
+
+        bookings = bookings.Where(b => b.Event.ActiveAt >= DateTime.UtcNow && b.Status == BookingStatus.Confirmed).OrderByDescending(b => b.Event.ActiveAt).ThenByDescending(b => b.CreatedAt);
+        return bookings;
     }
 
     public async Task<Ticket?> GetByQrCodeAsync(string qrCode)

@@ -40,8 +40,8 @@ export class Booking implements OnInit {
   loadEventDetails() {
 
     forkJoin({
-      posters: this.eventService.getEventPoster(this.eventId).pipe(catchError(() => { this.toast.error('Không thể tải hình ảnh sự kiện'); return of(null); })),
-      tickettypes: this.eventService.getTicketTypes(this.eventId).pipe(catchError(() => { this.toast.error('Không thể tải loại vé sự kiện'); return of(null); }))
+      posters: this.eventService.getEventPoster(this.eventId).pipe(catchError(() => { this.toast.error('Load events image failed!!!'); return of(null); })),
+      tickettypes: this.eventService.getTicketTypes(this.eventId).pipe(catchError(() => { this.toast.error('Load ticket types failed!!!'); return of(null); }))
     }).subscribe(({ posters, tickettypes }) => {
       if (posters) {
         const postersRes = posters.data;
@@ -88,6 +88,11 @@ export class Booking implements OnInit {
   createBooking() {
     if (this.isSubmitting) return;
 
+    if (this.selectedTickets.length == 0) {
+      this.toast.error("Booking Ticket", "Please choose at least one ticket");
+      return;
+    }
+
     this.isSubmitting = true;
     this.selectedBookings = this.selectedTickets.map(t => ({
       id: t.id,
@@ -97,9 +102,9 @@ export class Booking implements OnInit {
     this.eventService.createBooking(this.selectedBookings).subscribe({
       next: (res) => {
         const data = res.data;
-        //console.log('Booking created:', data);
+        console.log('Booking created:', data);
 
-        this.toast.success('Đặt vé thành công! Chuyển đến trang thanh toán...');
+        this.toast.success('Direct to payment...');
 
         setTimeout(() => {
           window.location.href = `events/${this.eventId}/bookings/${data.id}/payment`;
@@ -107,7 +112,7 @@ export class Booking implements OnInit {
       },
       error: (err) => {
         console.error(err);
-        this.toast.error('Có lỗi xảy ra, vui lòng thử lại');
+        this.toast.error('Errors, please try again later!!!');
         this.isSubmitting = false;
       }
     });

@@ -49,6 +49,11 @@ export const APP_ROUTES: Routes = [
           import('./features/event/index-cus/index-cus').then(m => m.IndexCus),
       },
       {
+        path: 'about-us',
+        loadComponent: () =>
+          import('./features/home/about-us/about-us').then(m => m.AboutUs),
+      },
+      {
         path: 'events/show/:id',
         loadComponent: () =>
           import('./features/event/show/show').then(m => m.Show)
@@ -78,6 +83,12 @@ export const APP_ROUTES: Routes = [
         canActivate: [authGuard],
         loadComponent: () =>
           import('./features/ticket/booked/booked').then(m => m.Booked)
+      },
+      {
+        path: 'ticket/:ticketId',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./features/ticket/show/show').then(m => m.Show)
       },
       {
         path: 'my-booking',

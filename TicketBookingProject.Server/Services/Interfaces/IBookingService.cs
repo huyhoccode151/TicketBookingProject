@@ -12,4 +12,5 @@ public interface IBookingService
     Task<bool> UpdateBookingStatus(int id, BookingStatus status);
     Task<bool> RegainQuantityTicketType(int id);
     Task<bool> DeleteBooking(int id);
+    Task<Result<BookingTicketDetails>> GetMyBookingPending();
 }

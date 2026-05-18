@@ -1,13 +1,4 @@
 <div class="checkout-page">
-  <!-- Header -->
-  <header class="navbar">
-    <div class="nav-content">
-      <div class="brand">
-        <button class="back-btn"><span class="material-symbols-outlined">arrow_back</span></button>
-        <h1>LUXE EVENTS</h1>
-      </div>
-    </div>
-  </header>
 
   <main class="main-container">
     <div class="layout-grid">
@@ -64,15 +55,13 @@
           <div class="summary-rows">
             <!--tổng tiền booking-->
             <div class="row"><span>Subtotal</span><span>{{ totalAmount | number}} VND</span></div>
-            <!--phí dịch vụ, mã giảm giá, thêm sau-->
-            <div class="row"><span>Service Fee (2%)</span><span>81,600 VND</span></div>
           </div>
 
           <div class="total-section">
             <div class="total-label">
               <span class="tag">Total Amount</span>
               <!--chưa cộng phí dục vụ-->
-              <span class="amount">{{ totalAmount | number}} VND</span>
+              <span class="amount">{{ (totalAmount) | number}} VND</span>
             </div>
             <span class="tax-note">Tax included</span>
           </div>

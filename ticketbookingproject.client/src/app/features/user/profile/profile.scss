@@ -195,6 +195,15 @@ $font-family: 'Work Sans', sans-serif;
   }
 }
 
+.fav-event-card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  }
+}
+
 // Event Card
 .event-card {
   grid-column: span 8;
@@ -571,4 +580,21 @@ $font-family: 'Work Sans', sans-serif;
 
 .bg-error {
   background-color: var(--error);
+}
+
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
 }

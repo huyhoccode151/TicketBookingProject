@@ -22,6 +22,21 @@ namespace TicketBookingProject.Server.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("BookingCoupon", b =>
+                {
+                    b.Property<int>("BookingsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CouponsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("BookingsId", "CouponsId");
+
+                    b.HasIndex("CouponsId");
+
+                    b.ToTable("BookingCoupon");
+                });
+
             modelBuilder.Entity("RolePermission", b =>
                 {
                     b.Property<int>("RoleId")
@@ -85,6 +100,40 @@ namespace TicketBookingProject.Server.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("audit_logs", (string)null);
+                });
+
+            modelBuilder.Entity("TicketBookingProject.Server.EventSubscription", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<int>("EventId")
+                        .HasColumnType("int");
+
+                    b.Property<byte>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint")
+                        .HasDefaultValue((byte)1);
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventId");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("UserId", "EventId")
+                        .IsUnique();
+
+                    b.ToTable("event_subscriptions", (string)null);
                 });
 
             modelBuilder.Entity("TicketBookingProject.Server.Models.Booking", b =>
@@ -218,6 +267,57 @@ namespace TicketBookingProject.Server.Migrations
                         .IsUnique();
 
                     b.ToTable("categories", (string)null);
+                });
+
+            modelBuilder.Entity("TicketBookingProject.Server.Models.Coupon", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("DiscountType")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("DiscountValue")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("ExpiredAt")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<int?>("MaxUsage")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("MinOrderValue")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("UsedCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.HasIndex("CreatedBy");
+
+                    b.HasIndex("ExpiredAt");
+
+                    b.ToTable("Coupons");
                 });
 
             modelBuilder.Entity("TicketBookingProject.Server.Models.Event", b =>
@@ -1146,6 +1246,47 @@ namespace TicketBookingProject.Server.Migrations
                     b.ToTable("venue_sections", (string)null);
                 });
 
+            modelBuilder.Entity("TicketBookingProject.Server.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<DateTime?>("SentAt")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<byte>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint")
+                        .HasDefaultValue((byte)0);
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<byte>("Type")
+                        .HasColumnType("tinyint");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("notifications", (string)null);
+                });
+
             modelBuilder.Entity("TicketBookingProject.Server.UiAction", b =>
                 {
                     b.Property<int>("Id")
@@ -1262,6 +1403,21 @@ namespace TicketBookingProject.Server.Migrations
                     b.ToTable("user_roles", (string)null);
                 });
 
+            modelBuilder.Entity("BookingCoupon", b =>
+                {
+                    b.HasOne("TicketBookingProject.Server.Models.Booking", null)
+                        .WithMany()
+                        .HasForeignKey("BookingsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TicketBookingProject.Server.Models.Coupon", null)
+                        .WithMany()
+                        .HasForeignKey("CouponsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("RolePermission", b =>
                 {
                     b.HasOne("TicketBookingProject.Server.Models.Permission", null)
@@ -1285,6 +1441,25 @@ namespace TicketBookingProject.Server.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TicketBookingProject.Server.EventSubscription", b =>
+                {
+                    b.HasOne("TicketBookingProject.Server.Models.Event", "Event")
+                        .WithMany("EventSubscriptions")
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TicketBookingProject.Server.Models.User", "User")
+                        .WithMany("EventSubscriptions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Event");
 
                     b.Navigation("User");
                 });
@@ -1335,6 +1510,15 @@ namespace TicketBookingProject.Server.Migrations
                     b.Navigation("EventSeat");
 
                     b.Navigation("TicketType");
+                });
+
+            modelBuilder.Entity("TicketBookingProject.Server.Models.Coupon", b =>
+                {
+                    b.HasOne("TicketBookingProject.Server.Models.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy");
+
+                    b.Navigation("CreatedByUser");
                 });
 
             modelBuilder.Entity("TicketBookingProject.Server.Models.Event", b =>
@@ -1595,6 +1779,17 @@ namespace TicketBookingProject.Server.Migrations
                     b.Navigation("Venue");
                 });
 
+            modelBuilder.Entity("TicketBookingProject.Server.Notification", b =>
+                {
+                    b.HasOne("TicketBookingProject.Server.Models.User", "User")
+                        .WithMany("Notifications")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("TicketBookingProject.Server.UiAction", b =>
                 {
                     b.HasOne("TicketBookingProject.Server.UiAction", "Parent")
@@ -1669,6 +1864,8 @@ namespace TicketBookingProject.Server.Migrations
 
                     b.Navigation("EventSeats");
 
+                    b.Navigation("EventSubscriptions");
+
                     b.Navigation("TicketTypes");
                 });
 
@@ -1715,7 +1912,11 @@ namespace TicketBookingProject.Server.Migrations
 
                     b.Navigation("EventSeatLogs");
 
+                    b.Navigation("EventSubscriptions");
+
                     b.Navigation("Events");
+
+                    b.Navigation("Notifications");
 
                     b.Navigation("Payments");
 

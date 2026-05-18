@@ -10,4 +10,6 @@ public interface ITicketRepository : IBaseRepository<Ticket>
     Task<Ticket?> GetByQrCodeAsync(string qrCode);
     Task<bool> UpdateTicketAsync(Ticket ticket);
     Task<bool> CancelTicket(List<int> bookingIds);
+    Task<Ticket?> GetTicketByIdAsync(int ticketId);
+    Task<IQueryable<Booking>> GetUpcomingTicketsByUserId(int userId);
 }

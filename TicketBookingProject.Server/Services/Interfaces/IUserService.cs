@@ -21,4 +21,5 @@ public interface IUserService
     Task<Result<UserAuthDto>> VerifyEmail(string userName);
     Task<Result<UserDetailResponse>> ChangePassword(ChangePasswordRequest req);
     Task<Result<UserDetailResponse>> UpdateUserProfileAsync(UpdateUserProfile req);
+    Task GetEventOfUser();
 }

@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { ToastService } from '../../../shared/ui/toast/toast.service';
 import { BookingService } from '../services/booking-service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ConfirmDialog, ConfirmDialogConfig } from '../../../shared/ui/confirm-dialog/confirm-dialog';
 import { AdminBookingListItemResponse, AdminBookingListRequest } from '../models/booking';
 import { CommonModule } from '@angular/common';
@@ -13,6 +13,7 @@ import { FilterSelect } from '../../../shared/ui/filter-select/filter-select';
 import { Pagination } from '../../../shared/ui/pagination/pagination';
 import { Loader } from '../../../shared/ui/loader/loader';
 import { TableActions } from '../../../shared/ui/table-actions/table-actions';
+import { EventService } from '../../event/services/event';
 
 @Component({
   selector: 'app-index',
@@ -42,9 +43,15 @@ export class Index {
 
   deleteBookingId!: number;
   dialogConfig: ConfirmDialogConfig = { title: '', message: '' };
+  eventName: string = '';
+  status: string ='';
+  dateFrom: string ='';
+  dateTo: string ='';
+  sortDesc: boolean = true;
 
   filters: AdminBookingListRequest = {
     searchTemp: '',
+    eventName: '',
     status: '',
     dateFrom: '',
     dateTo: '',
@@ -53,23 +60,56 @@ export class Index {
     pageSize: 10
   };
 
+  eventOptions: { label: string, value: string }[] = [];
+
   statusOptions = [
     { label: 'Pending', value: 'pending' },
     { label: 'Confirmed', value: 'confirmed' },
     { label: 'Cancelled', value: 'cancelled' },
+    { label: 'Expired', value: 'expired' }
   ];
 
   private toast = inject(ToastService);
   private bookingService = inject(BookingService);
+  private eventService = inject(EventService);
   private cdr = inject(ChangeDetectorRef);
+  private route = inject(ActivatedRoute);
   private router = inject(Router);
 
   ngOnInit() {
-    this.loadBookings();
+    this.loadEventNames();
+    this.route.queryParams.subscribe(params => {
+      if (params['eventName']) {
+        this.eventName = params['eventName'];
+        this.filters.eventName = params['eventName'];
+        this.cdr.detectChanges();
+      }
+      this.loadBookings();
+    });
+  }
+
+  loadEventNames() {
+    this.eventService.getEventNames().subscribe({
+      next: (res) => {
+        this.eventOptions = res.data.map(name => ({ label: name, value: name }));
+      },
+      error: (err) => {
+        if (err?.error?.errors) {
+          this.toast.error("Loading Event Names failed!!!", err.error.errors);
+        } else {
+          this.toast.error("Loading Event Names failed!!!", "Unknown error");
+        }
+      }
+    });
   }
 
   loadBookings() {
     //this.loading = true;
+    this.filters.status = this.status;
+    this.filters.dateFrom = this.dateFrom;
+    this.filters.dateTo = this.dateTo;
+    this.filters.eventName = this.eventName;
+
     this.bookingService.getListBooking(this.filters).subscribe({
       next: (res) => {
         if (res.success) {

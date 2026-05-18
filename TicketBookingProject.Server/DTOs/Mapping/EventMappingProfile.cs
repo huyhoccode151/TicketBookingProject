@@ -7,27 +7,27 @@ public class EventMappingProfile : Profile
 {
     private static readonly Dictionary<EventStatus, string> StatusLabels = new()
     {
-        [EventStatus.Draft] = "Nháp",
-        [EventStatus.Published] = "Đã đăng",
-        [EventStatus.Ongoing] = "Đang diễn ra",
-        [EventStatus.Completed] = "Đã kết thúc",
-        [EventStatus.Cancelled] = "Đã huỷ",
+        [EventStatus.Draft] = "Draft",
+        [EventStatus.Published] = "Published",
+        [EventStatus.Ongoing] = "On Going",
+        [EventStatus.Completed] = "Completed",
+        [EventStatus.Cancelled] = "Cancelled",
     };
 
     private static readonly Dictionary<TicketTypeStatus, string> TicketStatusLabels = new()
     {
-        [TicketTypeStatus.Hidden] = "Ẩn",
-        [TicketTypeStatus.OnSale] = "Đang bán",
-        [TicketTypeStatus.SoldOut] = "Hết vé",
-        [TicketTypeStatus.Paused] = "Tạm dừng",
+        [TicketTypeStatus.Hidden] = "Hidden",
+        [TicketTypeStatus.OnSale] = "On Sale",
+        [TicketTypeStatus.SoldOut] = "Sold out",
+        [TicketTypeStatus.Paused] = "Pause",
     };
 
     private static readonly Dictionary<EventSeatStatus, string> SeatStatusLabels = new()
     {
-        [EventSeatStatus.Available] = "Còn trống",
-        [EventSeatStatus.Reserved] = "Đang giữ",
-        [EventSeatStatus.Sold] = "Đã bán",
-        [EventSeatStatus.Locked] = "Bị khoá",
+        [EventSeatStatus.Available] = "Available",
+        [EventSeatStatus.Reserved] = "Reserved",
+        [EventSeatStatus.Sold] = "Sold",
+        [EventSeatStatus.Locked] = "Locked",
     };
 
     public EventMappingProfile()
@@ -77,7 +77,8 @@ public class EventMappingProfile : Profile
                 o => o.MapFrom(s =>
                     s.SaleStartAt <= DateTime.UtcNow &&
                     s.SaleEndAt >= DateTime.UtcNow &&
-                    s.Status == EventStatus.Published));
+                    s.Status == EventStatus.Published))
+            .ForCtorParam("IsSubscribe", o => o.MapFrom(s => s.EventSubscriptions.Any()));
 
         // ── Event → EventDetailResponse ───────────────────────
         CreateMap<Event, EventDetailResponse>()
@@ -112,6 +113,12 @@ public class EventMappingProfile : Profile
             .ForMember(d => d.Status, o => o.MapFrom(_ => TicketTypeStatus.OnSale))
             .ForMember(d => d.Version, o => o.MapFrom(_ => 0))
             .ForMember(d => d.CreatedAt, o => o.MapFrom(_ => DateTime.UtcNow))
+            .ForMember(d => d.UpdatedAt, o => o.MapFrom(_ => DateTime.UtcNow));
+
+        CreateMap<UpdateTicketTypeRequest, TicketType>()
+            .ForMember(d => d.Id, o => o.MapFrom(_ => _.Id))
+            .ForMember(d => d.Status, o => o.MapFrom(_ => TicketTypeStatus.OnSale))
+            .ForMember(d => d.Version, o => o.MapFrom(_ => 0))
             .ForMember(d => d.UpdatedAt, o => o.MapFrom(_ => DateTime.UtcNow));
 
         // ── TicketType → TicketTypeResponse ───────────────────

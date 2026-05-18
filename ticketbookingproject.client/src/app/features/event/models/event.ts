@@ -16,6 +16,7 @@ export interface Event {
   maxPrice: number,
   thumbnailUrl: string,
   onSale: boolean,
+  isSubscribe: boolean,
 }
 export interface Ticket {
   initials: string;
@@ -202,7 +203,6 @@ export class EventDetailResponse {
     });
   }
 
-  // Helper cực hữu ích
   get primaryPoster(): string | null {
     return this.posters?.find(p => p.isPrimary)?.imageUrl || null;
   }
