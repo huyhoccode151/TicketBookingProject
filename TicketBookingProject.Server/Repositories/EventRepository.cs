@@ -317,7 +317,10 @@ public class EventRepository : BaseRepository<Event>, IEventRepository
     {
         var events = _dbset.AsQueryable();
 
-        if (numTake != null) events = events.Where(e => e.Id != id && e.CategoryId == categoryId).Take(numTake ?? 4);
+        if (numTake != null) events = events.Where(e => e.Id != id && e.CategoryId == categoryId)
+                .OrderByDescending(e => e.TicketTypes.Select(t => t.SoldQuantity))
+                .ThenByDescending(e => e.ActiveAt)
+                .Take(numTake ?? 4);
 
         return events;
     }
