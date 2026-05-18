@@ -180,7 +180,7 @@ export class Show {
 
   showRelatedEvent(id: number) {
     this.router.navigate(this.routeNavigate.customerEventShow(id));
-    console.log("iii");
+    window.location.reload();
   }
 
   book() {
