@@ -1,3 +1,4 @@
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +22,12 @@ var jwt = cfg.GetSection("Jwt");
 builder.Services.AddDbContext<TicketBookingProjectContext>(options =>
     options.UseSqlServer(cfg.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddSignalR();
+
+builder.Services.AddHangfire(config => config
+    .UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddHangfireServer();
+
 builder.Services.AddSeeders(cfg);
 
 builder.Services.AddAuthentication(options =>
@@ -43,6 +50,22 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = jwt["Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt["Key"]!)),
         ClockSkew = TimeSpan.Zero
+    };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+
+            if (!string.IsNullOrEmpty(accessToken) &&
+                path.StartsWithSegments("/notificationHub"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
     };
 });
 
@@ -87,12 +110,14 @@ builder.Services.AddCors(options =>
         {
             policy.WithOrigins("https://localhost:65211")
                   .AllowAnyHeader()
-                  .AllowAnyMethod();
+                  .AllowAnyMethod()
+                  .AllowCredentials();
         });
 });
 
 //Use HttpContext to get user info
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<CurrentUserService>();
 
 //DI
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -111,7 +136,8 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IPermissionService, PermissionService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IUiActionService, UiActionService>();
-
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<ICouponService, CouponService>();
 
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
@@ -126,6 +152,7 @@ builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 builder.Services.AddScoped<IRefundRepository, RefundRepository>();
 builder.Services.AddScoped<IUiActionRepository, UiActionRepository>();
+builder.Services.AddScoped<ICouponRepository, CouponRepository>();
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -141,6 +168,11 @@ builder.Services.AddHostedService<VnpayRefundService>();
 //builder.Services.AddScoped<UiActionSeeder>();
 
 var app = builder.Build();
+
+app.MapHub<NotificationHub>("/notificationHub");
+
+// Giao diện quản lý Hangfire (tùy chọn - để xem các job đang chạy)
+app.UseHangfireDashboard();
 
 app.Use(async (context, next) =>
 {
