@@ -80,6 +80,23 @@ public class EventMappingProfile : Profile
                     s.Status == EventStatus.Published))
             .ForCtorParam("IsSubscribe", o => o.MapFrom(s => s.EventSubscriptions.Any()));
 
+        CreateMap<Event, RelatedEventResponse>()
+            .ForCtorParam("id",
+                o => o.MapFrom(s => s.Id))
+            .ForCtorParam("name",
+                o => o.MapFrom(s => s.Name))
+            .ForCtorParam("categoryName",
+                o => o.MapFrom(s => s.Category.Name))
+            .ForCtorParam("minPrice",
+                o => o.MapFrom(s => s.TicketTypes.Any() ? s.TicketTypes.Min(t => t.Price) : 0L))
+            .ForCtorParam("thumbnailUrl",
+                o => o.MapFrom(s => s.EventPosters
+                    .Where(p => p.ImageType == ImageType.Thumbnail || p.IsPrimary)
+                    .Select(p => p.ImageUrl)
+                    .FirstOrDefault()))
+            .ForCtorParam("activeAt",
+                o => o.MapFrom(s => s.ActiveAt));
+
         // ── Event → EventDetailResponse ───────────────────────
         CreateMap<Event, EventDetailResponse>()
             .ForCtorParam("Category",

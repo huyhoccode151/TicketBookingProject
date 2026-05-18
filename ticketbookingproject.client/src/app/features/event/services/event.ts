@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environments';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { ApiResponse, PagedResult } from '../../user/models/paged-result';
-import { BookingResponse, CategoryListItemResponse, CreateBooking, Event, EventDetailResponse, EventPoster, TicketType, TicketVM, VenueListItemResponse } from '../models/event';
+import { BookingResponse, CategoryListItemResponse, CreateBooking, Event, EventDetailResponse, EventPoster, RelatedEvents, TicketType, TicketVM, VenueListItemResponse } from '../models/event';
 import { of } from 'rxjs';
 
 @Injectable({
@@ -127,5 +127,13 @@ export class EventService {
 
   getFavEvent() {
     return this.http.get<ApiResponse<Event[]>>(`${this.api}/fav`);
+  }
+
+  getRelatedEvents(id: number, numTake?: string) {
+    let params = new HttpParams();
+    if (numTake) {
+      params = params.set('take', parseInt(numTake));
+    }
+    return this.http.get<ApiResponse<RelatedEvents[]>>(`${this.api}/${id}/related`, { params });
   }
 }

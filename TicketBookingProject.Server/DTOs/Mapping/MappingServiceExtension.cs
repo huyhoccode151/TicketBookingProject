@@ -15,7 +15,8 @@ public static class MappingServiceExtension
             typeof(TicketMappingProfile),
             typeof(PaymentMappingProfile),
             typeof(RefundMappingProfile),
-            typeof(UiActionMappingProfile)
+            typeof(UiActionMappingProfile),
+            typeof(CouponMappingProfile)
         );
 
         return services;

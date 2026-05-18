@@ -31,7 +31,6 @@ export class IndexCus {
   isOpenUnSubscribeDialog = false;
   unSubscribeDialogConfig: ConfirmDialogConfig = { title: '', message: '' };
 
-
   searchTemp = '';
   page = 1;
   pageSize = 12; // 4-column grid × 3 rows

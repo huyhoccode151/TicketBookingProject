@@ -365,3 +365,17 @@ public record EventTrendingResponse(
     int Sold,
     int Stock
     );
+
+public record RelatedEventResponse(
+    int id,
+    string name,
+    string? thumbnailUrl,
+    long minPrice,
+    DateTime activeAt,
+    string? categoryName
+    );
+
+public record RelatedEventRequest {
+    [Range(4, 8, ErrorMessage = "the num relateEvent take must be between 4 to 8")]
+    public int take { get; init; } = 4;
+}

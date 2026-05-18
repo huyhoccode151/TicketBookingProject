@@ -312,4 +312,16 @@ public class EventRepository : BaseRepository<Event>, IEventRepository
 
         return await _dbset.Select(n => n.Name ?? n.Id.ToString()).ToListAsync();
     }
+
+    public async Task<IQueryable<Event>> GetRelatedEvents(int id, int categoryId, int? numTake = null)
+    {
+        var events = _dbset.AsQueryable();
+
+        if (numTake != null) events = events.Where(e => e.Id != id && e.CategoryId == categoryId)
+                .OrderByDescending(e => e.TicketTypes.Select(t => t.SoldQuantity))
+                .ThenByDescending(e => e.ActiveAt)
+                .Take(numTake ?? 4);
+
+        return events;
+    }
 }
