@@ -4,5 +4,5 @@ namespace TicketBookingProject.Server;
 
 public interface ICouponService
 {
-    Task<Result<CouponListItemResponse>> GetAllCoupons(CouponListItemRequest req);
+    Task<Result<PagedResponse<CouponListItemResponse>>> GetAllCoupons(CouponListItemRequest req);
 }

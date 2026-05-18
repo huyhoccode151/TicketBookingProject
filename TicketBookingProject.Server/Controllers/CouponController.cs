@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using TicketBookingProject.Server;
+using TicketBookingProject.Server.Common.Extensions;
 using TicketBookingProject.Server.DTOs;
 
 namespace MyApp.Namespace
@@ -17,14 +18,13 @@ namespace MyApp.Namespace
             _couponService = couponService;
         }
 
-        //[HttpGet]
-        //[Authorize(Roles = "admin,organizer")]
-        //public Task<IActionResult> GetAllCoupons([FromQuery] CouponListItemRequest request)
-        //{
-        //    var coupons = _couponService.GetAllCoupons(request);
+        [HttpGet]
+        [Authorize(Roles = "admin,organizer")]
+        public async Task<IActionResult> GetAllCoupons([FromQuery] CouponListItemRequest request)
+        {
+            var coupons = await _couponService.GetAllCoupons(request);
 
-        //    //return coupons.ToActionResult();
-        //    return Ok();
-        //}
+            return coupons.ToActionResult();
+        }
     }
 }

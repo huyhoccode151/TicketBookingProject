@@ -24,6 +24,7 @@ namespace TicketBookingProject.Server.DTOs
         long? MinOrderValue,
         DateTime? ExpiredAt,
         DateTime? CreatedAt,
-        List<Booking> Bookings
+        List<Booking> Bookings,
+        User User
     );
 }
