@@ -26,6 +26,15 @@ export interface Ticket {
   maxPerUser: string;
 }
 
+export interface RelatedEvents {
+  id: number,
+  name: string,
+  thumbnailUrl: string,
+  minPrice: number,
+  activeAt: Date,
+  categoryName: string
+}
+
 export interface CreateEvent {
   name: string,
   description: string,
@@ -219,4 +228,5 @@ export class EventDetailResponse {
   get isUpcoming(): boolean {
     return new Date() < this.activeAt;
   }
+
 }

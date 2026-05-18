@@ -49,6 +49,66 @@
           </div>
         </div>
       </section>
+
+      <header class="event-header">
+        <span class="badge">Similar Events</span>
+      </header>
+
+      <section class="py-12">
+        <div *ngIf="relatedLoading">
+          <app-loader />
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" *ngIf="!relatedLoading">
+
+          <!-- No results -->
+          <div *ngIf="relatedEvent.length === 0"
+               class="text-center py-20 border-2 border-dashed border-slate-200 rounded-xl">
+            <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span class="material-symbols-outlined text-slate-400 text-3xl">event_busy</span>
+            </div>
+            <p class="text-slate-500 text-sm font-medium">No events found for this filter.</p>
+          </div>
+          <app-filter-select label="RelateNum"
+                             [options]="relatedOptions"
+                             [value]="numTake"
+                             (valueChange)="numTake=$event; loadRelatedEvent();">
+          </app-filter-select>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+
+            <article *ngFor="let event of relatedEvent"
+                     class="event-card bg-white rounded-xl overflow-hidden border border-gray-100 cursor-pointer"
+                     (click)="showRelatedEvent(event.id)">
+
+              <!-- Image -->
+              <div class="relative aspect-[4/5]">
+                <div class="w-full h-full bg-cover bg-center bg-slate-100"
+                     [style.background-image]="'url(' + eventService.getThumbnail(event.thumbnailUrl) + ')'">
+                </div>
+              </div>
+
+              <!-- Info -->
+              <div class="p-5">
+                <p class="text-xs font-bold text-[#6abf45] mb-1 uppercase tracking-wider">
+                  {{event.categoryName || 'Event'}}
+                </p>
+                <h3 class="text-lg font-bold text-[#2b2b2b] mb-2 line-clamp-1">{{event.name}}</h3>
+                <div class="flex items-center text-sm text-gray-500 mb-2">
+                  <svg class="h-4 w-4 mr-1 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                          stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                  </svg>
+                  <span>{{event.activeAt | date:'d MMM • EEE, h.mm a'}}</span>
+                </div>
+                <p class="text-xl font-extrabold text-[#2b2b2b]">
+                  {{event.minPrice | currency:'VND':'symbol':'1.0-0'}} Vnd
+                </p>
+              </div>
+
+            </article>
+          </div>
+        </div>
+      </section>
     </div>
 
     <!-- CỘT PHẢI (SIDEBAR) -->
@@ -111,8 +171,8 @@
         </div>
 
         <button class="btn-book" (click)="book()">Book now ↗</button>
-        </div>
-</aside>
+      </div>
+    </aside>
 
   </div>
 </main>

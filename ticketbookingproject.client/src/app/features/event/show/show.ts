@@ -1,17 +1,18 @@
 import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { EventDetailResponse, EventPoster } from '../models/event';
+import { EventDetailResponse, EventPoster, RelatedEvents } from '../models/event';
 import { EventService } from '../services/event';
 import { environment } from '../../../../environments/environments';
 import { Loader } from '../../../shared/ui/loader/loader';
 import { ToastService } from '../../../shared/ui/toast/toast.service';
 import { RouteService } from '../../../core/services/route.service';
+import { FilterSelect } from '../../../shared/ui/filter-select/filter-select';
 
 @Component({
   selector: 'app-show',
   standalone: true,
-  imports: [CommonModule, Loader],
+  imports: [CommonModule, Loader, FilterSelect],
   templateUrl: './show.html',
   styleUrls: ['./show.scss'],
 })
@@ -19,7 +20,7 @@ export class Show {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private toast = inject(ToastService);
-  private eventService = inject(EventService);
+  eventService = inject(EventService);
   private cdr = inject(ChangeDetectorRef);
   routeNavigate = inject(RouteService);
 
@@ -27,6 +28,7 @@ export class Show {
 
   eventId!: number;
   event!: EventDetailResponse;
+  relatedEvent!: RelatedEvents[];
   images: EventPoster[] = [];
   venue: string = '';
   name: string = '';
@@ -37,6 +39,8 @@ export class Show {
   endAt: Date = new Date();
   saleStartAt: Date = new Date();
   saleEndAt: Date = new Date();
+  numTake: string = '4';
+  relatedLoading: boolean = true;
 
   bookingEnd: Date = new Date();
 
@@ -51,10 +55,19 @@ export class Show {
   seconds = '00';
   loading: boolean = true;
 
+  relatedOptions = [
+    { label: '4', value: '4' },
+    { label: '5', value: '5' },
+    { label: '6', value: '6' },
+    { label: '7', value: '7' },
+    { label: '8', value: '8' },
+  ];
+
   ngOnInit() {
     this.eventId = Number(this.route.snapshot.paramMap.get('id'));
 
     this.loadEventDetails();
+    this.loadRelatedEvent();
   }
 
   ngAfterViewInit() {
@@ -63,6 +76,19 @@ export class Show {
 
   ngOnDestroy() {
     if (this.timer) clearInterval(this.timer);
+  }
+
+  loadRelatedEvent() {
+    this.eventService.getRelatedEvents(this.eventId, this.numTake).subscribe({
+      next: (res) => {
+        this.relatedEvent = res.data;
+        this.relatedLoading = false;
+      },
+      error: (err) => {
+        if (err)
+          this.toast.error(err?.error?.errors ?? "Related Event retrived failed!!!");
+      }
+    });
   }
 
   loadEventDetails() {
@@ -150,6 +176,11 @@ export class Show {
 
   updateTicket(amount: number) {
     this.ticketCount = Math.max(1, this.ticketCount + amount);
+  }
+
+  showRelatedEvent(id: number) {
+    this.router.navigate(this.routeNavigate.customerEventShow(id));
+    console.log("iii");
   }
 
   book() {
