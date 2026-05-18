@@ -19,4 +19,5 @@ public interface IEventRepository : IBaseRepository<Event>
     Task<List<EventTrendingResponse>> GetEventTrending();
     Task<List<string>> GetEventName(string? req);
     Task<List<(Event Event, string oStatus, string nStatus)>> UpdateEventStatusAuto();
+    Task<IQueryable<Event>> GetRelatedEvents(int id, int categoryId, int? numTake = null);
 }

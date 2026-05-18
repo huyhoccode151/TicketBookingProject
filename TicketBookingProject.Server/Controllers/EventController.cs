@@ -227,5 +227,13 @@ namespace TicketBookingProject.Server.Controllers
             return Ok();
         }
 
+        [HttpGet("{id}/related")]
+        public async Task<IActionResult> GetRelatedEvents (int id, [FromQuery] RelatedEventRequest req)
+        {
+            var relateEvent = await _eventService.GetRelatedEvents(id, req);
+
+            return relateEvent.ToActionResult();
+        }
+
     }
 }

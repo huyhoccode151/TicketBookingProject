@@ -410,4 +410,19 @@ public class EventService : IEventService
         return Result<bool>.Success(true, "Delete booking success");
     }
 
+    public async Task<Result<List<RelatedEventResponse>>> GetRelatedEvents(int id, RelatedEventRequest req) {
+        var currentEvent = await _eventRepo.GetEventByIdAsync(id);
+
+        if (currentEvent == null) return Result<List<RelatedEventResponse>>.Failure("Can't find any event relate", StatusCodes.Status404NotFound);
+
+        var events = await _eventRepo.GetRelatedEvents(id, currentEvent.CategoryId, req.take);
+
+        var result = await events.ProjectTo<RelatedEventResponse>(_mapper.ConfigurationProvider)
+                .ToListAsync();
+
+        if (events == null) return Result<List<RelatedEventResponse>>.Failure("Can't find any event relate", StatusCodes.Status404NotFound);
+
+        return Result<List<RelatedEventResponse>>.Success(result, "Retrived relate event successfully!!!");
+    }
+
 }

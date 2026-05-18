@@ -20,4 +20,5 @@ public interface IEventService
     Task<Result<EventDetailResponse>> UpdateEventStatusAsync(int id, UpdateEventStatusRequest request);
     Task UpdateEventStatusAuto();
     Task<Result<bool>> DeleteBooking(int id);
+    Task<Result<List<RelatedEventResponse>>> GetRelatedEvents(int id, RelatedEventRequest req);
 }
